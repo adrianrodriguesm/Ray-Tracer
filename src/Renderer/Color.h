@@ -7,6 +7,7 @@
 #define CLAMP(a, b, c)		(((b) < (a)) ? (a) : (((b) > (c)) ? (c) : (b)))
 namespace rayTracer
 {
+	/** /
 	class Color
 	{
 	private:
@@ -66,4 +67,5 @@ namespace rayTracer
 			return s >> c.R >> c.G >> c.B;
 		}
 	};
+	/**/
 }

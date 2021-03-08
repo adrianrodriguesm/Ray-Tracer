@@ -7,9 +7,9 @@ namespace rayTracer
 	{
 	public:
 
-		Light(Vector& pos, Color& col) : position(pos), color(col) {};
-		Vector position;
-		Color color;
+		Light(Vec3& pos, Vec3& col) : position(pos), color(col) {};
+		Vec3 position;
+		Vec3 color;
 	};
 
 }

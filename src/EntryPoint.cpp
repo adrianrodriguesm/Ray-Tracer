@@ -22,9 +22,7 @@
 
 #include "Scene/scene.h"
 #include "Renderer/grid.h"
-#include "Math/maths.h"
-#include "Math/sampler.h"
-
+#include "Math/Vector.h"
 using namespace rayTracer;
 #define CAPTION "Whitted Ray-Tracer"
 
@@ -39,7 +37,7 @@ uint32_t FrameCount = 0;
 float camX, camY, camZ;
 
 //Original Camera position;
-Vector Eye;
+Vec3 Eye;
 
 // Mouse Tracking Variables
 int startX, startY, tracking = 0;
@@ -266,18 +264,17 @@ void timer(int value)
 	FrameCount = 0;
 	glutTimerFunc(1000, timer, 0);
 }
-Ray CalculateReflectedRay(RayCastHit& hit, Vector& viewPosition)
+Ray CalculateReflectedRay(RayCastHit& hit, Vec3& viewPosition)
 {
-	Vector viewDir = (hit.InterceptionPoint - viewPosition).normalize();
-	Vector normal = hit.Object->GetNormal(hit.InterceptionPoint);
-	Vector reflectionDir = 2 * normal * (viewDir * normal) - viewDir;
+	Vec3 viewDir = Vec3(hit.InterceptionPoint - viewPosition).Normalized();
+	Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
+	Vec3 reflectionDir = Reflect(-viewDir, normal);
 	return { hit.InterceptionPoint , reflectionDir };
 }
 
-bool IsPointInShadow(RayCastHit& hit, Vector lightDir)
+bool IsPointInShadow(RayCastHit& hit, const Vec3& lightDir)
 {
 	Ray shadowFeeler(hit.InterceptionPoint, lightDir);
-
 	for (auto obj : scene->GetObjects()) 
 	{
 		RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
@@ -300,11 +297,7 @@ RayCastHit GetClosestHit(Ray& ray, float& tmin)
 	}
 	return hit;
 }
-Vector Reflect(Vector& vector, Vector& normal)
-{
-	return (2 * (vector * normal)) * normal + vector;
-}
-Color RayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
+Vec3 RayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
 	float tmin = DBL_MAX;
 	RayCastHit hit = GetClosestHit(ray, tmin);
@@ -312,40 +305,60 @@ Color RayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		return scene->GetBackgroundColor();
 
 	Material* material = hit.Object->GetMaterial();
-	Color color = material->GetDiffColor();	
-	Vector normal = hit.Object->GetNormal(hit.InterceptionPoint);
+	Vec3 color = material->GetDiffColor();
+	Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
+	Vec3 viewDir = ray.Direction; // Unit vector
 	for (auto& light : scene->GetLights())
 	{
-		Vector lightDir = (hit.InterceptionPoint - light->position).normalize();
+		Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint).Normalized();
 		if (IsPointInShadow(hit, lightDir))
 			continue; // Zero light contribution for this point
 
 		// Calculate ligth
-		float lambertian = std::fmax(lightDir * normal, 0.0f);
+		float lambertian = std::fmax(DotProduct(lightDir, normal), 0.0f);
 		if (lambertian)
-		{
-			Vector viewDir = ray.Direction; // Unit vector
-			Vector reflected = Reflect(viewDir, normal);
-			float specAngle = std::fmax(reflected * lightDir, 0.0f);
+		{		
+			Vec3 reflected = Reflect(viewDir, normal);
+			float specAngle = std::fmax(DotProduct(reflected, -lightDir), 0.0f);
 			float specular = pow(specAngle, material->GetShine());
 
 			float KdLamb = material->GetDiffuse() * lambertian;
-			Color diffuseColor;
-			diffuseColor.r(color.r() * light->color.r() * KdLamb);
-			diffuseColor.g(color.g() * light->color.g() * KdLamb);
-			diffuseColor.b(color.b() * light->color.b() * KdLamb);
+			Vec3 diffuseColor;
+			diffuseColor.r = color.r * light->color.r * KdLamb;
+			diffuseColor.g = color.g * light->color.g * KdLamb;
+			diffuseColor.b = color.b * light->color.b * KdLamb;
 
 			float ksSpec = material->GetSpecular() * specular;
-			Color specularColor;
-			specularColor.r(color.r()* light->color.r() * ksSpec);
-			specularColor.g(color.g()* light->color.g() * ksSpec);
-			specularColor.b(color.b()* light->color.b() * ksSpec);
-
+			Vec3 specularColor;
+			specularColor.r = color.r * light->color.r * ksSpec;
+			specularColor.g = color.g * light->color.g * ksSpec;
+			specularColor.b = color.b * light->color.b * ksSpec;
+									  
 			color += diffuseColor + specularColor;
 		}
 	}
 	if (depth >= MAX_DEPTH)
 		return color;
+	/**/
+	// Reflected Ray
+	if (material->GetShine() >= 0)
+	{
+		Ray reflected = RayCastHit::CalculateReflectedRay(hit, viewDir);
+		Vec3 reflectedColor = RayTracing(reflected, depth + 1, ior_1);
+		color += material->GetSpecular() * reflectedColor;
+	}
+	// Refracted
+	if (material->GetTransmittance() != 0)
+	{
+		
+		Ray refracted = RayCastHit::CalculateRefractedRay(hit, ray, ior_1, material->GetRefrIndex());
+		if (refracted.Direction != Vec3(0))
+		{
+			Vec3 refractedColor = RayTracing(refracted, depth + 1, ior_1);
+			color += material->GetTransmittance() * refractedColor;
+		}	
+	}
+	/**/
 
 
 	return color;
@@ -359,16 +372,16 @@ void renderScene()
 
 	if (drawModeEnabled) {
 		glClear(GL_COLOR_BUFFER_BIT);
-		scene->GetCamera()->SetEye(Vector(camX, camY, camZ));  //Camera motion
+		scene->GetCamera()->SetEye(Vec3(camX, camY, camZ));  //Camera motion
 	}
 	
 	for (int y = 0; y < RES_Y; y++)
 	{
 		for (int x = 0; x < RES_X; x++)
 		{
-			Color color; 
+			Vec3 color;
 
-			Vector pixel;  //viewport coordinates
+			Vec3 pixel;  //viewport coordinates
 			pixel.x = x + 0.5f;  
 			pixel.y = y + 0.5f;
 
@@ -377,24 +390,24 @@ void renderScene()
 			//std::cout << "Ray Origin " << ray.Origin << std::endl;
 			//std::cout << "Ray Direction " << ray.Direction << std::endl;
 
-			color = RayTracing(ray, 1, 1.0).clamp();
+			color = RayTracing(ray, 1, 1.0)/4;
 		
 
 			//color = scene->GetBackgroundColor(); //TO CHANGE - just for the template
 			
-			img_Data[counter++] = u8fromfloat((float)color.r());
-			img_Data[counter++] = u8fromfloat((float)color.g());
-			img_Data[counter++] = u8fromfloat((float)color.b());
+			img_Data[counter++] = (uint8_t)((float)color.r);
+			img_Data[counter++] = (uint8_t)((float)color.g);
+			img_Data[counter++] = (uint8_t)((float)color.b);
 
 			if (drawModeEnabled) 
 			{
 				vertices[index_pos++] = (float)x;
 				vertices[index_pos++] = (float)y;
-				colors[index_col++] = (float)color.r();
+				colors[index_col++] = (float)color.r;
 
-				colors[index_col++] = (float)color.g();
+				colors[index_col++] = (float)color.g;
 
-				colors[index_col++] = (float)color.b();
+				colors[index_col++] = (float)color.b;
 			}
 		}
 	
@@ -460,7 +473,7 @@ void processKeys(unsigned char key, int xx, int yy)
 			camX = Eye.x;
 			camY = Eye.y;
 			camZ = Eye.z;
-			r = Eye.length();
+			r = Magnitude(Eye);
 			beta = asinf(camY / r) * 180.0f / 3.14f;
 			alpha = atanf(camX / camZ) * 180.0f / 3.14f;
 			break;
@@ -616,7 +629,7 @@ void init(int argc, char* argv[])
 	camX = Eye.x;
 	camY = Eye.y;
 	camZ = Eye.z;
-	r = Eye.length();
+	r = Magnitude(Eye);
 	beta = asinf(camY / r) * 180.0f / 3.14f;
 	alpha = atanf(camX / camZ) * 180.0f / 3.14f;
 
@@ -638,12 +651,12 @@ void init_scene(void)
 	char scene_name[70];
 
 	while (true) {
-		cout << "Input the Scene Name: ";
-		cin >> input_user;
+		std::cout << "Input the Scene Name: ";
+		std::cin >> input_user;
 		strcpy_s(scene_name, sizeof(scene_name), scenes_dir);
 		strcat_s(scene_name, sizeof(scene_name), input_user);
 
-		ifstream file(scene_name, ios::in);
+		std::ifstream file(scene_name, std::ios::in);
 		if (file.fail()) {
 			printf("\nError opening P3F file.\n");
 		}
@@ -684,7 +697,7 @@ int main(int argc, char* argv[])
 			auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
 			printf("\nDone: %.2f (sec)\n", passedTime / 1000);
 		
-			cout << "\nPress 'y' to render another image or another key to terminate!\n";
+			std::cout << "\nPress 'y' to render another image or another key to terminate!\n";
 			delete(scene);
 			//free(img_Data);
 			::operator delete(img_Data, 3 * RES_X * RES_Y * sizeof(uint8_t));

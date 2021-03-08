@@ -1,54 +1,108 @@
 #pragma once
-
 #include <iostream>
 namespace rayTracer
 {
-	struct Vector
+	struct Vec2;
+	struct Vec3;
+	/////////////////////////////////////////////////////////////////////// Vec2
+	struct Vec2
 	{
-		float x, y, z;
-		Vector() {};
-		Vector(float x, float y, float z);
-		Vector(const Vector& v);
-
-		float length();
-		Vector& normalize();
-		Vector operator=(const Vector& v);
-		Vector operator+(const Vector& v);
-		Vector operator-(const Vector& v);
-
-		friend Vector operator*(const Vector& v, const float f);
-		friend Vector operator*( const float f, const Vector& v);
-
-		float  operator*(const Vector& v);   //inner product
-		Vector operator/(float f);
-		Vector operator%(const Vector& v); //external product
-		Vector& operator-=	(const Vector& v);
-		Vector& operator-=	(const float v);
-		Vector& operator*=	(const float v);
-		Vector& operator+=	(const float v);
-
-		
-		
-
-
-		Vector sample_unit_disk(void);
-
-		friend inline std::istream& operator >>	(std::istream& s, Vector& v)
+		union
 		{
-			return s >> v.x >> v.y >> v.z;
-		}
+			struct { float x, y; };
+			float components[2] = { 0, 0 };
+		};
 
-		friend std::ostream& operator<<(std::ostream& stream, const Vector& Vector)
-		{
-			stream << "Vector 3D: (" << Vector.x << ", " << Vector.y << ", " << Vector.z << ")";
-			return stream;
-		}
+		Vec2();
+		Vec2(const float& k);
+		Vec2(const float& x, const float& y);
+		Vec2(const Vec2& other);
+		Vec2(Vec2&& other) noexcept;
 
+		float* Data();
+		const float* Data() const;
+		friend float Magnitude(const Vec2& vector);
+		friend Vec2 Normalize(const Vec2& vector);
+		friend Vec2 Lerp(const Vec2& v0, const Vec2& v1, const float time);
+
+		float DotProduct(const Vec2& other) const;
+
+		friend Vec2 operator +  (const Vec2& left, const Vec2& right);
+		friend Vec2 operator -  (const Vec2& left, const Vec2& right);
+		friend Vec2 operator *  (const Vec2& vector, const float scalar);
+		friend Vec2 operator *  (const float scalar, const Vec2& Vector);
+		friend Vec2 operator /  (const Vec2& left, const float right);
+		friend bool operator == (const Vec2& left, const Vec2& right);
+		friend bool operator != (const Vec2& left, const Vec2& right);
+		Vec2 operator-() const;
+		Vec2& operator += (const Vec2& other);
+		Vec2& operator -= (const Vec2& other);
+		Vec2& operator *= (const float& scalar);
+		Vec2& operator = (const Vec2& other);
+		Vec2& operator = (Vec2&& other) noexcept;
+
+		friend std::ostream& operator << (std::ostream& stream, const Vec2& vector);
+		friend std::istream& operator >> (std::istream& stream, Vec2& vector);
 	};
+	/////////////////////////////////////////////////////////////////////// Vec3
+	struct Vec3
+	{
+		union
+		{
+			struct { float x, y, z; };
+			struct { float r, g, b; };
+			float components[3] = { 0, 0, 0 };
+		};
 
+		Vec3();
+		Vec3(const float& k);
+		Vec3(const float& x, const float& y, const float& z);
+		Vec3(const Vec3& other);
+		Vec3(Vec3&& other) noexcept;
 
-	Vector operator*(const Vector& vector, const float scalar);
-	Vector operator*(const float scalar, const Vector& vector);
+		float* Data();
+		const float* Data() const;
+		friend const void Clean(Vec3& v);
+		friend float Magnitude(const Vec3& vector);
+		friend Vec3 Lerp(const Vec3& v0, const Vec3& v1, const float time);
+		// Vectors atribute need to be normalize
+		friend Vec3 Reflect(const Vec3& vector, const Vec3& normal);
+		// Vectors atribute need to be normalize
+		friend Vec3 Refract(const Vec3& vector, const Vec3& normal, const float refractionIndex);
+		// Returns this vector normalized
+		Vec3& Normalized();
+		// Return a copy of the vector normalized
+		friend Vec3 Normalize(const Vec3& vector);
+		// Scalar and Vectorial product
+		float DotProduct(const Vec3& other) const;
+		friend float DotProduct(const Vec3& v0, const Vec3& v1);
+		Vec3 CrossProduct(const Vec3& other) const;
+		friend Vec3 CrossProduct(const Vec3& v0, const Vec3& v1);
+		// Vector need to be normalize
+		friend Vec3 ProjectOnPlane(const Vec3& vectorDir, const Vec3& normal);
+		friend float Distance(const Vec3& v0, const Vec3& v1);
+
+		friend const Vec3 operator + (const Vec3& left, const Vec3& right);
+		friend const Vec3 operator - (const Vec3& left, const Vec3& right);
+		friend const Vec3 operator * (const Vec3& Vector, const float scalar);
+		friend const Vec3 operator * (const float scalar, const Vec3& Vector);
+		friend const Vec3 operator / (const Vec3& left, const float right);
+		friend const bool operator == (const Vec3& left, const Vec3& right);
+		friend const bool operator != (const Vec3& left, const Vec3& right);
+		Vec3& ClampColor();
+
+		Vec3 operator-() const;
+		Vec3& operator += (const Vec3& other);
+		Vec3& operator -= (const Vec3& other);
+		Vec3& operator *= (const float& scalar);
+		Vec3& operator = (const Vec3& other);
+		Vec3& operator = (Vec3&& other) noexcept;
+
+		friend std::ostream& operator << (std::ostream& stream, const Vec3& Vector);
+		friend std::istream& operator >> (std::istream& stream, Vec3& Vector);
+	};
 	
+	// TODO CHECK
+	//Vec3 sample_unit_disk(void);
 	
 }

@@ -26,10 +26,6 @@ namespace rayTracer
 		return ((x0 > x1) ? x0 : x1);
 	}
 
-	// ---------------------------------------------------- clamp
-	inline double clamp(const double x, const double min, const double max) {
-		return (x < min ? min : (x > max ? max : x));
-	}
 
 
 	// ---------------------------------------------------- rand_int

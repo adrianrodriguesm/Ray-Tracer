@@ -112,9 +112,9 @@ namespace rayTracer
 
 	//Skybox images constant symbolics
 	static enum CubeMap { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK };
-	Color Scene::GetSkyboxColor(Ray& r) {
+	Vec3 Scene::GetSkyboxColor(Ray& r) {
 		float t_intersec;
-		Vector cubemap_coords; //To index the skybox
+		Vec3 cubemap_coords; //To index the skybox
 
 		float ma;
 		CubeMap img_side;
@@ -189,25 +189,25 @@ namespace rayTracer
 		float green = u8tofloat(skybox_img[img_side].img[(yp * width + xp) * bytesperpixel + 1]);
 		float blue = u8tofloat(skybox_img[img_side].img[(yp * width + xp) * bytesperpixel + 2]);
 
-		return(Color(red, green, blue));
+		return(Vec3(red, green, blue));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
 	// P3F file parsing methods.
 	//
-	void next_token(ifstream& file, char* token, const char* name)
+	void next_token(std::ifstream& file, char* token, const char* name)
 	{
 		file >> token;
 		if (strcmp(token, name))
-			cerr << "'" << name << "' expected.\n";
+			std::cerr << "'" << name << "' expected.\n";
 	}
 
 	bool Scene::load_p3f(const char* name)
 	{
 		const	int	lineSize = 1024;
-		string	cmd;
+		std::string	cmd;
 		char		token[256];
-		ifstream	file(name, ios::in);
+		std::ifstream	file(name, std::ios::in);
 		Material* material;
 
 		material = NULL;
@@ -220,7 +220,7 @@ namespace rayTracer
 				if (cmd == "f")   //Material
 				{
 					double Kd, Ks, Shine, T, ior;
-					Color cd, cs;
+					Vec3 cd, cs;
 
 					file >> cd >> Kd >> cs >> Ks >> Shine >> T >> ior;
 
@@ -229,7 +229,7 @@ namespace rayTracer
 
 				else if (cmd == "s")    //Sphere
 				{
-					Vector center;
+					Vec3 center;
 					float radius;
 					Sphere* sphere;
 
@@ -241,7 +241,7 @@ namespace rayTracer
 
 				else if (cmd == "box")    //axis aligned box
 				{
-					Vector minpoint, maxpoint;
+					Vec3 minpoint, maxpoint;
 					aaBox* box;
 
 					file >> minpoint >> maxpoint;
@@ -251,7 +251,7 @@ namespace rayTracer
 				}
 				else if (cmd == "p")  // Polygon: just accepts triangles for now
 				{
-					Vector P0, P1, P2;
+					Vec3 P0, P1, P2;
 					Triangle* triangle;
 					unsigned total_vertices;
 
@@ -265,7 +265,7 @@ namespace rayTracer
 					}
 					else
 					{
-						cerr << "Unsupported number of vertices.\n";
+						std::cerr << "Unsupported number of vertices.\n";
 						break;
 					}
 				}
@@ -274,10 +274,10 @@ namespace rayTracer
 					unsigned total_vertices, total_faces;
 					unsigned P0, P1, P2;
 					Triangle* triangle;
-					Vector* verticesArray, vertex;
+					Vec3* verticesArray, vertex;
 
 					file >> total_vertices >> total_faces;
-					verticesArray = (Vector*)malloc(total_vertices * sizeof(Vector));
+					verticesArray = (Vec3*)malloc(total_vertices * sizeof(Vec3));
 					for (int i = 0; i < total_vertices; i++) {
 						file >> vertex;
 						verticesArray[i] = vertex;
@@ -293,7 +293,7 @@ namespace rayTracer
 
 				else if (cmd == "pl")  // General Plane
 				{
-					Vector P0, P1, P2;
+					Vec3 P0, P1, P2;
 					Plane* plane;
 
 					file >> P0 >> P1 >> P2;
@@ -304,8 +304,8 @@ namespace rayTracer
 
 				else if (cmd == "l")  // Need to check light color since by default is white
 				{
-					Vector pos;
-					Color color;
+					Vec3 pos;
+					Vec3 color;
 
 					file >> pos >> color;
 
@@ -314,7 +314,7 @@ namespace rayTracer
 				}
 				else if (cmd == "v")
 				{
-					Vector up, from, at;
+					Vec3 up, from, at;
 					float fov, hither;
 					int xres, yres;
 					Camera* camera;
@@ -351,7 +351,7 @@ namespace rayTracer
 
 				else if (cmd == "bclr")   //Background color
 				{
-					Color bgcolor;
+					Vec3 bgcolor;
 					file >> bgcolor;
 					this->SetBackgroundColor(bgcolor);
 				}
@@ -369,7 +369,7 @@ namespace rayTracer
 				}
 				else
 				{
-					cerr << "unknown command '" << cmd << "'.\n";
+					std::cerr << "unknown command '" << cmd << "'.\n";
 					break;
 				}
 				if (!(file >> cmd))

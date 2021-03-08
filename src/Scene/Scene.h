@@ -21,11 +21,11 @@ namespace rayTracer
 		virtual ~Scene();
 
 		Camera* GetCamera() { return camera; }
-		Color GetBackgroundColor() { return bgColor; }
-		Color GetSkyboxColor(Ray& r);
+		Vec3 GetBackgroundColor() { return bgColor; }
+		Vec3 GetSkyboxColor(Ray& r);
 		bool GetSkyBoxFlg() { return SkyBoxFlg; }
 
-		void SetBackgroundColor(Color a_bgColor) { bgColor = a_bgColor; }
+		void SetBackgroundColor(Vec3 a_bgColor) { bgColor = a_bgColor; }
 		void LoadSkybox(const char*);
 		void SetSkyBoxFlg(bool a_skybox_flg) { SkyBoxFlg = a_skybox_flg; }
 		void SetCamera(Camera* a_camera) { camera = a_camera; }
@@ -33,8 +33,8 @@ namespace rayTracer
 		int GetNumObjects();
 		void AddObject(Object* o);
 		Object* GetObject(unsigned int index);
-		const vector<Object*>& GetObjects() const { return objects; }
-		const vector<Light*>& GetLights() const { return lights; }
+		const std::vector<Object*>& GetObjects() const { return objects; }
+		const std::vector<Light*>& GetLights() const { return lights; }
 		int GetNumLights();
 		void AddLight(Light* l);
 		Light* GetLight(unsigned int index);
@@ -42,11 +42,11 @@ namespace rayTracer
 		bool load_p3f(const char* name);  //Load NFF file method
 
 	private:
-		vector<Object*> objects;
-		vector<Light*> lights;
+		std::vector<Object*> objects;
+		std::vector<Light*> lights;
 
 		Camera* camera;
-		Color bgColor;  //Background color
+		Vec3 bgColor;  //Background color
 
 		bool SkyBoxFlg = false;
 

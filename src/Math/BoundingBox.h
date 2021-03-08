@@ -6,11 +6,11 @@ namespace rayTracer
 {
 	struct AABB
 	{
-		Vector Min = {-1.0f, -1.0f, -1.0f };
-		Vector Max = { 1.0f,  1.0f,  1.0f };
+		Vec3 Min = {-1.0f, -1.0f, -1.0f };
+		Vec3 Max = { 1.0f,  1.0f,  1.0f };
 
 		AABB() = default;
-		AABB(const Vector& min, const Vector& max)
+		AABB(const Vec3& min, const Vec3& max)
 			: Min(min), Max(max) {}
 		AABB(const AABB& bbox)
 			: Min(bbox.Min), Max(bbox.Max){}
@@ -27,7 +27,7 @@ namespace rayTracer
 		}
 		// --------------------------------------------------------------------- inside
 		// used to test if a ray starts inside a grid
-		bool IsInside(const Vector& p)
+		bool IsInside(const Vec3& p)
 		{
 			return ((p.x > Min.x && p.x < Max.x) && (p.y > Min.y && p.y < Max.y) && (p.z > Min.z && p.z < Max.z));
 		}

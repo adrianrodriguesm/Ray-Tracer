@@ -12,7 +12,7 @@ namespace rayTracer
 		Material* GetMaterial() { return m_Material; }
 		void SetMaterial(Material* a_Mat) { m_Material = a_Mat; }
 		virtual RayCastHit Intercepts(Ray& r) = 0;
-		virtual Vector GetNormal(Vector point) = 0;
+		virtual Vec3 GetNormal(Vec3 point) = 0;
 		virtual AABB GetBoundingBox() { return AABB(); }
 
 	protected:
@@ -25,27 +25,27 @@ namespace rayTracer
 	public:
 		// TODO : CHECK IF NECESSARY
 		//Plane(Vector& PNc, float Dc);
-		Plane(Vector& P0, Vector& P1, Vector& P2);
+		Plane(Vec3& P0, Vec3& P1, Vec3& P2);
 
 		virtual RayCastHit Intercepts(Ray& r) override;
 		//RayCastHit Intercepts(Ray& r, float& dist);
-		virtual Vector GetNormal(Vector point) override { return m_Normal; }
+		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
 	private:
-		Vector m_Vertices[3];
-		Vector m_Normal;
+		Vec3 m_Vertices[3];
+		Vec3 m_Normal;
 	};
 
 	class Triangle : public Object
 	{
 	public:
-		Triangle(Vector& P0, Vector& P1, Vector& P2);
+		Triangle(Vec3& P0, Vec3& P1, Vec3& P2);
 		virtual RayCastHit Intercepts(Ray& r) override;
-		virtual Vector GetNormal(Vector point) override { return m_Normal; }
+		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 
 	protected:
 		void CalculateAABB();
-		Vector m_Points[3], m_Normal;
+		Vec3 m_Points[3], m_Normal;
 		AABB m_BoundingBox;
 	};
 
@@ -53,7 +53,7 @@ namespace rayTracer
 	class Sphere : public Object
 	{
 	public:
-		Sphere(Vector& a_center, float a_radius) :
+		Sphere(Vec3& a_center, float a_radius) :
 			m_Center(a_center), SqRadius(a_radius * a_radius),
 			m_Radius(a_radius)
 		{
@@ -61,27 +61,27 @@ namespace rayTracer
 		};
 
 		virtual RayCastHit Intercepts(Ray& r) override;
-		virtual Vector GetNormal(Vector point) override;
+		virtual Vec3 GetNormal(Vec3 point) override;
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 
 	private:
 		void CalculateAABB();
 
 		AABB m_BoundingBox;
-		Vector m_Center;
+		Vec3 m_Center;
 		float m_Radius, SqRadius;
 	};
 
 	class aaBox : public Object   //Axis aligned box: another geometric object
 	{
 	public:
-		aaBox(Vector& minPoint, Vector& maxPoint);
+		aaBox(Vec3& minPoint, Vec3& maxPoint);
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 		virtual RayCastHit Intercepts(Ray& r) override;
-		virtual Vector GetNormal(Vector point) override { return m_Normal; }
+		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
 
 	private:
 		AABB m_BoundingBox;
-		Vector m_Normal;
+		Vec3 m_Normal;
 	};
 }

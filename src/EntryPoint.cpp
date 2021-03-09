@@ -23,6 +23,7 @@
 #include "Scene/scene.h"
 #include "Renderer/grid.h"
 #include "Math/Vector.h"
+#include "Core/Utility.h"
 using namespace rayTracer;
 #define CAPTION "Whitted Ray-Tracer"
 
@@ -30,7 +31,6 @@ using namespace rayTracer;
 #define COLOR_ATTRIB 1
 
 #define MAX_DEPTH 4
-
 uint32_t FrameCount = 0;
 
 // Current Camera Position
@@ -310,6 +310,7 @@ Vec3 RayTracing(Ray ray, int depth, float ior_1)  //index of refraction of mediu
 	Vec3 viewDir = ray.Direction; // Unit vector
 	for (auto& light : scene->GetLights())
 	{
+		// Beucause 
 		Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint).Normalized();
 		if (IsPointInShadow(hit, lightDir))
 			continue; // Zero light contribution for this point
@@ -369,8 +370,8 @@ void renderScene()
 	int index_pos=0;
 	int index_col=0;
 	unsigned int counter = 0;
-
-	if (drawModeEnabled) {
+	if (drawModeEnabled) 
+	{
 		glClear(GL_COLOR_BUFFER_BIT);
 		scene->GetCamera()->SetEye(Vec3(camX, camY, camZ));  //Camera motion
 	}
@@ -385,19 +386,18 @@ void renderScene()
 			pixel.x = x + 0.5f;  
 			pixel.y = y + 0.5f;
 
-			//YOUR 2 FUNTIONS:
+			// Calculos of the color
 			Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-			//std::cout << "Ray Origin " << ray.Origin << std::endl;
-			//std::cout << "Ray Direction " << ray.Direction << std::endl;
-
-			color = RayTracing(ray, 1, 1.0)/4;
-		
-
-			//color = scene->GetBackgroundColor(); //TO CHANGE - just for the template
+			color = RayTracing(ray, 1, 1.0);
+			// Reinhard tonemapping
+			static constexpr float exposure = 0.3f;
+			color = utils::ApplyToneMapping(color, exposure);
+			// Gamma correction
+			color = utils::ConvertColorFromLinearToGammaSpace(color);
 			
-			img_Data[counter++] = (uint8_t)((float)color.r);
-			img_Data[counter++] = (uint8_t)((float)color.g);
-			img_Data[counter++] = (uint8_t)((float)color.b);
+			img_Data[counter++] = (uint8_t)color.r;
+			img_Data[counter++] = (uint8_t)color.g;
+			img_Data[counter++] = (uint8_t)color.b;
 
 			if (drawModeEnabled) 
 			{

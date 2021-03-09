@@ -89,7 +89,6 @@ namespace rayTracer
 		friend const Vec3 operator / (const Vec3& left, const float right);
 		friend const bool operator == (const Vec3& left, const Vec3& right);
 		friend const bool operator != (const Vec3& left, const Vec3& right);
-		Vec3& ClampColor();
 
 		Vec3 operator-() const;
 		Vec3& operator += (const Vec3& other);
@@ -100,9 +99,12 @@ namespace rayTracer
 
 		friend std::ostream& operator << (std::ostream& stream, const Vec3& Vector);
 		friend std::istream& operator >> (std::istream& stream, Vec3& Vector);
+
+		// TODO: CHECK IF NECESARY
+		Vec3& ClampColor();
+		Vec3 sample_unit_disk();
 	};
 	
-	// TODO CHECK
-	//Vec3 sample_unit_disk(void);
+	
 	
 }

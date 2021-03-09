@@ -5,10 +5,6 @@ namespace rayTracer
 	Ray RayCastHit::CalculateRefractedRay(const RayCastHit& hit, const Ray& ray, float incidentRefractionIndex, float materialRefractionIndex)
 	{
 		Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
-		float nDotI = DotProduct(normal, ray.Direction);
-		if (nDotI > 0)
-			std::swap(incidentRefractionIndex, materialRefractionIndex);
-
 		Vec3 refract = Refract(ray.Direction, normal, incidentRefractionIndex / materialRefractionIndex);
 		return { hit.InterceptionPoint, refract };
 	}

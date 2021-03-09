@@ -4,7 +4,6 @@
 #include <IL/il.h>
 
 #include "Renderer/Camera.h"
-#include "Renderer/Color.h"
 #include "Math/Vector.h"
 #include "Math/Ray.h"
 #include "Math/BoundingBox.h"

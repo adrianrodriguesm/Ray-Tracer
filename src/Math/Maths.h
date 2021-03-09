@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
-
+// TODO: CHECK IF THIS CLASS IS NEEDED
 namespace rayTracer
 {
 	// inlined functions
@@ -11,22 +11,6 @@ namespace rayTracer
 	{
 		return ((x) >= 0 ? (uint32_t)((x)+0.5) : (uint32_t)((x)-0.5));
 	}
-
-	// ----------------------------------------------------------------- min
-
-	inline double min(double x0, double x1) 
-	{
-		return ((x0 < x1) ? x0 : x1);
-	}
-
-
-	// ----------------------------------------------------------------- max
-	inline double max(double x0, double x1) 
-	{
-		return ((x0 > x1) ? x0 : x1);
-	}
-
-
 
 	// ---------------------------------------------------- rand_int
 	// a wrapper for rand()

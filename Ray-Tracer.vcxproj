@@ -186,7 +186,6 @@
     <ClCompile Include="src\Math\BoundingBox.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
     <ClCompile Include="src\Math\Ray.cpp" />
-    <ClCompile Include="src\Math\Sampler.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\Math\Vector.cpp" />
     <ClCompile Include="src\Scene\SceneObject.cpp" />
@@ -195,13 +194,13 @@
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Base.h" />
     <ClInclude Include="src\Core\Constant.h" />
+    <ClInclude Include="src\Core\Utility.h" />
     <ClInclude Include="src\Math\BoundingBox.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
     <ClInclude Include="src\Renderer\Color.h" />
     <ClInclude Include="src\Renderer\Grid.h" />
     <ClInclude Include="src\Math\Maths.h" />
     <ClInclude Include="src\Math\Ray.h" />
-    <ClInclude Include="src\Math\Sampler.h" />
     <ClInclude Include="src\Renderer\Light.h" />
     <ClInclude Include="src\Renderer\Material.h" />
     <ClInclude Include="src\Scene\Scene.h" />

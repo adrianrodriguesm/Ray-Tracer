@@ -1,6 +1,7 @@
 #include "Vector.h"
 #include "Core/Constant.h"
 #include "Core/Base.h"
+#include "Math/Maths.h"
 #include <algorithm>
 namespace rayTracer
 {
@@ -209,7 +210,7 @@ namespace rayTracer
 	Vec3 Normalize(const Vec3& vector)
 	{
 		float mag = Magnitude(vector);
-		ASSERT(mag != 0, "Impossilbe to normalize! Magnitude equal to zero");
+		ASSERT(mag != 0, "Impossible to normalize! Magnitude equal to zero");
 		return Vec3(vector.x / mag, vector.y / mag, vector.z / mag);
 	}
 
@@ -235,7 +236,7 @@ namespace rayTracer
 	Vec3& Vec3::Normalized()
 	{
 		float mag = Magnitude(*this);
-		ASSERT(mag != 0, "Impossilbe to normalize! Magnitude equal to zero");
+		ASSERT(mag != 0, "Impossible to normalize! Magnitude equal to zero");
 		for (uint32_t i = 0; i < 3; i++)
 			components[i] = components[i] / mag;
 
@@ -379,13 +380,15 @@ namespace rayTracer
 		return stream >> Vector.x >> Vector.y >> Vector.z;
 	}
 
-	/** /
+	/**/
 	// Sampling with rejection method
-	Vec3 sample_unit_disk(void) {
+	Vec3 Vec3::sample_unit_disk()
+	{
 		Vec3 p;
-		do {
+		do
+		{
 			p = Vec3(rand_float(), rand_float(), 0.0) * 2 - Vec3(1.0, 1.0, 0.0);
-		} while (p * p >= 1.0);
+		} while (p.DotProduct(p) >= 1.0);
 		return p;
 	}
 	/**/

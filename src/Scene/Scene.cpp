@@ -37,7 +37,7 @@ namespace rayTracer
 	{
 		if (index >= 0 && index < objects.size())
 			return objects[index];
-		return NULL;
+		return nullptr;
 	}
 
 

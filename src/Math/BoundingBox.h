@@ -27,7 +27,7 @@ namespace rayTracer
 		}
 		// --------------------------------------------------------------------- inside
 		// used to test if a ray starts inside a grid
-		bool IsInside(const Vec3& p)
+		inline bool IsInside(const Vec3& p)
 		{
 			return ((p.x > Min.x && p.x < Max.x) && (p.y > Min.y && p.y < Max.y) && (p.z > Min.z && p.z < Max.z));
 		}

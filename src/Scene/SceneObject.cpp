@@ -48,7 +48,7 @@ namespace rayTracer
 		Vec3 Edge2 = m_Points[2] - m_Points[0];
 		Vec3 N = CrossProduct(Edge1, Edge2);
 		float det = -DotProduct(ray.Direction, N);
-		float invdet = 1.0 / det;
+		float invdet = 1.0f / det;
 		Vec3 AO = ray.Origin - m_Points[0];
 		Vec3 DAO = CrossProduct(AO, ray.Direction);
 		float u = DotProduct(Edge2, DAO) * invdet;
@@ -56,7 +56,7 @@ namespace rayTracer
 
 		RayCastHit hit;
 		hit.Tdist = DotProduct(AO, N) * invdet;
-		hit.Hit = (det >= 1e-6 && hit.Tdist >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+		hit.Hit = (det >= 1e-6 && hit.Tdist >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0f);
 		hit.Object = this;
 		hit.InterceptionPoint = ray.Origin + ray.Direction * hit.Tdist;
 		return hit;
@@ -114,19 +114,19 @@ namespace rayTracer
 
 	RayCastHit Sphere::Intercepts(Ray& ray)
 	{
-		float t;
+		
 		Vec3 temp = ray.Origin - m_Center;
 		float a = DotProduct(ray.Direction, ray.Direction); // length of ray.Direction. should be 1 
-		float b = 2.0 * DotProduct(temp, ray.Direction);
+		float b = 2.0f * DotProduct(temp, ray.Direction);
 		float c = DotProduct(temp, temp) - m_Radius * m_Radius;
-		float disc = b * b - 4.0 * a * c;
+		float disc = b * b - 4.0f * a * c;
 
 		if (disc < 0.0)
 			return { false };
 
-		double e = sqrt(disc);
-		double denom = 2.0 * a;
-		t = (-b - e) / denom; // root 1
+		float e = sqrtf(disc);
+		float denom = 2.0f * a;
+		float t = (-b - e) / denom; // root 1
 
 		if (t > EPSILON)
 			return { true, t,  this, ray.Origin + t * ray.Direction };

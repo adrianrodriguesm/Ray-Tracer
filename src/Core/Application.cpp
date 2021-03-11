@@ -55,7 +55,7 @@ namespace rayTracer
 		ASSERT(m_GlutWindow >= 1, "ERROR: Could not create a new rendering window.");
 	}
 	// TODO CHECK if needed
-	int FrameCount = 0;
+	static int FrameCount = 0;
 	void timer(int value)
 	{
 		auto& app = Application::Get();

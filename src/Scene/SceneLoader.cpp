@@ -23,7 +23,7 @@ namespace rayTracer
 
 				if (cmd == "f")   //Material
 				{
-					double Kd, Ks, Shine, T, ior;
+					float Kd, Ks, Shine, T, ior;
 					Vec3 cd, cs;
 
 					file >> cd >> Kd >> cs >> Ks >> Shine >> T >> ior;
@@ -82,11 +82,11 @@ namespace rayTracer
 
 					file >> total_vertices >> total_faces;
 					verticesArray = (Vec3*)malloc(total_vertices * sizeof(Vec3));
-					for (int i = 0; i < total_vertices; i++) {
+					for (uint32_t i = 0; i < total_vertices; i++) {
 						file >> vertex;
 						verticesArray[i] = vertex;
 					}
-					for (int i = 0; i < total_faces; i++) {
+					for (uint32_t i = 0; i < total_faces; i++) {
 						file >> P0 >> P1 >> P2;
 						triangle = new Triangle(verticesArray[P0 - 1], verticesArray[P1 - 1], verticesArray[P2 - 1]); //vertex index start at 1
 						if (material) triangle->SetMaterial(material);
@@ -150,7 +150,7 @@ namespace rayTracer
 					file >> focal_ratio;
 					// Create Camera
 					AplicationSpecification appSpec = Application::Get().GetSpecification();
-					camera = new Camera(from, at, up, fov, hither, 100.0 * hither, appSpec.Width, appSpec.Height, aperture_ratio, focal_ratio);
+					camera = new Camera(from, at, up, fov, hither, 100.0f * hither, appSpec.Width, appSpec.Height, aperture_ratio, focal_ratio);
 					scene->SetCamera(camera);
 				}
 

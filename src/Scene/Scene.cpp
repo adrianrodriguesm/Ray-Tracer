@@ -23,7 +23,7 @@ namespace rayTracer
 
 	int Scene::GetNumObjects()
 	{
-		return objects.size();
+		return (int)objects.size();
 	}
 
 
@@ -43,7 +43,7 @@ namespace rayTracer
 
 	int Scene::GetNumLights()
 	{
-		return lights.size();
+		return (int)lights.size();
 	}
 
 
@@ -172,9 +172,9 @@ namespace rayTracer
 			break;
 		}
 
-		double invMa = 1 / ma;
-		s = (sc * invMa + 1) / 2;
-		t = (tc * invMa + 1) / 2;
+		float invMa = 1 / ma;
+		s = (sc * invMa + 1) / 2.f;
+		t = (tc * invMa + 1) / 2.f;
 
 		width = skybox_img[img_side].resX;
 		height = skybox_img[img_side].resY;
@@ -219,7 +219,7 @@ namespace rayTracer
 
 				if (cmd == "f")   //Material
 				{
-					double Kd, Ks, Shine, T, ior;
+					float Kd, Ks, Shine, T, ior;
 					Vec3 cd, cs;
 
 					file >> cd >> Kd >> cs >> Ks >> Shine >> T >> ior;
@@ -278,11 +278,11 @@ namespace rayTracer
 
 					file >> total_vertices >> total_faces;
 					verticesArray = (Vec3*)malloc(total_vertices * sizeof(Vec3));
-					for (int i = 0; i < total_vertices; i++) {
+					for (uint32_t i = 0; i < total_vertices; i++) {
 						file >> vertex;
 						verticesArray[i] = vertex;
 					}
-					for (int i = 0; i < total_faces; i++) {
+					for (uint32_t i = 0; i < total_faces; i++) {
 						file >> P0 >> P1 >> P2;
 						triangle = new Triangle(verticesArray[P0 - 1], verticesArray[P1 - 1], verticesArray[P2 - 1]); //vertex index start at 1
 						if (material) triangle->SetMaterial(material);
@@ -345,7 +345,7 @@ namespace rayTracer
 					next_token(file, token, "focal");
 					file >> focal_ratio;
 					// Create Camera
-					camera = new Camera(from, at, up, fov, hither, 100.0 * hither, xres, yres, aperture_ratio, focal_ratio);
+					camera = new Camera(from, at, up, fov, hither, 100.0f * hither, xres, yres, aperture_ratio, focal_ratio);
 					this->SetCamera(camera);
 				}
 

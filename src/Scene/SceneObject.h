@@ -16,7 +16,7 @@ namespace rayTracer
 		virtual AABB GetBoundingBox() { return AABB(); }
 
 	protected:
-		Material* m_Material;
+		Material* m_Material = nullptr;
 
 	};
 

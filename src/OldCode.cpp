@@ -5,7 +5,7 @@
 //Ray Tracing P3F scenes and drawing points with Modern OpenGL
 //
 ///////////////////////////////////////////////////////////////////////
-
+/** /
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
@@ -181,8 +181,6 @@ void createBufferObjects()
 	glGenBuffers(2, VboId);
 	glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
 
-	/* Só se faz a alocação dos arrays glBufferData (NULL), e o envio dos pontos para a placa gráfica
-	é feito na drawPoints com GlBufferSubData em tempo de execução pois os arrays são GL_DYNAMIC_DRAW */
 	glBufferData(GL_ARRAY_BUFFER, size_vertices, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VERTEX_COORD_ATTRIB);
 	glVertexAttribPointer(VERTEX_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
@@ -243,7 +241,7 @@ ILuint saveImgFile(const char *filename) {
 	ilGenImages(1, &ImageId);
 	ilBindImage(ImageId);
 
-	ilTexImage(RES_X, RES_Y, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, img_Data /*Texture*/);
+	ilTexImage(RES_X, RES_Y, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, img_Data);
 	ilSaveImage(filename);
 
 	ilDisable(IL_FILE_OVERWRITE);
@@ -336,7 +334,7 @@ Vec3 RayTracing(Ray ray, int depth, float ior_1)  //index of refraction of mediu
 	}
 	if (depth >= MAX_DEPTH)
 		return color;
-	/**/
+
 	// Reflected Ray
 	if (material->GetShine() >= 0)
 	{
@@ -355,7 +353,7 @@ Vec3 RayTracing(Ray ray, int depth, float ior_1)  //index of refraction of mediu
 			color += material->GetTransmittance() * refractedColor;
 		}	
 	}
-	/**/
+
 
 
 	return color;
@@ -672,7 +670,7 @@ void init_scene(void)
 	img_Data = (uint8_t*)::operator new (3 * RES_X * RES_Y * sizeof(uint8_t));
 	if (img_Data == NULL) exit(1);
 }
-/** /
+
 int main(int argc, char* argv[])
 {
 	//Initialization of DevIL 

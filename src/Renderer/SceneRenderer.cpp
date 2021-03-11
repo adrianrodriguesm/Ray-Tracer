@@ -72,19 +72,19 @@ namespace rayTracer
 			uint32_t MaxDepth = 3;
 		} DataScene;
 		// Rendering Mode
-		RenderMode RenderMode;
+		RenderMode RenderMode = RenderMode::Default; // This is define by the application
 		// Points defined by 2 attributes: positions which are stored in vertices array and colors which are stored in colors array
-		float* Colors, *Vertices;
-		int VerticesSize, ColorsSize;	
+		float* Colors = nullptr, *Vertices = nullptr;
+		int VerticesSize = 0, ColorsSize = 0;	
 		// Array of Pixels to be stored in a file by using DevIL library
-		uint8_t* ImageData;
+		uint8_t* ImageData = nullptr;
 		// Shader Data
-		GLuint VertexShaderId, FragmentShaderId, ProgramId;
-		GLint UniformId;
+		GLuint VertexShaderId = 0, FragmentShaderId = 0, ProgramId = 0;
+		GLint UniformId = 0;
 		static constexpr uint32_t VERTEX_COORD_ATTRIB = 0;
 		static constexpr uint32_t COLOR_ATTRIB = 1;
 		// Vertex Data
-		GLuint VaoId, VboId[2];
+		GLuint VaoId = 0, VboId[2];
 	};
 	RendererData s_Data;
 
@@ -133,7 +133,7 @@ namespace rayTracer
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Render
 	/////////////////////////////////////////////////////////////////////////////////////////
-	Vec3 SceneRenderer::TraceRays(Ray& ray, int depth, float refractionIndex)
+	Vec3 SceneRenderer::TraceRays(Ray& ray, uint32_t depth, float refractionIndex)
 	{
 		float tmin = DBL_MAX;
 		RayCastHit hit = GetClosestHit(ray, tmin);
@@ -247,9 +247,9 @@ namespace rayTracer
 		unsigned int counter = 0;
 	
 		glClear(GL_COLOR_BUFFER_BIT);
-		for (int y = 0; y < height; y++)
+		for (uint32_t y = 0; y < height; y++)
 		{
-			for (int x = 0; x < width; x++)
+			for (uint32_t x = 0; x < width; x++)
 			{
 				Vec3 color;
 

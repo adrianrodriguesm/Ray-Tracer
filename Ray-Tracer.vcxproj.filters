@@ -48,10 +48,10 @@
     <ClCompile Include="src\Renderer\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Main.cpp">
+    <ClCompile Include="src\EntryPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EntryPoint.cpp">
+    <ClCompile Include="src\OldCode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

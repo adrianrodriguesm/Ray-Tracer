@@ -9,7 +9,7 @@ namespace rayTracer
 {
 	enum class RenderMode
 	{
-		DrawMode, GenerateImage
+		DrawMode, GenerateImage, Default = DrawMode
 	};
 	struct AplicationSpecification
 	{

@@ -23,7 +23,7 @@ namespace rayTracer
 		static void Render();
 	private:
 		// Ray tracing Methods
-		static Vec3 TraceRays(Ray& ray, int depth, float refractionIndex);
+		static Vec3 TraceRays(Ray& ray, uint32_t depth, float refractionIndex);
 		static RayCastHit GetClosestHit(Ray& ray, float tmin);
 		static RayCastHit IsPointInShadow(RayCastHit& hit, Vec3& lightDir);
 		static Vec3 BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal);

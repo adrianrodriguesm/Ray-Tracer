@@ -6,8 +6,8 @@ namespace rayTracer::utils
 	{
 		// Reinhard tonemapping
 		static constexpr float pureWhite = 1.f;
-		float luminance = DotProduct(color, Vec3(0.2126, 0.7152, 0.0722));
-		float mappedLuminance = (luminance * (1.0 + luminance / (pureWhite * pureWhite))) / (1.0 + luminance);
+		float luminance = DotProduct(color, Vec3(0.2126f, 0.7152f, 0.0722f));
+		float mappedLuminance = (luminance * (1 + luminance / (pureWhite * pureWhite))) / (1 + luminance);
 
 		Vec3 hdrColor = (mappedLuminance / luminance) * color * exposure;
 

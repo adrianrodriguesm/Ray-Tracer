@@ -1,5 +1,5 @@
 #include "Sandbox.h"
-#include <GL/freeglut.h>
+
 
 Sandbox::Sandbox()
 {

@@ -164,8 +164,9 @@ namespace rayTracer
 				else if (cmd == "env")
 				{
 					file >> token;
-
-					scene->LoadSkybox(token);
+					std::string skyboxFilepath(token);
+					skyboxFilepath = "assets/" + skyboxFilepath;
+					scene->LoadSkybox(skyboxFilepath.c_str());
 					scene->SetSkyBoxFlg(true);
 				}
 				else if (cmd[0] == '#')

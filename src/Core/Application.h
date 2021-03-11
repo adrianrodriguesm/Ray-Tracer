@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+extern int main(int argc, char** argv);
 namespace rayTracer
 {
 	enum class RenderMode
@@ -22,10 +24,12 @@ namespace rayTracer
 	};
 	class Application
 	{
-	public:
+	private:
+		// This is private because is Singleton
 		Application(AplicationSpecification spec);
 		virtual ~Application();
-
+		friend int ::main(int argc, char** argv);
+	public:
 		void Run();
 		static Application& Get() { return *s_Instance; }
 		int GetNativeWindow() const { return m_GlutWindow; }

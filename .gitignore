@@ -1,2 +1,5 @@
+*bin/
+
 # Visual Studio cache directory
 *.vs/
+*intermediate/

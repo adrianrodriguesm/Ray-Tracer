@@ -16,10 +16,10 @@ namespace rayTracer
 	public:
 		static void Init();
 		static void Shutdown();
-		static void BeginScene(SceneRendererSpec spec);
+		static void SumitRenderSpec(SceneRendererSpec spec);
 		static void SumitObject(Object* obj);
 		static void OnResize(int width, int height);
-		static void EndScene();
+		
 		static void Render();
 	private:
 		// Ray tracing Methods

@@ -1,2 +1,0 @@
-C:\Users\adria\Dev\Ray-Tracer\x64\Debug\Ray-Tracer.exe
-C:\Users\adria\Dev\Ray-Tracer\x64\Debug\Ray-Tracer.pdb

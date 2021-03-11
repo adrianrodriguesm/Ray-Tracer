@@ -10,7 +10,7 @@ public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 
-	virtual void OnUpdate() override;
+	virtual void OnUploadScene() override;
 
 	virtual void OnWindowClose() override;
 	virtual void OnWindowResize(int w, int h) override;
@@ -31,13 +31,13 @@ private:
 
 	// Camera Move
 	// Current Camera Position
-	float camX, camY, camZ;
+	float camX = 0, camY = 0, camZ = 0;
 
 	//Original Camera position;
 	Vec3 Eye = {};
 
 	// Mouse Tracking Variables
-	int startX, startY, tracking = 0;
+	int startX = 0, startY = 0, tracking = 0;
 
 	// Camera Spherical Coordinates
 	float alpha = 0.0f, beta = 0.0f;

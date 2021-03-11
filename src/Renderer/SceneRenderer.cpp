@@ -102,7 +102,7 @@ namespace rayTracer
 		DestroyBuffers();
 	}
 
-	void SceneRenderer::BeginScene(SceneRendererSpec spec)
+	void SceneRenderer::SumitRenderSpec(SceneRendererSpec spec)
 	{
 		s_Data.DataScene.Camera = spec.Camera;
 		s_Data.DataScene.Scene = spec.Scene;
@@ -125,10 +125,6 @@ namespace rayTracer
 		DestroyData();
 		InitData();
 
-	}
-
-	void SceneRenderer::EndScene()
-	{
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Render

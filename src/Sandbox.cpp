@@ -17,10 +17,11 @@ void Sandbox::OnAttach()
 
 void Sandbox::OnDetach()
 {
+	delete m_Camera;
 	delete m_Scene;
 }
 
-void Sandbox::OnUpdate()
+void Sandbox::OnUploadScene()
 {
 	static SceneRendererSpec spec;
 	spec.Camera = m_Camera;
@@ -28,13 +29,13 @@ void Sandbox::OnUpdate()
 	spec.Width = RES_WIDTH;
 	spec.Height = RES_HEIGHT;
 	spec.Scene = m_Scene;
-	SceneRenderer::BeginScene(spec);
+	// Upload the needed data for the renderer
+	SceneRenderer::SumitRenderSpec(spec);
 	auto& objects = m_Scene->GetObjects();
 	for(auto& object : objects)
 	{
 		SceneRenderer::SumitObject(object);
 	}
-	SceneRenderer::EndScene();
 	Mat4 ortho = MatFactory::CreateOrthographicProjectionMatrix(0, (float)RES_WIDTH, 0, (float)RES_HEIGHT, -1.0, 1.0);
 	m_Camera->SetProjectionMatrix(ortho);
 }
@@ -58,7 +59,8 @@ void Sandbox::OnWindowResize(int w, int h)
 void Sandbox::OnMouseKeyPress(int button, int state, int xx, int yy)
 {
 	// start tracking the mouse
-	if (state == GLUT_DOWN) {
+	if (state == GLUT_DOWN) 
+	{
 		startX = xx;
 		startY = yy;
 		if (button == GLUT_LEFT_BUTTON)
@@ -68,12 +70,15 @@ void Sandbox::OnMouseKeyPress(int button, int state, int xx, int yy)
 	}
 
 	//stop tracking the mouse
-	else if (state == GLUT_UP) {
-		if (tracking == 1) {
+	else if (state == GLUT_UP)
+	{
+		if (tracking == 1) 
+		{
 			alpha -= (xx - startX);
 			beta += (yy - startY);
 		}
-		else if (tracking == 2) {
+		else if (tracking == 2) 
+		{
 			r += (yy - startY) * 0.01f;
 			if (r < 0.1f)
 				r = 0.1f;
@@ -160,7 +165,7 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 
 void Sandbox::InitScene()
 {
-	char scenes_dir[70] = "P3D_Scenes/";
+	char scenes_dir[70] = "assets/scenesP3D/";
 	char input_user[50];
 	char scene_name[70];
 

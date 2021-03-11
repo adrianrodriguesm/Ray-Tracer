@@ -19,42 +19,42 @@ namespace rayTracer
 		Scene();
 		virtual ~Scene();
 
-		Camera* GetCamera() { return camera; }
-		Vec3 GetBackgroundColor() { return bgColor; }
+		Camera* GetCamera() { return m_Camera; }
+		Vec3 GetBackgroundColor() { return m_BackgroundColor; }
 		Vec3 GetSkyboxColor(Ray& r);
-		bool GetSkyBoxFlg() { return SkyBoxFlg; }
+		bool GetSkyBoxFlg() { return m_SkyBoxFlag; }
 
-		void SetBackgroundColor(Vec3 a_bgColor) { bgColor = a_bgColor; }
+		void SetBackgroundColor(Vec3 a_bgColor) { m_BackgroundColor = a_bgColor; }
 		void LoadSkybox(const char*);
-		void SetSkyBoxFlg(bool a_skybox_flg) { SkyBoxFlg = a_skybox_flg; }
-		void SetCamera(Camera* a_camera) { camera = a_camera; }
+		void SetSkyBoxFlg(bool a_skybox_flg) { m_SkyBoxFlag = a_skybox_flg; }
+		void SetCamera(Camera* a_camera) { m_Camera = a_camera; }
 
 		int GetNumObjects();
 		void AddObject(Object* o);
 		Object* GetObject(unsigned int index);
-		const std::vector<Object*>& GetObjects() const { return objects; }
-		const std::vector<Light*>& GetLights() const { return lights; }
+		const std::vector<Object*>& GetObjects() const { return m_Objects; }
+		const std::vector<Light*>& GetLights() const { return m_Lights; }
 		int GetNumLights();
 		void AddLight(Light* l);
 		Light* GetLight(unsigned int index);
 
-		bool load_p3f(const char* name);  //Load NFF file method
+		//bool load_p3f(const char* name);  //Load NFF file method
 
 	private:
-		std::vector<Object*> objects;
-		std::vector<Light*> lights;
+		std::vector<Object*> m_Objects;
+		std::vector<Light*> m_Lights;
 
-		Camera* camera;
-		Vec3 bgColor;  //Background color
+		Camera* m_Camera;
+		Vec3 m_BackgroundColor;  //Background color
 
-		bool SkyBoxFlg = false;
+		bool m_SkyBoxFlag = false;
 
 		struct {
 			ILubyte* img;
 			uint32_t resX;
 			uint32_t resY;
 			uint32_t BPP; //bytes per pixel
-		} skybox_img[6];
+		} m_SkyboxImage[6];
 
 	};
 }

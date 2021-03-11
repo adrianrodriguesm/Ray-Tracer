@@ -13,51 +13,50 @@ namespace rayTracer
 
 	Scene::~Scene()
 	{
-		/*for ( int i = 0; i < objects.size(); i++ )
-		{
-			delete objects[i];
-		}
-		objects.erase();
-		*/
+		for ( int i = 0; i < m_Objects.size(); i++ )
+			delete m_Objects[i];
+		
+		m_Objects.clear();
+		
 	}
 
 	int Scene::GetNumObjects()
 	{
-		return (int)objects.size();
+		return (int)m_Objects.size();
 	}
 
 
 	void Scene::AddObject(Object* o)
 	{
-		objects.push_back(o);
+		m_Objects.push_back(o);
 	}
 
 
 	Object* Scene::GetObject(unsigned int index)
 	{
-		if (index >= 0 && index < objects.size())
-			return objects[index];
+		if (index >= 0 && index < m_Objects.size())
+			return m_Objects[index];
 		return nullptr;
 	}
 
 
 	int Scene::GetNumLights()
 	{
-		return (int)lights.size();
+		return (int)m_Lights.size();
 	}
 
 
 	void Scene::AddLight(Light* l)
 	{
-		lights.push_back(l);
+		m_Lights.push_back(l);
 	}
 
 
 	Light* Scene::GetLight(unsigned int index)
 	{
-		if (index >= 0 && index < lights.size())
-			return lights[index];
-		return NULL;
+		if (index >= 0 && index < m_Lights.size())
+			return m_Lights[index];
+		return nullptr;
 	}
 
 	void Scene::LoadSkybox(const char* sky_dir)
@@ -99,12 +98,12 @@ namespace rayTracer
 			ilConvertImage(format, IL_UNSIGNED_BYTE);
 
 			int size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
-			skybox_img[i].img = (ILubyte*)malloc(size);
+			m_SkyboxImage[i].img = (ILubyte*)malloc(size);
 			ILubyte* bytes = ilGetData();
-			memcpy(skybox_img[i].img, bytes, size);
-			skybox_img[i].resX = ilGetInteger(IL_IMAGE_WIDTH);
-			skybox_img[i].resY = ilGetInteger(IL_IMAGE_HEIGHT);
-			format == IL_RGB ? skybox_img[i].BPP = 3 : skybox_img[i].BPP = 4;
+			memcpy(m_SkyboxImage[i].img, bytes, size);
+			m_SkyboxImage[i].resX = ilGetInteger(IL_IMAGE_WIDTH);
+			m_SkyboxImage[i].resY = ilGetInteger(IL_IMAGE_HEIGHT);
+			format == IL_RGB ? m_SkyboxImage[i].BPP = 3 : m_SkyboxImage[i].BPP = 4;
 			ilDeleteImages(1, &ImageName);
 		}
 		ilDisable(IL_ORIGIN_SET);
@@ -112,7 +111,8 @@ namespace rayTracer
 
 	//Skybox images constant symbolics
 	static enum CubeMap { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK };
-	Vec3 Scene::GetSkyboxColor(Ray& r) {
+	Vec3 Scene::GetSkyboxColor(Ray& r)
+	{
 		float t_intersec;
 		Vec3 cubemap_coords; //To index the skybox
 
@@ -176,18 +176,18 @@ namespace rayTracer
 		s = (sc * invMa + 1) / 2.f;
 		t = (tc * invMa + 1) / 2.f;
 
-		width = skybox_img[img_side].resX;
-		height = skybox_img[img_side].resY;
-		bytesperpixel = skybox_img[img_side].BPP;
+		width = m_SkyboxImage[img_side].resX;
+		height = m_SkyboxImage[img_side].resY;
+		bytesperpixel = m_SkyboxImage[img_side].BPP;
 
 		xp = int((width - 1) * s);
 		xp < 0 ? 0 : (xp > (width - 1) ? width - 1 : xp);
 		yp = int((height - 1) * t);
 		yp < 0 ? 0 : (yp > (height - 1) ? height - 1 : yp);
 
-		float red = u8tofloat(skybox_img[img_side].img[(yp * width + xp) * bytesperpixel]);
-		float green = u8tofloat(skybox_img[img_side].img[(yp * width + xp) * bytesperpixel + 1]);
-		float blue = u8tofloat(skybox_img[img_side].img[(yp * width + xp) * bytesperpixel + 2]);
+		float red = u8tofloat(m_SkyboxImage[img_side].img[(yp * width + xp) * bytesperpixel]);
+		float green = u8tofloat(m_SkyboxImage[img_side].img[(yp * width + xp) * bytesperpixel + 1]);
+		float blue = u8tofloat(m_SkyboxImage[img_side].img[(yp * width + xp) * bytesperpixel + 2]);
 
 		return(Vec3(red, green, blue));
 	}
@@ -195,6 +195,7 @@ namespace rayTracer
 	////////////////////////////////////////////////////////////////////////////////
 	// P3F file parsing methods.
 	//
+	/** /
 	void next_token(std::ifstream& file, char* token, const char* name)
 	{
 		file >> token;
@@ -380,6 +381,7 @@ namespace rayTracer
 		file.close();
 		return true;
 	};
+	/**/
 }
 
 

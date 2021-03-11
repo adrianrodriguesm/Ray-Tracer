@@ -11,7 +11,7 @@ namespace rayTracer
 		virtual void OnAttach() = 0;
 		virtual void OnDetach() = 0;
 
-		virtual void OnUpdate() = 0;
+		virtual void OnUploadScene() = 0;
 
 		virtual void OnWindowClose() = 0;
 		virtual void OnWindowResize(int w, int h) = 0;

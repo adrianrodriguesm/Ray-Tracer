@@ -14,6 +14,8 @@ namespace rayTracer
 			m_diffColor = c; m_Diff = Kd; m_specColor = cs; m_Spec = Ks; m_Shine = Shine; m_Refl = Ks; m_T = T; m_RIndex = ior;
 		}
 
+		virtual ~Material() = default;
+
 		void SetDiffColor(Vec3& a_Color) { m_diffColor = a_Color; }
 		Vec3 GetDiffColor() { return m_diffColor; }
 		void SetSpecColor(Vec3& a_Color) { m_specColor = a_Color; }

@@ -49,6 +49,9 @@ namespace rayTracer
 			printf("\nwidth=%f height=%f fov=%f, viewplane distance=%f, pixel size=%.3f\n", w, h, fovy, plane_dist, w / m_Width);
 			if (Aperture_ratio != 0) printf("\nDepth-Of-Field effect enabled with a lens aperture = %.1f\n", Aperture_ratio);
 		}
+
+		virtual ~Camera() {};
+
 		// Projection Matrix
 		inline const Mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 		void SetProjectionMatrix(const Mat4& projection)

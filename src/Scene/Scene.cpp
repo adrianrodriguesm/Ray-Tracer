@@ -17,6 +17,11 @@ namespace rayTracer
 			delete m_Objects[i];
 		
 		m_Objects.clear();
+
+		for (int i = 0; i < m_Lights.size(); i++)
+			delete m_Lights[i];
+
+		m_Lights.clear();
 		
 	}
 

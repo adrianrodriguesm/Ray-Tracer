@@ -8,6 +8,7 @@ namespace rayTracer
 	public:
 
 		Light(Vec3& pos, Vec3& col) : position(pos), color(col) {};
+		~Light() = default;
 		Vec3 position;
 		Vec3 color;
 	};

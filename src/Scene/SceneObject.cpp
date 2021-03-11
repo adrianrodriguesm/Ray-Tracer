@@ -3,7 +3,10 @@
 #include <algorithm>
 namespace rayTracer
 {
-
+	Object::~Object()
+	{
+		delete m_Material;
+	}
 	Triangle::Triangle(Vec3& P0, Vec3& P1, Vec3& P2)
 	{
 		m_Points[0] = P0; m_Points[1] = P1; m_Points[2] = P2;
@@ -191,4 +194,5 @@ namespace rayTracer
 
 		return { true, tmin, this,  ray.Origin + tmin * ray.Direction};
 	}
+
 }

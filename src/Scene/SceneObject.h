@@ -8,7 +8,7 @@ namespace rayTracer
 	class Object
 	{
 	public:
-
+		virtual ~Object();
 		Material* GetMaterial() { return m_Material; }
 		void SetMaterial(Material* a_Mat) { m_Material = a_Mat; }
 		virtual RayCastHit Intercepts(Ray& r) = 0;
@@ -26,7 +26,7 @@ namespace rayTracer
 		// TODO : CHECK IF NECESSARY
 		//Plane(Vector& PNc, float Dc);
 		Plane(Vec3& P0, Vec3& P1, Vec3& P2);
-
+		virtual ~Plane() = default;
 		virtual RayCastHit Intercepts(Ray& r) override;
 		//RayCastHit Intercepts(Ray& r, float& dist);
 		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
@@ -39,6 +39,7 @@ namespace rayTracer
 	{
 	public:
 		Triangle(Vec3& P0, Vec3& P1, Vec3& P2);
+		virtual ~Triangle() = default;
 		virtual RayCastHit Intercepts(Ray& r) override;
 		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
@@ -59,7 +60,7 @@ namespace rayTracer
 		{
 			CalculateAABB();
 		};
-
+		virtual ~Sphere() = default;
 		virtual RayCastHit Intercepts(Ray& r) override;
 		virtual Vec3 GetNormal(Vec3 point) override;
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
@@ -76,6 +77,7 @@ namespace rayTracer
 	{
 	public:
 		aaBox(Vec3& minPoint, Vec3& maxPoint);
+		virtual ~aaBox() = default;
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 		virtual RayCastHit Intercepts(Ray& r) override;
 		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }

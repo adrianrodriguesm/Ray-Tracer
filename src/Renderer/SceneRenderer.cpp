@@ -86,7 +86,7 @@ namespace rayTracer
 		// Vertex Data
 		GLuint VaoId = 0, VboId[2];
 	};
-	RendererData s_Data;
+	static RendererData s_Data;
 
 	void SceneRenderer::Init()
 	{

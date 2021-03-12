@@ -145,10 +145,14 @@ namespace rayTracer
 		{
 			// Beucause 
 			Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint).Normalized();
-			if (IsPointInShadow(hit, lightDir))
-				continue; // Zero light contribution for this point
-			// Calculate ligth
-			color += BlinnPhong(material, light, lightDir, viewDir, normal);
+			if (lightDir.DotProduct(normal) > 0) //Check if light reaches point
+			{
+				if (IsPointInShadow(hit, lightDir))
+					continue; // Zero light contribution for this point
+				// Calculate ligth
+				color += BlinnPhong(material, light, lightDir, viewDir, normal);
+			}
+
 		}
 		// If we reach the max deth end the recursive call
 		if (depth >= s_Data.DataScene.MaxDepth)

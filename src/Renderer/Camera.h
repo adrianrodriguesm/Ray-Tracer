@@ -15,7 +15,7 @@ namespace rayTracer
 		float fovy, vnear, vfar, plane_dist, focal_ratio, aperture, m_ApertureRatio;
 		float w, h;
 		int m_Width, m_Height;
-		Vec3 m_XAxis, v, m_ZAxis;
+		Vec3 m_XAxis, m_YAxis, m_ZAxis;
 		Mat4 m_ProjectionMatrix;
 
 	public:
@@ -38,7 +38,7 @@ namespace rayTracer
 			m_XAxis = CrossProduct(up, m_ZAxis);
 			m_XAxis = m_XAxis.Normalized();
 
-			v = CrossProduct(m_ZAxis, m_XAxis);
+			m_YAxis = CrossProduct(m_ZAxis, m_XAxis);
 
 			//Dimensions of the vis window
 			h = 2 * plane_dist * tan((M_PI * angle / 180) / 2.0f);
@@ -68,7 +68,7 @@ namespace rayTracer
 			m_ZAxis = m_ZAxis / plane_dist;
 			m_XAxis = CrossProduct(up, m_ZAxis);
 			m_XAxis = m_XAxis.Normalized();
-			v = CrossProduct(m_ZAxis, m_XAxis);
+			m_YAxis = CrossProduct(m_ZAxis, m_XAxis);
 		}
 
 		void OnResize(int width, int height)
@@ -86,7 +86,7 @@ namespace rayTracer
 		{
 			Ray ray;
 			ray.Origin = eye;
-			ray.Direction = m_ZAxis * -plane_dist + h * (pixel_sample.y / m_Height - 0.5f) * v + w * (pixel_sample.x / m_Width - 0.5f) * m_XAxis;
+			ray.Direction = m_ZAxis * -plane_dist + h * (pixel_sample.y / m_Height - 0.5f) * m_YAxis + w * (pixel_sample.x / m_Width - 0.5f) * m_XAxis;
 			ray.Direction = ray.Direction.Normalized();
 			return ray;
 		}

@@ -1,4 +1,4 @@
-#include "Renderer/SceneRenderer.h"
+ï»¿#include "Renderer/SceneRenderer.h"
 #include "Core/Application.h"
 #include "Core/Utility.h"
 #include <GL/glew.h>
@@ -445,8 +445,8 @@ namespace rayTracer
 		glGenBuffers(2, s_Data.VboId);
 		glBindBuffer(GL_ARRAY_BUFFER, s_Data.VboId[0]);
 
-		/* Só se faz a alocação dos arrays glBufferData (NULL), e o envio dos pontos para a placa gráfica
-		é feito na drawPoints com GlBufferSubData em tempo de execução pois os arrays são GL_DYNAMIC_DRAW */
+		/* Sï¿½ se faz a alocaï¿½ï¿½o dos arrays glBufferData (NULL), e o envio dos pontos para a placa grï¿½fica
+		ï¿½ feito na drawPoints com GlBufferSubData em tempo de execuï¿½ï¿½o pois os arrays sï¿½o GL_DYNAMIC_DRAW */
 		glBufferData(GL_ARRAY_BUFFER, s_Data.VerticesSize, NULL, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(s_Data.VERTEX_COORD_ATTRIB);
 		glVertexAttribPointer(s_Data.VERTEX_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);

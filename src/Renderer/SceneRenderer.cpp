@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <Core/Base.h>
 #include <GL/freeglut.h>
+#include <math.h>
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -85,6 +86,9 @@ namespace rayTracer
 		static constexpr uint32_t COLOR_ATTRIB = 1;
 		// Vertex Data
 		GLuint VaoId = 0, VboId[2];
+		// Additional Parameters
+		bool toneMappingActivated = true;
+		bool gammaCorrectionActivated = true;
 	};
 	static RendererData s_Data;
 
@@ -126,6 +130,21 @@ namespace rayTracer
 		InitData();
 
 	}
+
+	void SceneRenderer::ToggleGammaCorrection() {
+		s_Data.gammaCorrectionActivated = !s_Data.gammaCorrectionActivated;
+		std::cout << "Gamma correction: " << (s_Data.gammaCorrectionActivated ? "On" : "Off") << std::endl;
+	}
+
+	void SceneRenderer::ToggleToneMapping() {
+		s_Data.toneMappingActivated = !s_Data.toneMappingActivated;
+		std::cout << "Tone mapping: " << (s_Data.toneMappingActivated ? "On" : "Off") << std::endl;
+	}
+
+	void SceneRenderer::ChangeTracingDepth(int change) {
+		s_Data.DataScene.MaxDepth = std::max(1, (int)s_Data.DataScene.MaxDepth + change);
+		std::cout << "Max Depth: " << s_Data.DataScene.MaxDepth << std::endl;
+	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Render
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -134,18 +153,23 @@ namespace rayTracer
 		float tmin = DBL_MAX;
 		RayCastHit hit = GetClosestHit(ray, tmin);
 		if (!hit)
-			return s_Data.DataScene.Scene->GetBackgroundColor();
+			return s_Data.DataScene.Scene->GetSkyboxColor(ray); //GetBackgroundColor();
 
 		Material* material = hit.Object->GetMaterial();
 		Vec3 color;
 		Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
+		if (hit.Object->isInsideObject(hit.InterceptionPoint, ray))
+			normal *= -1; // Inverse normal if inside object (For transparent objects)
 		Vec3 viewDir = ray.Direction; // Unit vector
+		Vec3 invViewDir = -1 * viewDir; // Unit vector
 		auto& lights = s_Data.DataScene.Scene->GetLights();
 		for (auto& light : lights)
 		{
 			// Beucause 
-			Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint).Normalized();
-			if (IsPointInShadow(hit, lightDir))
+			Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint);
+			float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
+			lightDir = lightDir.Normalized();
+			if (IsPointInShadow(hit, lightDir, lightDistance))
 				continue; // Zero light contribution for this point
 			// Calculate ligth
 			color += BlinnPhong(material, light, lightDir, viewDir, normal);
@@ -154,22 +178,35 @@ namespace rayTracer
 		if (depth >= s_Data.DataScene.MaxDepth)
 			return color;
 		
+		// Refracted
+		if (material->GetTransmittance() > 0)
+		{
+			float incidentAngle = acosf(DotProduct(normal,invViewDir));
+			float sinIncidentAngle = sinf(incidentAngle);
+
+			if (sinIncidentAngle > 0) {
+				float otherRefractIndex = material->GetRefrIndex();
+
+				// Calculate Reflection power (Shlicks Approximation)
+				float R0 = powf(((refractionIndex - otherRefractIndex) / (refractionIndex + otherRefractIndex)), 2.0f);
+				float R = R0 + (1 - R0) * (powf(1 - cosf(incidentAngle), 5));
+
+				Ray reflectedRay = RayCastHit::CalculateReflectedRay(hit, viewDir);
+				Ray refractedRay = RayCastHit::CalculateRefractedRay(normal, hit, viewDir, refractionIndex, otherRefractIndex);
+
+				Vec3 reflectedColor = TraceRays(reflectedRay, depth + 1, refractionIndex);
+				Vec3 refractedColor = TraceRays(refractedRay, depth + 1, otherRefractIndex);
+
+				color += R * reflectedColor;
+				color += (1 - R) * refractedColor;
+			}
+		}
 		// Reflected Ray
-		if (material->GetShine() >= 0)
+		else if (material->GetReflection() > 0)
 		{
 			Ray reflected = RayCastHit::CalculateReflectedRay(hit, viewDir);
 			Vec3 reflectedColor = TraceRays(reflected, depth + 1, refractionIndex);
-			color += material->GetSpecular() * reflectedColor;
-		}
-		// Refracted
-		if (material->GetTransmittance() != 0)
-		{
-			Ray refracted = RayCastHit::CalculateRefractedRay(hit, ray, refractionIndex, material->GetRefrIndex());
-			if (refracted.Direction != Vec3(0))
-			{
-				Vec3 refractedColor = TraceRays(refracted, depth + 1, refractionIndex);
-				color += material->GetTransmittance() * refractedColor;
-			}
+			color += material->GetReflection() * reflectedColor;
 		}
 		return color;
 	}
@@ -187,26 +224,29 @@ namespace rayTracer
 		}
 		return hit;
 	}
-	RayCastHit SceneRenderer::IsPointInShadow(RayCastHit& hit, Vec3& lightDir)
+	RayCastHit SceneRenderer::IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance)
 	{
 		Ray shadowFeeler(hit.InterceptionPoint, lightDir);
 		for (auto obj : s_Data.DataScene.Objects)
 		{
+			if (obj->GetMaterial()->GetTransmittance() > 0)
+				continue; // Transparent objects do not block light (Should refract light, but....)
+
 			RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
-			if (shadowHit)
+			if (shadowHit && shadowHit.Tdist < lightDistance)
 				return true;
 		}
 		return false;
 	}
 	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal)
 	{
-		Vec3 objectColor = mat->GetDiffColor(); // Check this
+		//Vec3 objectColor = mat->GetDiffColor(); // Check this
 		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);
 		if (diffuseIntensity > 0)
 		{
 			// Diffuse
 			float KdLamb = mat->GetDiffuse() * diffuseIntensity;
-			Vec3 diffuseColor = light->color * KdLamb;
+			Vec3 diffuseColor = light->color * KdLamb * mat->GetDiffColor();
 			/** /
 			diffuseColor.r = color.r * light->color.r * KdLamb;
 			diffuseColor.g = color.g * light->color.g * KdLamb;
@@ -218,16 +258,18 @@ namespace rayTracer
 			float specAngle = std::fmax(DotProduct(reflected, -lightDir), 0.0f);
 			float specular = pow(specAngle, mat->GetShine());
 			float ksSpec = mat->GetSpecular() * specular;
-			Vec3 specularColor = light->color * ksSpec;
+			Vec3 specularColor = light->color * ksSpec * mat->GetSpecColor();
 			/** /
 			specularColor.r = color.r * light->color.r * ksSpec;
 			specularColor.g = color.g * light->color.g * ksSpec;
 			specularColor.b = color.b * light->color.b * ksSpec;
 			/**/
 			Vec3 color = diffuseColor + specularColor;
+			/*
 			color.r *= objectColor.r;
 			color.g *= objectColor.g;
 			color.b *= objectColor.b;
+			*/
 			return color;
 		}
 		return Vec3(0.f);
@@ -258,9 +300,11 @@ namespace rayTracer
 				color = TraceRays(ray, 1, 1.0);
 				// Reinhard tonemapping
 				static constexpr float exposure = 0.3f;
-				color = utils::ApplyToneMapping(color, exposure);
+				if(s_Data.toneMappingActivated)
+					color = utils::ApplyToneMapping(color, exposure);
 				// Gamma correction
-				color = utils::ConvertColorFromLinearToGammaSpace(color);
+				if (s_Data.gammaCorrectionActivated)
+					color = utils::ConvertColorFromLinearToGammaSpace(color);
 				// Update Image Data
 				s_Data.ImageData[counter++] = (uint8_t)color.r;
 				s_Data.ImageData[counter++] = (uint8_t)color.g;

@@ -24,7 +24,7 @@ namespace rayTracer
 
 		operator bool() { return Hit; }
 
-		static Ray CalculateRefractedRay(const RayCastHit& hit, const Ray& ray, float incidentRefractionIndex, float materialRefractionIndex);
+		static Ray CalculateRefractedRay(const Vec3& normal, const RayCastHit& hit, const Vec3& viewDir, float incidentRefractionIndex, float materialRefractionIndex);
 		// View Dir Need to be normalize
 		static Ray CalculateReflectedRay(const RayCastHit& hit, const Vec3& dir);
 	};

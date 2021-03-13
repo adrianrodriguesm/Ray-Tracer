@@ -118,6 +118,10 @@ namespace rayTracer
 	static enum CubeMap { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK };
 	Vec3 Scene::GetSkyboxColor(Ray& r)
 	{
+
+		if (r.Direction.SqrMagnitude() == 0)
+			return this->GetBackgroundColor();
+
 		float t_intersec;
 		Vec3 cubemap_coords; //To index the skybox
 

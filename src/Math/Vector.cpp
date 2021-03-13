@@ -199,6 +199,22 @@ namespace rayTracer
 		if (fabs(vector.z) < EPSILON) vector.z = 0.0f;
 	}
 
+	float Vec3::SqrMagnitude() const
+	{
+		float x = powf(this->x, 2);
+		float y = powf(this->y, 2);
+		float z = powf(this->z, 2);
+		return (x + y + z);
+	}
+
+	float Vec3::Magnitude() const
+	{
+		float x = powf(this->x, 2);
+		float y = powf(this->y, 2);
+		float z = powf(this->z, 2);
+		return sqrtf(x + y + z);
+	}
+
 	float Magnitude(const Vec3& vector)
 	{
 		float x = powf(vector.x, 2);
@@ -209,7 +225,7 @@ namespace rayTracer
 
 	Vec3 Normalize(const Vec3& vector)
 	{
-		float mag = Magnitude(vector);
+		float mag = vector.Magnitude();
 		ASSERT(mag != 0, "Impossible to normalize! Magnitude equal to zero");
 		return Vec3(vector.x / mag, vector.y / mag, vector.z / mag);
 	}
@@ -235,7 +251,7 @@ namespace rayTracer
 
 	Vec3& Vec3::Normalized()
 	{
-		float mag = Magnitude(*this);
+		float mag = this->Magnitude();
 		ASSERT(mag != 0, "Impossible to normalize! Magnitude equal to zero");
 		for (uint32_t i = 0; i < 3; i++)
 			components[i] = components[i] / mag;
@@ -352,6 +368,11 @@ namespace rayTracer
 	const Vec3 operator*(const float scalar, const Vec3& vector)
 	{
 		return Vec3(vector.x * scalar, vector.y * scalar, vector.z * scalar);
+	}
+
+	const Vec3 operator*(const Vec3& v1, const Vec3& v2)
+	{
+		return Vec3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
 	}
 
 	const Vec3 operator/(const Vec3& left, const float right)

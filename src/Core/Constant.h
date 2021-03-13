@@ -7,6 +7,7 @@ namespace rayTracer
 	const float EPSILON = (float)1.0e-5;
 	const float DEGREES_TO_RADIANS = 0.01745329251994329547f;
 	const float RADIANS_TO_DEGREES = 57.29577951308232185913f;
+	const float DISPLACEMENT_BIAS = 1.E-4; // For reflecting and refraction to avoid self occlusion
 
 	namespace Vector
 	{

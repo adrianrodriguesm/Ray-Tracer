@@ -64,35 +64,27 @@ namespace rayTracer
 		hit.InterceptionPoint = ray.Origin + ray.Direction * hit.Tdist;
 		return hit;
 	}
-	/** /
-	Plane::Plane(Vector& a_PN, float a_D)
-		: PN(a_PN), D(a_D)
-	{
 
+	Plane::Plane(Vec3& a_PN, float a_D)
+		: m_Normal(a_PN), m_Distance(a_D)
+	{
 	}
-	/**/
+
 	Plane::Plane(Vec3& P0, Vec3& P1, Vec3& P2)
 	{
-		m_Vertices[0] = P0;
-		m_Vertices[1] = P1;
-		m_Vertices[2] = P2;
-
 		//Calculate the normal plane: counter-clockwise vectorial product.
-		m_Normal = CrossProduct((P1 - P0), (P2 - P1)); // % is cross product, for some reason.
-		m_Normal.Normalized();
-		/** /
-		if ((l = m_Normal.length()) == 0.0)
+		m_Normal = CrossProduct((P1 - P0), (P2 - P0)); // % is cross product, for some reason.
+		
+		if ((m_Normal.Magnitude()) == 0.0)
 		{
 			std::cerr << "DEGENERATED PLANE!\n";
 		}
 		else
 		{
-			m_Normal.normalize();
-			// TODO: CHECK IF NECESSARY
-			//Calculate D
-			//D = m_Normal.x * P0.x + m_Normal.y * P0.y + m_Normal.z * P0.z;
+			m_Normal.Normalized();
+			m_Distance = m_Normal.DotProduct(P0);
 		}
-		/**/
+		
 	}
 
 	//
@@ -100,13 +92,16 @@ namespace rayTracer
 	//
 	RayCastHit Plane::Intercepts(Ray& r)
 	{
+		Vec3 pointA = m_Normal * m_Distance;
+
+		float projection = DotProduct(r.Direction, m_Normal);
 		//Ray and plane are perpendicular
-		if (DotProduct(r.Direction, m_Normal) == 0)
+		if (projection == 0)
 		{
 			return RayCastHit(false);
 		}
 
-		float t = -DotProduct((r.Origin - m_Vertices[0]), m_Normal) / DotProduct(m_Normal, r.Direction);
+		float t = -DotProduct((r.Origin - pointA), m_Normal) / projection;
 		if (t > EPSILON)
 		{
 			return RayCastHit(true, t, this, r.Origin + t * r.Direction);
@@ -157,6 +152,18 @@ namespace rayTracer
 		m_BoundingBox = { min , max };
 	}
 
+	/// <summary>
+	/// Only valid if the object intersected with ray
+	/// </summary>
+	/// <param name="contactPoint"></param>
+	/// <param name="ray"></param>
+	/// <returns></returns>
+	bool Sphere::isInsideObject(const Vec3& contactPoint, const Ray& ray)
+	{
+		// contactPoint was inside object if point-center vector is pointing to same hemisphere as ray
+		return ((contactPoint - m_Center).DotProduct(ray.Direction)) > 0;
+	}
+
 	aaBox::aaBox(Vec3& minPoint, Vec3& maxPoint) //Axis aligned Box: another geometric object
 		: m_BoundingBox(minPoint, maxPoint)
 	{
@@ -193,6 +200,12 @@ namespace rayTracer
 			return { false, tmax };
 
 		return { true, tmin, this,  ray.Origin + tmin * ray.Direction};
+	}
+
+	bool aaBox::isInsideObject(const Vec3& point, const Ray& ray)
+	{
+		//TODO: Implement me
+		return false;
 	}
 
 }

@@ -63,7 +63,9 @@ namespace rayTracer
 		float* Data();
 		const float* Data() const;
 		friend const void Clean(Vec3& v);
-		friend float Magnitude(const Vec3& vector);
+		float SqrMagnitude() const;
+		float Magnitude() const;
+		friend float Magnitude(const Vec3& v);
 		friend Vec3 Lerp(const Vec3& v0, const Vec3& v1, const float time);
 		// Vectors atribute need to be normalize
 		friend Vec3 Reflect(const Vec3& vector, const Vec3& normal);
@@ -86,6 +88,7 @@ namespace rayTracer
 		friend const Vec3 operator - (const Vec3& left, const Vec3& right);
 		friend const Vec3 operator * (const Vec3& Vector, const float scalar);
 		friend const Vec3 operator * (const float scalar, const Vec3& Vector);
+		friend const Vec3 operator * (const Vec3& v1, const Vec3& v2);
 		friend const Vec3 operator / (const Vec3& left, const float right);
 		friend const bool operator == (const Vec3& left, const Vec3& right);
 		friend const bool operator != (const Vec3& left, const Vec3& right);

@@ -14,6 +14,7 @@ namespace rayTracer
 		virtual RayCastHit Intercepts(Ray& r) = 0;
 		virtual Vec3 GetNormal(Vec3 point) = 0;
 		virtual AABB GetBoundingBox() { return AABB(); }
+		virtual bool isInsideObject(const Vec3& point, const Ray& ray) = 0;
 
 	protected:
 		Material* m_Material = nullptr;
@@ -23,16 +24,17 @@ namespace rayTracer
 	class Plane : public Object
 	{
 	public:
-		// TODO : CHECK IF NECESSARY
-		//Plane(Vector& PNc, float Dc);
+		Plane(Vec3& PNc, float Dc);
 		Plane(Vec3& P0, Vec3& P1, Vec3& P2);
 		virtual ~Plane() = default;
 		virtual RayCastHit Intercepts(Ray& r) override;
 		//RayCastHit Intercepts(Ray& r, float& dist);
 		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
+		virtual bool isInsideObject(const Vec3& point, const Ray& ray) { return false; }
+
 	private:
-		Vec3 m_Vertices[3];
 		Vec3 m_Normal;
+		float m_Distance;
 	};
 
 	class Triangle : public Object
@@ -43,6 +45,7 @@ namespace rayTracer
 		virtual RayCastHit Intercepts(Ray& r) override;
 		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
+		virtual bool isInsideObject(const Vec3& point, const Ray& ray) { return false; }
 
 	protected:
 		void CalculateAABB();
@@ -64,6 +67,8 @@ namespace rayTracer
 		virtual RayCastHit Intercepts(Ray& r) override;
 		virtual Vec3 GetNormal(Vec3 point) override;
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
+		virtual bool isInsideObject(const Vec3& point, const Ray& ray);
+
 
 	private:
 		void CalculateAABB();
@@ -81,6 +86,7 @@ namespace rayTracer
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 		virtual RayCastHit Intercepts(Ray& r) override;
 		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
+		virtual bool isInsideObject(const Vec3& point, const Ray& ray);//TODO: Implement
 
 	private:
 		AABB m_BoundingBox;

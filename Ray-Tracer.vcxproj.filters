@@ -134,6 +134,7 @@
     <None Include="P3D_Scenes\balls_medium.p3f">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="assets\scenesP3D\balls_transparent.p3f" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox\back.jpg">

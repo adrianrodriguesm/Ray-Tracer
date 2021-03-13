@@ -160,6 +160,22 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 		printf("Camera Spherical Coordinates (%f, %f, %f)\n", r, beta, alpha);
 		printf("Camera Cartesian Coordinates (%f, %f, %f)\n", camX, camY, camZ);
 		break;
+
+	case 'g':
+		SceneRenderer::ToggleGammaCorrection();
+		break;
+
+	case 't':
+		SceneRenderer::ToggleToneMapping();
+		break;
+
+	case'+':
+		SceneRenderer::ChangeTracingDepth(1);
+		break;
+
+	case'-':
+		SceneRenderer::ChangeTracingDepth(-1);
+		break;
 	}
 }
 

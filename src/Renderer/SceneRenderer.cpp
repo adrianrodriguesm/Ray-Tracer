@@ -226,7 +226,8 @@ namespace rayTracer
 	}
 	RayCastHit SceneRenderer::IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance)
 	{
-		Ray shadowFeeler(hit.InterceptionPoint, lightDir);
+		Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
+		Ray shadowFeeler(hit.InterceptionPoint + normal * DISPLACEMENT_BIAS, lightDir);
 		for (auto obj : s_Data.DataScene.Objects)
 		{
 			if (obj->GetMaterial()->GetTransmittance() > 0)

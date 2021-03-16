@@ -73,9 +73,9 @@ namespace rayTracer
 	Plane::Plane(Vec3& P0, Vec3& P1, Vec3& P2)
 	{
 		//Calculate the normal plane: counter-clockwise vectorial product.
-		m_Normal = CrossProduct((P1 - P0), (P2 - P0)); // % is cross product, for some reason.
+		m_Normal = CrossProduct((P1 - P0), (P2 - P0));
 		
-		if ((m_Normal.Magnitude()) == 0.0)
+		if ((m_Normal.SqrMagnitude()) == 0.0)
 		{
 			std::cerr << "DEGENERATED PLANE!\n";
 		}
@@ -114,7 +114,7 @@ namespace rayTracer
 	{
 		
 		Vec3 temp = ray.Origin - m_Center;
-		float a = DotProduct(ray.Direction, ray.Direction); // length of ray.Direction. should be 1 
+		float a = 1;// length of ray.Direction should be 1 
 		float b = 2.0f * DotProduct(temp, ray.Direction);
 		float c = DotProduct(temp, temp) - m_Radius * m_Radius;
 		float disc = b * b - 4.0f * a * c;

@@ -9,7 +9,11 @@ namespace rayTracer
 		Vec3 Origin;
 		Vec3 Direction;
 		Ray() = default;
-		Ray(const Vec3& o, const Vec3& dir) : Origin(o), Direction(dir) {};
+		Ray(const Vec3& o, const Vec3& dir) : Origin(o), Direction(dir) 
+		{
+			if (Direction.SqrMagnitude() != 1)
+				Direction.Normalized();
+		};
 	};
 
 	struct RayCastHit

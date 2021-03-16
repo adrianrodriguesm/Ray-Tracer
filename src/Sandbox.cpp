@@ -40,7 +40,6 @@ void Sandbox::OnUploadScene()
 	Mat4 ortho = MatFactory::CreateOrthographicProjectionMatrix(0, (float)RES_WIDTH, 0, (float)RES_HEIGHT, -1.0, 1.0);
 	m_Camera->SetProjectionMatrix(ortho);
 
-	this->r = (m_Camera->GetCenter() - m_Camera->GetEye()).Magnitude();
 }
 
 void Sandbox::OnWindowClose()
@@ -209,15 +208,12 @@ void Sandbox::InitScene()
 
 	m_Scene = SceneLoader::LoadP3D(scene_name);	
 	m_Camera = m_Scene->GetCamera();
-	startPos = m_Camera->GetEye();
+	this->startPos = m_Camera->GetEye();
+	this->r = (m_Camera->GetCenter() - m_Camera->GetEye()).Magnitude();
 	RES_WIDTH = m_Camera->GetResX();
 	RES_HEIGHT = m_Camera->GetResY();
 	printf("\nResolutionX = %d  ResolutionY= %d.\n", RES_WIDTH, RES_HEIGHT);
 	printf("Warning: Resolution parameters are set in application class.\n");
-
-
-	
-	
 }
 
 /// <summary>

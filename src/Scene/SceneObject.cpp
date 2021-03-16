@@ -112,24 +112,30 @@ namespace rayTracer
 
 	RayCastHit Sphere::Intercepts(Ray& ray)
 	{
-		
-		Vec3 temp = ray.Origin - m_Center;
-		float a = 1;// length of ray.Direction should be 1 
-		float b = 2.0f * DotProduct(temp, ray.Direction);
-		float c = DotProduct(temp, temp) - m_Radius * m_Radius;
-		float disc = b * b - 4.0f * a * c;
+		// center and origin inversed and signs of b inversed for sphere optimization
+		Vec3 temp = m_Center - ray.Origin;
 
-		if (disc < 0.0)
+		float b = DotProduct(temp, ray.Direction);
+		float c = DotProduct(temp, temp) - m_Radius * m_Radius;
+		
+		// If origin outside and pointing away from sphere
+		if (c > 0 && b <= 0)
+			return { false };
+
+		float a = 1;// length of ray.Direction should be 1 
+		float disc = b * b - a * c;
+
+		if (disc <= 0.0)
 			return { false };
 
 		float e = sqrtf(disc);
-		float denom = 2.0f * a;
-		float t = (-b - e) / denom; // root 1
+		float denom = a;
+		float t = (b - e) / denom; // root 1
 
 		if (t > EPSILON)
 			return { true, t,  this, ray.Origin + t * ray.Direction };
 
-		t = (-b + e) / denom; //root 2
+		t = (b + e) / denom; //root 2
 
 		if (t > EPSILON)
 			return { true, t,  this, ray.Origin + t * ray.Direction };

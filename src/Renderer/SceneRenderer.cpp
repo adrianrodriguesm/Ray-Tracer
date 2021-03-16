@@ -150,6 +150,9 @@ namespace rayTracer
 	/////////////////////////////////////////////////////////////////////////////////////////
 	Vec3 SceneRenderer::TraceRays(Ray& ray, uint32_t depth, float refractionIndex)
 	{
+		if (ray.Direction.SqrMagnitude() == 0)
+			return Vec3();
+
 		float tmin = DBL_MAX;
 		RayCastHit hit = GetClosestHit(ray, tmin);
 		if (!hit)

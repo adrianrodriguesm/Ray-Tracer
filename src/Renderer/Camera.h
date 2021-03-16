@@ -20,6 +20,7 @@ namespace rayTracer
 
 	public:
 		Vec3 GetEye() { return eye; }
+		Vec3 GetCenter() { return at; }
 		int GetResX() { return m_Width; }
 		int GetResY() { return m_Height; }
 		float GetFov() { return fovy; }
@@ -98,6 +99,15 @@ namespace rayTracer
 			Vec3 eye_offset;
 
 			return Ray(eye_offset, ray_dir);
+		}
+
+		void DumpSelf()
+		{
+			printf("\nCamera:\n");
+			std::cout << "Eye = " << eye << "\n";
+			std::cout << "Center = " << at << "\n";
+			std::cout << "Up = " << up << "\n";
+			std::cout << "Width x Height = " << m_Width << " x " << m_Height << "\n";
 		}
 	};
 }

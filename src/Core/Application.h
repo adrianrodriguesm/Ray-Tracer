@@ -19,7 +19,7 @@ namespace rayTracer
 		std::string Caption = "Whitted Ray-Tracer";
 		RenderMode Mode = RenderMode::DrawMode;
 		int Width = 512, Height = 512;
-		// Check if necessary
+		// TODO: Check if necessary
 		int argc; char** argv;
 	};
 	class Application

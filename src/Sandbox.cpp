@@ -13,6 +13,7 @@ Sandbox::~Sandbox()
 void Sandbox::OnAttach()
 {
 	InitScene();
+	//AddObjects();
 }
 
 void Sandbox::OnDetach()
@@ -38,6 +39,8 @@ void Sandbox::OnUploadScene()
 	}
 	Mat4 ortho = MatFactory::CreateOrthographicProjectionMatrix(0, (float)RES_WIDTH, 0, (float)RES_HEIGHT, -1.0, 1.0);
 	m_Camera->SetProjectionMatrix(ortho);
+
+	this->r = (m_Camera->GetCenter() - m_Camera->GetEye()).Magnitude();
 }
 
 void Sandbox::OnWindowClose()
@@ -61,8 +64,8 @@ void Sandbox::OnMouseKeyPress(int button, int state, int xx, int yy)
 	// start tracking the mouse
 	if (state == GLUT_DOWN) 
 	{
-		startX = xx;
-		startY = yy;
+		lastX = xx;
+		lastY = yy;
 		if (button == GLUT_LEFT_BUTTON)
 			tracking = 1;
 		else if (button == GLUT_RIGHT_BUTTON)
@@ -72,57 +75,63 @@ void Sandbox::OnMouseKeyPress(int button, int state, int xx, int yy)
 	//stop tracking the mouse
 	else if (state == GLUT_UP)
 	{
-		if (tracking == 1) 
-		{
-			alpha -= (xx - startX);
-			beta += (yy - startY);
-		}
-		else if (tracking == 2) 
-		{
-			r += (yy - startY) * 0.01f;
-			if (r < 0.1f)
-				r = 0.1f;
-		}
 		tracking = 0;
 	}
 }
 
 void Sandbox::OnMouseMove(int xx, int yy)
 {
+	if (tracking == 0)
+		return;
+	Vec3 finalPos = m_Camera->GetEye();
 	int deltaX, deltaY;
-	float alphaAux, betaAux;
-	float rAux;
 
-	deltaX = -xx + startX;
-	deltaY = yy - startY;
+	deltaX = -xx + lastX;
+	deltaY = yy - lastY;
+	lastX = xx;
+	lastY = yy;
 
 	// left mouse button: move camera
 	if (tracking == 1) 
 	{
-		alphaAux = alpha + deltaX;
-		betaAux = beta + deltaY;
+		alpha += deltaX;
+		beta += deltaY;
 
-		if (betaAux > 85.0f)
-			betaAux = 85.0f;
-		else if (betaAux < -85.0f)
-			betaAux = -85.0f;
-		rAux = r;
+
+		
+		if (beta > 85.0f)
+			beta = 85.0f;
+		else if (beta < -85.0f)
+			beta = -85.0f;
+
+		Vec3 center = m_Camera->GetCenter();
+		Vec3 tempPoint = m_Camera->GetEye() - center;// Translate to center
+
+		Qtrn pitch = Qtrn(beta, { -1,0,0 });
+		Qtrn yaw = Qtrn(alpha, { 0,1,0 });
+		Qtrn rot = pitch * yaw;
+		Qtrn rotatedPoint = rot * Qtrn(0, startPos.x, startPos.y, startPos.z) * conjugate(rot);
+
+		finalPos = Vec3(rotatedPoint.x + center.x, rotatedPoint.y + center.y, rotatedPoint.z + center.z); // Translate back
 	}
 	// right mouse button: zoom
 	else if (tracking == 2) 
 	{
-		alphaAux = alpha;
-		betaAux = beta;
-		rAux = r + (deltaY * 0.01f);
-		if (rAux < 0.1f)
-			rAux = 0.1f;
+		//alphaAux = alpha;
+		//betaAux = beta;
+		r = r + (deltaY * 0.01f);
+		if (r < 0.1f)
+			r = 0.1f;
+
+		finalPos += Normalize(finalPos - m_Camera->GetCenter()) * r;
 	}
 
-	camX = rAux * sin(alphaAux * 3.14f / 180.0f) * cos(betaAux * 3.14f / 180.0f);
-	camZ = rAux * cos(alphaAux * 3.14f / 180.0f) * cos(betaAux * 3.14f / 180.0f);
-	camY = rAux * sin(betaAux * 3.14f / 180.0f);
+	m_Camera->SetEye(finalPos);
+	//camX = center.x + r * sin(beta * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
+	//camZ = center.z + r * cos(alpha * 3.14f / 180.0f) * cos(alpha * 3.14f / 180.0f);
+	//camY = center.y + r * sin(beta * 3.14f / 180.0f);
 
-	m_Camera->SetEye({ camX, camY, camZ });
+	//m_Camera->SetEye({ camX, camY, camZ });
 }
 
 void Sandbox::OnMouseScroll(int wheel, int direction, int x, int y)
@@ -131,11 +140,11 @@ void Sandbox::OnMouseScroll(int wheel, int direction, int x, int y)
 	if (r < 0.1f)
 		r = 0.1f;
 
-	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-	camY = r * sin(beta * 3.14f / 180.0f);
+	//camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
+	//camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
+	//camY = r * sin(beta * 3.14f / 180.0f);
 
-	m_Camera->SetEye({ camX, camY, camZ });
+	//m_Camera->SetEye({ camX, camY, camZ });
 }
 
 void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
@@ -148,17 +157,16 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 		break;
 
 	case 'r':
-		camX = Eye.x;
-		camY = Eye.y;
-		camZ = Eye.z;
-		r = Magnitude(Eye);
-		beta = asinf(camY / r) * 180.0f / 3.14f;
-		alpha = atanf(camX / camZ) * 180.0f / 3.14f;
+		m_Camera->SetEye(startPos);
+		r = Magnitude(startPos - m_Camera->GetCenter());
+		beta = 0;//asinf(camY / r) * 180.0f / 3.14f;
+		alpha = 0;//atanf(camX / camZ) * 180.0f / 3.14f;
 		break;
 
 	case 'c':
 		printf("Camera Spherical Coordinates (%f, %f, %f)\n", r, beta, alpha);
-		printf("Camera Cartesian Coordinates (%f, %f, %f)\n", camX, camY, camZ);
+		//printf("Camera Cartesian Coordinates (%f, %f, %f)\n", camX, camY, camZ);
+		m_Camera->DumpSelf();
 		break;
 
 	case 'g':
@@ -201,10 +209,25 @@ void Sandbox::InitScene()
 
 	m_Scene = SceneLoader::LoadP3D(scene_name);	
 	m_Camera = m_Scene->GetCamera();
+	startPos = m_Camera->GetEye();
 	RES_WIDTH = m_Camera->GetResX();
 	RES_HEIGHT = m_Camera->GetResY();
 	printf("\nResolutionX = %d  ResolutionY= %d.\n", RES_WIDTH, RES_HEIGHT);
+	printf("Warning: Resolution parameters are set in application class.\n");
+
 
 	
 	
+}
+
+/// <summary>
+/// Custom function to dynamically add objects to scene
+/// </summary>
+void Sandbox::AddObjects()
+{
+	Sphere* testSphere = new Sphere(Vec3(0,5,0), 5);
+	Material* mat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 2);
+	testSphere->SetMaterial(mat);
+	m_Scene->AddObject(testSphere);
+	SceneRenderer::SumitObject(testSphere);
 }

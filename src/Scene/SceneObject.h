@@ -57,6 +57,11 @@ namespace rayTracer
 	class Sphere : public Object
 	{
 	public:
+		Sphere() : m_Center(0), SqRadius(1),
+			m_Radius(1) 
+		{
+			CalculateAABB();
+		};
 		Sphere(Vec3& a_center, float a_radius) :
 			m_Center(a_center), SqRadius(a_radius * a_radius),
 			m_Radius(a_radius)

@@ -197,6 +197,7 @@
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
     <ClCompile Include="src\Math\BoundingBox.cpp" />
+    <ClCompile Include="src\Math\Quaternion.cpp" />
     <ClCompile Include="src\OldCode.cpp" />
     <ClCompile Include="src\Math\Matrix.cpp" />
     <ClCompile Include="src\Math\Ray.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="src\Core\Utility.h" />
     <ClInclude Include="src\Math\BoundingBox.h" />
     <ClInclude Include="src\Math\Matrix.h" />
+    <ClInclude Include="src\Math\Quaternion.h" />
     <ClInclude Include="src\RayTracer.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
     <ClInclude Include="src\Renderer\Color.h" />

@@ -1,5 +1,7 @@
 #pragma once
 #include "RayTracer.h"
+#include "Math/Quaternion.h"
+#include <math.h>
 using namespace rayTracer;
 class Sandbox : public Layer
 {
@@ -23,6 +25,7 @@ public:
 
 private:
 	void InitScene();
+	void AddObjects();
 private:
 	Camera* m_Camera = nullptr;
 	Scene* m_Scene = nullptr;
@@ -31,13 +34,13 @@ private:
 
 	// Camera Move
 	// Current Camera Position
-	float camX = 0, camY = 0, camZ = 0;
+	//float camX = 0, camY = 0, camZ = 0;
 
 	//Original Camera position;
-	Vec3 Eye = {};
+	Vec3 startPos = {};
 
 	// Mouse Tracking Variables
-	int startX = 0, startY = 0, tracking = 0;
+	int lastX = 0, lastY = 0, tracking = 0;
 
 	// Camera Spherical Coordinates
 	float alpha = 0.0f, beta = 0.0f;

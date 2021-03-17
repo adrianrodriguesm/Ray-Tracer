@@ -90,11 +90,11 @@ namespace rayTracer
 		virtual ~aaBox() = default;
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 		virtual RayCastHit Intercepts(Ray& r) override;
-		virtual Vec3 GetNormal(Vec3 point) override { return m_Normal; }
+		virtual Vec3 GetNormal(Vec3 point) override;
 		virtual bool isInsideObject(const Vec3& point, const Ray& ray);//TODO: Implement
 
 	private:
 		AABB m_BoundingBox;
-		Vec3 m_Normal;
+		Vec3 m_Center;
 	};
 }

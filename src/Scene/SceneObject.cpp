@@ -5,7 +5,7 @@ namespace rayTracer
 {
 	Object::~Object()
 	{
-		delete m_Material;
+		//delete m_Material;
 	}
 	Triangle::Triangle(Vec3& P0, Vec3& P1, Vec3& P2)
 	{
@@ -171,8 +171,9 @@ namespace rayTracer
 	}
 
 	aaBox::aaBox(Vec3& minPoint, Vec3& maxPoint) //Axis aligned Box: another geometric object
-		: m_BoundingBox(minPoint, maxPoint)
+		: m_BoundingBox(minPoint, maxPoint), m_Center((minPoint + maxPoint) * 0.5f)
 	{
+
 	}
 
 	RayCastHit aaBox::Intercepts(Ray& ray)
@@ -193,10 +194,12 @@ namespace rayTracer
 		float t5 = (lb.z - ray.Origin.z) * dirfrac.z;
 		float t6 = (rt.z - ray.Origin.z) * dirfrac.z;
 
-		float tmin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
-		float tmax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));
+		// find largest entering t value
+		float tmin = std::max({ std::min(t1, t2), std::min(t3, t4), std::min(t5, t6) });
+		// find smallest exiting t value
+		float tmax = std::min({ std::max(t1, t2), std::max(t3, t4), std::max(t5, t6) });
 
-		RayCastHit hit;
+		// Condition for a hit
 		// if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
 		if (tmax < EPSILON)
 			return {false, tmax};
@@ -205,12 +208,65 @@ namespace rayTracer
 		if (tmin > tmax)
 			return { false, tmax };
 
-		return { true, tmin, this,  ray.Origin + tmin * ray.Direction};
+		return { true, tmin, this,  ray.Origin + tmin * ray.Direction };
+	}
+
+	Vec3 aaBox::GetNormal(Vec3 point)
+	{
+		// TODO maybe a possible aproach to avoid this calculus could be the addition of the normal
+		// ---  to the RayCastHit class
+		Vec3 hitToCenterDir = point - m_Center;
+		Vec3 d =  (m_BoundingBox.Max - m_BoundingBox.Min) * 0.5f;
+		
+		constexpr float epsilon = 0.9999f;
+		float x = abs((hitToCenterDir.x * (1 / d.x)));
+		// This comparation is to avoid the clamping of the value to zero due the floating point precission issue
+		x = x >= epsilon ? 1 : 0;
+		float y = abs((hitToCenterDir.y * (1 / d.y)));
+		y = y >= epsilon ? 1 : 0;
+		float z = abs((hitToCenterDir.z * (1 / d.z)));
+		z = z >= epsilon ? 1 : 0;
+		Vec3 normal = Vec3(x, y, z);
+						  
+		return normal.Normalized();
+		
 	}
 
 	bool aaBox::isInsideObject(const Vec3& point, const Ray& ray)
 	{
-		//TODO: Implement me
+		// TODO maybe a possible aproach to avoid this calculus could be the addition of the normal
+		// ---  to the RayCastHit class
+		Vec3 dirfrac;
+		// r.dir is unit direction vector of ray
+		dirfrac.x = 1.0f / ray.Direction.x;
+		dirfrac.y = 1.0f / ray.Direction.y;
+		dirfrac.z = 1.0f / ray.Direction.z;
+		// lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+		// r.org is origin of ray
+		const Vec3& lb = m_BoundingBox.Min;
+		const Vec3& rt = m_BoundingBox.Max;
+		float t1 = (lb.x - ray.Origin.x) * dirfrac.x;
+		float t2 = (rt.x - ray.Origin.x) * dirfrac.x;
+		float t3 = (lb.y - ray.Origin.y) * dirfrac.y;
+		float t4 = (rt.y - ray.Origin.y) * dirfrac.y;
+		float t5 = (lb.z - ray.Origin.z) * dirfrac.z;
+		float t6 = (rt.z - ray.Origin.z) * dirfrac.z;
+
+		// find largest entering t value
+		float tmin = std::max({ std::min(t1, t2), std::min(t3, t4), std::min(t5, t6) });
+		// find smallest exiting t value
+		float tmax = std::min({ std::max(t1, t2), std::max(t3, t4), std::max(t5, t6) });
+
+		// Condition for a hit
+		if (tmin < tmax && tmax > EPSILON)
+		{
+			if (tmin > EPSILON) // Ray hits outside
+				return false;
+			else // Ray hits inside
+				return true;
+
+		}
+
 		return false;
 	}
 

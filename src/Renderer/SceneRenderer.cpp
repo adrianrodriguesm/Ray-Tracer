@@ -1,10 +1,12 @@
 ﻿#include "Renderer/SceneRenderer.h"
 #include "Core/Application.h"
 #include "Core/Utility.h"
+#include "Math/Random.h"
 #include <GL/glew.h>
 #include <Core/Base.h>
 #include <GL/freeglut.h>
 #include <math.h>
+#include <Math/Maths.h>
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -286,22 +288,37 @@ namespace rayTracer
 
 		int index_pos = 0;
 		int index_col = 0;
-		unsigned int counter = 0;
-	
+		uint32_t counter = 0;
+		
+		constexpr uint32_t samples = 4;
 		glClear(GL_COLOR_BUFFER_BIT);
 		for (uint32_t y = 0; y < height; y++)
 		{
 			for (uint32_t x = 0; x < width; x++)
 			{
 				Vec3 color;
-
-				Vec3 pixel;  //viewport coordinates
+				/**/
+				// Calculos of the color
+				for (uint32_t i = 0; i < samples; i++)
+				{
+					for (uint32_t j = 0; j < samples; j++)
+					{	
+						Vec2 pixel;  //viewport coordinates
+						pixel.x = x + (i + Random::Float()) / samples;
+						pixel.y = y + (j + Random::Float()) / samples;
+						Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel);
+						color += TraceRays(ray, 1, 1.0);
+					}
+				}
+				color = color / (samples * samples);
+				/** /
+				// TODO : REMOVE old code legacy reasons
+				Vec2 pixel;  //viewport coordinates
 				pixel.x = x + 0.5f;
 				pixel.y = y + 0.5f;
-
-				// Calculos of the color
 				Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel);
-				color = TraceRays(ray, 1, 1.0);
+				color += TraceRays(ray, 1, 1.0);
+				/**/
 				// Reinhard tonemapping
 				static constexpr float exposure = 0.3f;
 				if(s_Data.toneMappingActivated)

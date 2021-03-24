@@ -3,7 +3,7 @@
 #include "Base.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-
+#include "Math/Random.h"
 #include "Renderer/SceneRenderer.h"
 namespace rayTracer
 {
@@ -22,6 +22,8 @@ namespace rayTracer
 		InitGraphicContext();
 		SceneRenderer::Init();
 		SetCallBacks();
+		// Random Seed
+		Random::Init();
 		m_Spec.AppLayer->OnAttach();
 	}
 	Application::~Application()

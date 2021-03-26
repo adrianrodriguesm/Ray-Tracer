@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "Scene/Scene.h"
 #include "Math/Ray.h"
+#include "AntiAliasing.h"
 namespace rayTracer
 {
 	struct SceneRendererSpec
@@ -11,6 +12,7 @@ namespace rayTracer
 		uint32_t Width, Height;
 		Scene* Scene;
 	};
+
 	class SceneRenderer
 	{
 	public:
@@ -18,8 +20,8 @@ namespace rayTracer
 		static void Shutdown();
 		static void SumitRenderSpec(SceneRendererSpec spec);
 		static void SumitObject(Object* obj);
-		static void OnResize(int width, int height);	
-		static void ToggleGammaCorrection();	
+		static void OnResize(int width, int height);
+		static void ToggleGammaCorrection();
 		static void ToggleToneMapping();
 		static void ChangeTracingDepth(int change);
 		static void Render();
@@ -28,7 +30,8 @@ namespace rayTracer
 		static Vec3 TraceRays(Ray& ray, uint32_t depth, float refractionIndex);
 		static RayCastHit GetClosestHit(Ray& ray, float tmin);
 		static RayCastHit IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance);
-		static Vec3 BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal);
+		static float GetLightIntensityAtPoint(const RayCastHit& hit, Light* light, const Vec3& normal);
+		static Vec3 BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity);
 		// Here is were the render of the points happen
 		static void Flush();
 		static void DrawPoints();
@@ -44,5 +47,5 @@ namespace rayTracer
 		static void InitData();
 		static void DestroyData();
 	};
-	
+
 }

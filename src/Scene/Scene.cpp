@@ -56,7 +56,6 @@ namespace rayTracer
 		m_Lights.push_back(l);
 	}
 
-
 	Light* Scene::GetLight(unsigned int index)
 	{
 		if (index >= 0 && index < m_Lights.size())

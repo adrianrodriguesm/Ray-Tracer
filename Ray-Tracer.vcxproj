@@ -202,7 +202,9 @@
     <ClCompile Include="src\OldCode.cpp" />
     <ClCompile Include="src\Math\Matrix.cpp" />
     <ClCompile Include="src\Math\Ray.cpp" />
+    <ClCompile Include="src\Renderer\AntiAliasing.cpp" />
     <ClCompile Include="src\Renderer\Camera.cpp" />
+    <ClCompile Include="src\Renderer\Light.cpp" />
     <ClCompile Include="src\Renderer\SceneRenderer.cpp" />
     <ClCompile Include="src\Sandbox.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
@@ -221,6 +223,7 @@
     <ClInclude Include="src\Math\Quaternion.h" />
     <ClInclude Include="src\Math\Random.h" />
     <ClInclude Include="src\RayTracer.h" />
+    <ClInclude Include="src\Renderer\AntiAliasing.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
     <ClInclude Include="src\Renderer\Color.h" />
     <ClInclude Include="src\Renderer\Grid.h" />

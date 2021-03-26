@@ -74,11 +74,12 @@ namespace rayTracer
 			uint32_t Width = 512, Height = 512;
 			uint32_t MaxDepth = 3;
 		} DataScene;
+
 		// Rendering Mode
 		RenderMode RenderMode = RenderMode::Default; // This is define by the application
 		// Points defined by 2 attributes: positions which are stored in vertices array and colors which are stored in colors array
 		float* Colors = nullptr, *Vertices = nullptr;
-		int VerticesSize = 0, ColorsSize = 0;	
+		int VerticesSize = 0, ColorsSize = 0;
 		// Array of Pixels to be stored in a file by using DevIL library
 		uint8_t* ImageData = nullptr;
 		// Shader Data
@@ -91,8 +92,11 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+
 	};
 	static RendererData s_Data;
+
 
 	void SceneRenderer::Init()
 	{
@@ -167,18 +171,22 @@ namespace rayTracer
 			normal *= -1; // Inverse normal if inside object (For transparent objects)
 		Vec3 viewDir = ray.Direction; // Unit vector
 		Vec3 invViewDir = -1 * viewDir; // Unit vector
+		Vec3 emissionPoint = hit.InterceptionPoint + normal * DISPLACEMENT_BIAS;
+
+
 		auto& lights = s_Data.DataScene.Scene->GetLights();
 		for (auto& light : lights)
 		{
-			// Beucause 
-			Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint);
-			float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
-			lightDir = lightDir.Normalized();
-			if (IsPointInShadow(hit, lightDir, lightDistance))
-				continue; // Zero light contribution for this point
-			// Calculate ligth
-			color += BlinnPhong(material, light, lightDir, viewDir, normal);
+			float intensity = light->GetIntensityAtPoint(emissionPoint, s_Data.DataScene.Objects, s_Data.antialiasingMode);
+			
+			if (intensity == 0)
+				continue;
+
+			Vec3 lightDir =  Vec3(light->position - hit.InterceptionPoint).Normalized();
+			color += BlinnPhong(material, light, lightDir, viewDir, normal, intensity);
 		}
+
+
 		// If we reach the max deth end the recursive call
 		if (depth >= s_Data.DataScene.MaxDepth)
 			return color;
@@ -244,20 +252,89 @@ namespace rayTracer
 		}
 		return false;
 	}
-	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal)
+
+	float SceneRenderer::GetLightIntensityAtPoint(const RayCastHit& hit, Light* light, const Vec3& normal)
 	{
-		//Vec3 objectColor = mat->GetDiffColor(); // Check this
+		Vec3 emissionPoint = hit.InterceptionPoint + normal * DISPLACEMENT_BIAS;
+
+
+
+		AreaLight* castedLight = nullptr;// = dynamic_cast<AreaLight*>(light);
+		bool test1 = (typeid(AreaLight) == typeid(*light));
+		if (castedLight != nullptr)
+		{
+			//Process Area Light
+			if (s_Data.antialiasingMode == AntialiasingMode::NONE)
+			{
+				int nbPoints = 9;
+				float intensity = 1;
+				
+				float lightDistance = (light->position - hit.InterceptionPoint).Magnitude();//Light should not be blocked by objects behind the light source
+				Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
+				for (size_t i = 0; i < nbPoints; i++)
+				{
+					set_rand_seed(time(nullptr) + i);
+					float alpha = rand_float();
+					float beta = rand_float();
+					Vec3 position = castedLight->cornerPos + alpha * castedLight->sideA + beta * castedLight->sideB;
+
+					Vec3 lightDir = position - hit.InterceptionPoint;
+
+					lightDir = lightDir.Normalized();
+					Ray shadowFeeler(hit.InterceptionPoint + normal * DISPLACEMENT_BIAS, lightDir);
+					for (auto obj : s_Data.DataScene.Objects)
+					{
+						if (obj->GetMaterial()->GetTransmittance() > 0)
+							continue; // Transparent objects do not block light (Should refract light, but....)
+
+						RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
+						if (shadowHit && shadowHit.Tdist < lightDistance)
+						{
+							intensity -= 1.0f/nbPoints;
+							break;
+						}
+					}
+				}
+				return intensity;
+
+			}
+			else 
+			{
+				std::cout << "\nERROR: Shadows are not yet supported for multi-sampling\n";
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+
+			Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint);
+			float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
+			lightDir = lightDir.Normalized();
+
+			Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
+			Ray shadowFeeler(hit.InterceptionPoint + normal * DISPLACEMENT_BIAS, lightDir);
+			for (auto obj : s_Data.DataScene.Objects)
+			{
+				if (obj->GetMaterial()->GetTransmittance() > 0)
+					continue; // Transparent objects do not block light (Should refract light, but....)
+
+				RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
+				if (shadowHit && shadowHit.Tdist < lightDistance)
+					return 0;
+			}
+			return 1;
+		}
+	}
+
+	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity)
+	{
 		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);
 		if (diffuseIntensity > 0)
 		{
 			// Diffuse
 			float KdLamb = mat->GetDiffuse() * diffuseIntensity;
 			Vec3 diffuseColor = light->color * KdLamb * mat->GetDiffColor();
-			/** /
-			diffuseColor.r = color.r * light->color.r * KdLamb;
-			diffuseColor.g = color.g * light->color.g * KdLamb;
-			diffuseColor.b = color.b * light->color.b * KdLamb;
-			/**/
+
 			// Specular
 			Vec3 halfwayVector = viewDir + lightDir;
 			Vec3 reflected = halfwayVector.Normalized();
@@ -265,17 +342,11 @@ namespace rayTracer
 			float specular = pow(specAngle, mat->GetShine());
 			float ksSpec = mat->GetSpecular() * specular;
 			Vec3 specularColor = light->color * ksSpec * mat->GetSpecColor();
-			/** /
-			specularColor.r = color.r * light->color.r * ksSpec;
-			specularColor.g = color.g * light->color.g * ksSpec;
-			specularColor.b = color.b * light->color.b * ksSpec;
-			/**/
+
+			// Total
 			Vec3 color = diffuseColor + specularColor;
-			/*
-			color.r *= objectColor.r;
-			color.g *= objectColor.g;
-			color.b *= objectColor.b;
-			*/
+			color *= intensity;
+
 			return color;
 		}
 		return Vec3(0.f);
@@ -289,43 +360,46 @@ namespace rayTracer
 		int index_pos = 0;
 		int index_col = 0;
 		uint32_t counter = 0;
-		
-		constexpr uint32_t samples = 4;
+
+		constexpr uint32_t nbSamples = 4;
 		glClear(GL_COLOR_BUFFER_BIT);
 		for (uint32_t y = 0; y < height; y++)
 		{
 			for (uint32_t x = 0; x < width; x++)
 			{
 				Vec3 color;
-				/**/
-				// Calculos of the color
-				for (uint32_t i = 0; i < samples; i++)
+				std::vector<Vec2> samplingPoints;
+
+				// Get Sampling points
+				switch (s_Data.antialiasingMode)
 				{
-					for (uint32_t j = 0; j < samples; j++)
-					{	
-						Vec2 pixel;  //viewport coordinates
-						pixel.x = x + (i + Random::Float()) / samples;
-						pixel.y = y + (j + Random::Float()) / samples;
-						Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel);
-						color += TraceRays(ray, 1, 1.0);
+					case(AntialiasingMode::NONE):				samplingPoints = SingularSampling::GetSamplingPoints(Vec2(x, y), nbSamples); break;
+					case(AntialiasingMode::JITTERING):			samplingPoints = JitteringSampling::GetSamplingPoints(Vec2(x, y), nbSamples); break;
+					case(AntialiasingMode::REGULAR_SAMPLING):	samplingPoints = RegularSampling::GetSamplingPoints(Vec2(x, y), nbSamples); break;
+					default: 
+					{
+						std::cout << "\nERROR: The attempted antialasing mode has not been implemented\n";
+						exit(EXIT_FAILURE); 
 					}
 				}
-				color = color / (samples * samples);
-				/** /
-				// TODO : REMOVE old code legacy reasons
-				Vec2 pixel;  //viewport coordinates
-				pixel.x = x + 0.5f;
-				pixel.y = y + 0.5f;
-				Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel);
-				color += TraceRays(ray, 1, 1.0);
-				/**/
+
+				// Calculate Color
+				for each (Vec2 sample in samplingPoints)
+				{
+					Ray ray = s_Data.DataScene.Camera->PrimaryRay(sample);
+					color += TraceRays(ray, 1, 1.0);
+				}
+				color = color / samplingPoints.size();
+
 				// Reinhard tonemapping
 				static constexpr float exposure = 0.3f;
 				if(s_Data.toneMappingActivated)
 					color = utils::ApplyToneMapping(color, exposure);
+
 				// Gamma correction
 				if (s_Data.gammaCorrectionActivated)
 					color = utils::ConvertColorFromLinearToGammaSpace(color);
+
 				// Update Image Data
 				s_Data.ImageData[counter++] = (uint8_t)color.r;
 				s_Data.ImageData[counter++] = (uint8_t)color.g;

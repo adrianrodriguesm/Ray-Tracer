@@ -116,6 +116,20 @@ namespace rayTracer
 					scene->AddLight(new Light(pos, color));
 
 				}
+
+				else if (cmd == "larea")  // Area Light
+				{
+					Vec3 pos;
+					Vec3 color;
+					Vec3 side1;
+					Vec3 side2;
+
+					file >> pos >> color >> side1 >> side2;
+
+					scene->AddLight(new AreaLight(pos, color, side1, side2));
+
+				}
+
 				else if (cmd == "v")
 				{
 					Vec3 up, from, at;

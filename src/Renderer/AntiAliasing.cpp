@@ -7,32 +7,42 @@ namespace rayTracer
 	/// <param name="pixelCoords"></param>
 	/// <param name="nbSamples"></param>
 	/// <returns></returns>
-	std::vector<Vec2> SingularSampling::GetSamplingPoints(const Vec2& pixelCoords, int nbSamples)
+	std::vector<Vec2> SingularSampling::GetSamplingOffsets(int nbSamples)
 	{
-		std::vector<Vec2> samples = std::vector<Vec2>();
-		samples.push_back(pixelCoords + Vec2(0.5f, 0.5f));
-		return samples;
+		std::vector<Vec2> sampleOffsets = std::vector<Vec2>();
+		sampleOffsets.push_back(Vec2(0.5f, 0.5f));
+		return sampleOffsets;
 	}
 
-	std::vector<Vec2> RegularSampling::GetSamplingPoints(const Vec2& pixelCoords, int nbSamples)
+	std::vector<Vec2> RegularSampling::GetSamplingOffsets(int nbsampleOffsets)
 	{
-		std::cout << "\nERROR: The attempted sampling method has not been implemented\n";
-		exit(EXIT_FAILURE);
-	}
-
-	std::vector<Vec2> JitteringSampling::GetSamplingPoints(const Vec2& pixelCoords, int nbSamples)
-	{
-		std::vector<Vec2> samples = std::vector<Vec2>();
-		for (uint32_t i = 0; i < nbSamples; i++)
+		std::vector<Vec2> sampleOffsets = std::vector<Vec2>();
+		for (uint32_t i = 0; i < nbsampleOffsets; i++)
 		{
-			for (uint32_t j = 0; j < nbSamples; j++)
+			for (uint32_t j = 0; j < nbsampleOffsets; j++)
 			{
-				Vec2 sample;  //viewport coordinates
-				sample.x = pixelCoords.x + (i + Random::Float()) / nbSamples;
-				sample.y = pixelCoords.y + (j + Random::Float()) / nbSamples;
-				samples.push_back(sample);
+				Vec2 sampleOffset;  //viewport coordinates
+				sampleOffset.x = (i + 0.5f) / nbsampleOffsets;
+				sampleOffset.y = (j + 0.5f) / nbsampleOffsets;
+				sampleOffsets.push_back(sampleOffset);
 			}
 		}
-		return samples;
+		return sampleOffsets;
+	}
+
+	std::vector<Vec2> JitteringSampling::GetSamplingOffsets(int nbsampleOffsets)
+	{
+		std::vector<Vec2> sampleOffsets = std::vector<Vec2>();
+		for (uint32_t i = 0; i < nbsampleOffsets; i++)
+		{
+			for (uint32_t j = 0; j < nbsampleOffsets; j++)
+			{
+				Vec2 sampleOffset;  //viewport coordinates
+				sampleOffset.x = (i + Random::Float()) / nbsampleOffsets;
+				sampleOffset.y = (j + Random::Float()) / nbsampleOffsets;
+				sampleOffsets.push_back(sampleOffset);
+			}
+		}
+		return sampleOffsets;
 	}
 }

@@ -16,7 +16,7 @@ namespace rayTracer
 	struct AplicationSpecification
 	{
 		Layer* AppLayer = nullptr;
-		std::string Caption = "Whitted Ray-Tracer";
+		std::string Caption = "Distribution Ray-Tracer";
 		RenderMode Mode = RenderMode::DrawMode;
 		int Width = 512, Height = 512;
 		// TODO: Check if necessary

@@ -1,5 +1,5 @@
 #include "Light.h"
-
+#include "Renderer/SceneRenderer.h"
 #include "Math/Maths.h"
 
 namespace rayTracer
@@ -9,8 +9,8 @@ namespace rayTracer
 		Vec3 lightDir = Vec3(this->position - emissionPoint);
 		float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
 		lightDir = lightDir.Normalized();
-
 		Ray shadowFeeler(emissionPoint, lightDir);
+
 		for (auto obj : objectsInScene)
 		{
 			if (obj->GetMaterial()->GetTransmittance() > 0)
@@ -42,11 +42,12 @@ namespace rayTracer
 
 	float AreaLight::GetIntensityAtPoint(const Vec3& emissionPoint, const std::vector<Object*>& objectsInScene, AntialiasingMode antialiasingMode)
 	{
+		float lightDistance = (this->position - emissionPoint).Magnitude();//Light should not be blocked by objects behind the light source
+		
 		if (antialiasingMode == AntialiasingMode::NONE)
 		{
 			float intensity = (sqrdNbPoints * sqrdNbPoints);
 			float distBetweenPoints = 1.0f / (sqrdNbPoints + 1);
-			float lightDistance = (this->position - emissionPoint).Magnitude();//Light should not be blocked by objects behind the light source
 			for (int i = 0; i < sqrdNbPoints; i++)
 			{
 				for (int j = 0; j < sqrdNbPoints; j++)
@@ -73,17 +74,36 @@ namespace rayTracer
 				}
 			}
 			return intensity / (sqrdNbPoints * sqrdNbPoints);
-
 		}
-		else
+		else 
 		{
-			std::cout << "\nERROR: Shadows are not yet supported for multi-sampling\n";
-			exit(EXIT_FAILURE);
+			// Multi-sampling handling
+			int samplingCount = SceneRenderer::GetLightSamplingArray().size();
 
-			//set_rand_seed(time(nullptr) + i);
-			//float alpha = rand_float();
-			//float beta = rand_float();
-			//Vec3 position = this->cornerPos + alpha * this->sideA + beta * this->sideB;
+			// New pixel, restart sampling index
+			if (samplingIndex >= samplingCount)
+				samplingIndex = 0;
+			
+			Vec2 samplingOffset = SceneRenderer::GetLightSamplingArray()[samplingIndex];
+			samplingIndex++;
+
+			float intensity = 1;
+			Vec3 position = this->cornerPos + samplingOffset.x * this->sideA + samplingOffset.y * this->sideB;
+
+			Vec3 lightDir = Normalize(position - emissionPoint);
+			Ray shadowFeeler(emissionPoint, lightDir);
+
+			for (auto obj : objectsInScene)
+			{
+				if (obj->GetMaterial()->GetTransmittance() > 0)
+					continue; // Transparent objects do not block light (Should refract light, but....)
+
+				RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
+				if (shadowHit && shadowHit.Tdist < lightDistance)
+					return 0.0f;
+			}
+
+			return 1.0f;
 		}
 	}
 }

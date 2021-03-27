@@ -1,12 +1,8 @@
 ﻿#include "Renderer/SceneRenderer.h"
-#include "Core/Application.h"
-#include "Core/Utility.h"
-#include "Math/Random.h"
-#include <GL/glew.h>
-#include <Core/Base.h>
-#include <GL/freeglut.h>
 #include <math.h>
 #include <Math/Maths.h>
+#include <algorithm>    // std::random_shuffle
+
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -78,7 +74,7 @@ namespace rayTracer
 		// Rendering Mode
 		RenderMode RenderMode = RenderMode::Default; // This is define by the application
 		// Points defined by 2 attributes: positions which are stored in vertices array and colors which are stored in colors array
-		float* Colors = nullptr, *Vertices = nullptr;
+		float* Colors = nullptr, * Vertices = nullptr;
 		int VerticesSize = 0, ColorsSize = 0;
 		// Array of Pixels to be stored in a file by using DevIL library
 		uint8_t* ImageData = nullptr;
@@ -92,7 +88,8 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
-		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+		AntialiasingMode antialiasingMode = AntialiasingMode::REGULAR_SAMPLING;
+		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 
 	};
 	static RendererData s_Data;
@@ -137,19 +134,29 @@ namespace rayTracer
 
 	}
 
-	void SceneRenderer::ToggleGammaCorrection() {
+	void SceneRenderer::ToggleGammaCorrection() 
+	{
 		s_Data.gammaCorrectionActivated = !s_Data.gammaCorrectionActivated;
 		std::cout << "Gamma correction: " << (s_Data.gammaCorrectionActivated ? "On" : "Off") << std::endl;
 	}
 
-	void SceneRenderer::ToggleToneMapping() {
+	void SceneRenderer::ToggleToneMapping() 
+	{
 		s_Data.toneMappingActivated = !s_Data.toneMappingActivated;
 		std::cout << "Tone mapping: " << (s_Data.toneMappingActivated ? "On" : "Off") << std::endl;
 	}
 
-	void SceneRenderer::ChangeTracingDepth(int change) {
+	void SceneRenderer::ChangeTracingDepth(int change) 
+	{
 		s_Data.DataScene.MaxDepth = std::max(1, (int)s_Data.DataScene.MaxDepth + change);
 		std::cout << "Max Depth: " << s_Data.DataScene.MaxDepth << std::endl;
+	}
+
+	void SceneRenderer::SwitchAntialiasingMode(AntialiasingMode newMode)
+	{
+		s_Data.antialiasingMode = newMode;
+		std::string modeName = newMode == AntialiasingMode::NONE ? "None" : newMode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
+		std::cout << "Antialiasing Mode: " << modeName << std::endl;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Render
@@ -253,79 +260,6 @@ namespace rayTracer
 		return false;
 	}
 
-	float SceneRenderer::GetLightIntensityAtPoint(const RayCastHit& hit, Light* light, const Vec3& normal)
-	{
-		Vec3 emissionPoint = hit.InterceptionPoint + normal * DISPLACEMENT_BIAS;
-
-
-
-		AreaLight* castedLight = nullptr;// = dynamic_cast<AreaLight*>(light);
-		bool test1 = (typeid(AreaLight) == typeid(*light));
-		if (castedLight != nullptr)
-		{
-			//Process Area Light
-			if (s_Data.antialiasingMode == AntialiasingMode::NONE)
-			{
-				int nbPoints = 9;
-				float intensity = 1;
-				
-				float lightDistance = (light->position - hit.InterceptionPoint).Magnitude();//Light should not be blocked by objects behind the light source
-				Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
-				for (size_t i = 0; i < nbPoints; i++)
-				{
-					set_rand_seed(time(nullptr) + i);
-					float alpha = rand_float();
-					float beta = rand_float();
-					Vec3 position = castedLight->cornerPos + alpha * castedLight->sideA + beta * castedLight->sideB;
-
-					Vec3 lightDir = position - hit.InterceptionPoint;
-
-					lightDir = lightDir.Normalized();
-					Ray shadowFeeler(hit.InterceptionPoint + normal * DISPLACEMENT_BIAS, lightDir);
-					for (auto obj : s_Data.DataScene.Objects)
-					{
-						if (obj->GetMaterial()->GetTransmittance() > 0)
-							continue; // Transparent objects do not block light (Should refract light, but....)
-
-						RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
-						if (shadowHit && shadowHit.Tdist < lightDistance)
-						{
-							intensity -= 1.0f/nbPoints;
-							break;
-						}
-					}
-				}
-				return intensity;
-
-			}
-			else 
-			{
-				std::cout << "\nERROR: Shadows are not yet supported for multi-sampling\n";
-				exit(EXIT_FAILURE);
-			}
-		}
-		else
-		{
-
-			Vec3 lightDir = Vec3(light->position - hit.InterceptionPoint);
-			float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
-			lightDir = lightDir.Normalized();
-
-			Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
-			Ray shadowFeeler(hit.InterceptionPoint + normal * DISPLACEMENT_BIAS, lightDir);
-			for (auto obj : s_Data.DataScene.Objects)
-			{
-				if (obj->GetMaterial()->GetTransmittance() > 0)
-					continue; // Transparent objects do not block light (Should refract light, but....)
-
-				RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
-				if (shadowHit && shadowHit.Tdist < lightDistance)
-					return 0;
-			}
-			return 1;
-		}
-	}
-
 	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity)
 	{
 		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);
@@ -362,20 +296,21 @@ namespace rayTracer
 		uint32_t counter = 0;
 
 		constexpr uint32_t nbSamples = 4;
+
 		glClear(GL_COLOR_BUFFER_BIT);
 		for (uint32_t y = 0; y < height; y++)
 		{
 			for (uint32_t x = 0; x < width; x++)
 			{
 				Vec3 color;
-				std::vector<Vec2> samplingPoints;
-
+				Vec2 pixel = Vec2(x, y);
+				std::vector<Vec2> samplingOffsets;
 				// Get Sampling points
 				switch (s_Data.antialiasingMode)
 				{
-					case(AntialiasingMode::NONE):				samplingPoints = SingularSampling::GetSamplingPoints(Vec2(x, y), nbSamples); break;
-					case(AntialiasingMode::JITTERING):			samplingPoints = JitteringSampling::GetSamplingPoints(Vec2(x, y), nbSamples); break;
-					case(AntialiasingMode::REGULAR_SAMPLING):	samplingPoints = RegularSampling::GetSamplingPoints(Vec2(x, y), nbSamples); break;
+					case(AntialiasingMode::NONE):				samplingOffsets = SingularSampling::GetSamplingOffsets(nbSamples); break;
+					case(AntialiasingMode::JITTERING):			samplingOffsets = JitteringSampling::GetSamplingOffsets(nbSamples); break;
+					case(AntialiasingMode::REGULAR_SAMPLING):	samplingOffsets = RegularSampling::GetSamplingOffsets(nbSamples); break;
 					default: 
 					{
 						std::cout << "\nERROR: The attempted antialasing mode has not been implemented\n";
@@ -383,13 +318,17 @@ namespace rayTracer
 					}
 				}
 
+				// Set the lightoffset array to a scrambled version of the sampling offsets
+				s_Data.lightSamplingOffsetGrid = samplingOffsets;
+				std::shuffle(std::begin(s_Data.lightSamplingOffsetGrid), std::end(s_Data.lightSamplingOffsetGrid), std::default_random_engine{});
+
 				// Calculate Color
-				for each (Vec2 sample in samplingPoints)
+				for each (Vec2 sampleOffset in samplingOffsets)
 				{
-					Ray ray = s_Data.DataScene.Camera->PrimaryRay(sample);
+					Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel + sampleOffset);
 					color += TraceRays(ray, 1, 1.0);
 				}
-				color = color / samplingPoints.size();
+				color = color / samplingOffsets.size();
 
 				// Reinhard tonemapping
 				static constexpr float exposure = 0.3f;
@@ -418,6 +357,26 @@ namespace rayTracer
 		}
 		// Render Data
 		Flush();
+	}
+	std::vector<Vec2> SceneRenderer::GetLightSamplingArray()
+	{
+		return s_Data.lightSamplingOffsetGrid;
+	}
+	bool SceneRenderer::GetGammaCorrection()
+	{
+		return s_Data.gammaCorrectionActivated;
+	}
+	bool SceneRenderer::GetToneMapping()
+	{
+		return s_Data.toneMappingActivated;
+	}
+	int SceneRenderer::GetTracingDepth()
+	{
+		return s_Data.DataScene.MaxDepth;
+	}
+	AntialiasingMode SceneRenderer::GetAntialiasingMode()
+	{
+		return s_Data.antialiasingMode;
 	}
 	void SceneRenderer::Flush()
 	{

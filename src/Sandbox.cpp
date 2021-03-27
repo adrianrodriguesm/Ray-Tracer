@@ -183,6 +183,18 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 	case'-':
 		SceneRenderer::ChangeTracingDepth(-1);
 		break;
+
+	case'1':
+		SceneRenderer::SwitchAntialiasingMode(AntialiasingMode::NONE);
+		break;
+
+	case'2':
+		SceneRenderer::SwitchAntialiasingMode(AntialiasingMode::REGULAR_SAMPLING);
+		break;
+
+	case'3':
+		SceneRenderer::SwitchAntialiasingMode(AntialiasingMode::JITTERING);
+		break;
 	}
 }
 
@@ -214,6 +226,21 @@ void Sandbox::InitScene()
 	RES_HEIGHT = m_Camera->GetResY();
 	printf("\nResolutionX = %d  ResolutionY= %d.\n", RES_WIDTH, RES_HEIGHT);
 	printf("Warning: Resolution parameters are set in application class.\n");
+
+	std::cout << std::endl << "Gamma correction: " << (SceneRenderer::GetGammaCorrection() ? "ON" : "OFF") << std::endl;
+	std::cout << "'G' - Toggle Off/On" << std::endl << std::endl;
+
+	std::cout << "Tone mapping: " << (SceneRenderer::GetToneMapping ? "ON" : "OFF") << std::endl;
+	std::cout << "'T' - Toggle Off/On" << std::endl << std::endl;
+
+	std::cout << "Max Depth: " << SceneRenderer::GetTracingDepth() << std::endl;
+	std::cout << "'+'/'-' - Increment/Decrement depth " << std::endl << std::endl;
+
+	AntialiasingMode mode = SceneRenderer::GetAntialiasingMode();
+	std::string modeName = mode == AntialiasingMode::NONE ? "None" : mode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
+	std::cout << "Antialiasing Mode: " << modeName << std::endl;
+	std::cout << "'1' - No antialiasing | '2' - Regular Sampling | '3' - Jittering" << std::endl << std::endl;
+
 }
 
 /// <summary>

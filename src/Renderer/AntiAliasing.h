@@ -15,19 +15,19 @@ namespace rayTracer
 	class SingularSampling
 	{
 	public:
-		static std::vector<Vec2> GetSamplingPoints(const Vec2& pixelCoords, int samples);
+		static std::vector<Vec2> GetSamplingOffsets(int nbSamples);
 	};
 
 	class RegularSampling
 	{
 	public:
-		static std::vector<Vec2> GetSamplingPoints(const Vec2& pixelCoords, int samples);
+		static std::vector<Vec2> GetSamplingOffsets(int nbSamples);
 	};
 
 	class JitteringSampling
 	{
 	public:
-		static std::vector<Vec2> GetSamplingPoints(const Vec2& pixelCoords, int samples);
+		static std::vector<Vec2> GetSamplingOffsets(int nbSamples);
 	};
 }
 

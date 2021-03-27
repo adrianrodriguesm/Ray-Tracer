@@ -6,6 +6,9 @@ namespace rayTracer
 {
 	float Light::GetIntensityAtPoint(const Vec3& emissionPoint, const std::vector<Object*>& objectsInScene, AntialiasingMode antialiasingMode)
 	{
+		if (!shadows)
+			return 1;
+
 		Vec3 lightDir = Vec3(this->position - emissionPoint);
 		float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
 		lightDir = lightDir.Normalized();
@@ -42,6 +45,9 @@ namespace rayTracer
 
 	float AreaLight::GetIntensityAtPoint(const Vec3& emissionPoint, const std::vector<Object*>& objectsInScene, AntialiasingMode antialiasingMode)
 	{
+		if (!shadows)
+			return 1;
+
 		float lightDistance = (this->position - emissionPoint).Magnitude();//Light should not be blocked by objects behind the light source
 		
 		if (antialiasingMode == AntialiasingMode::NONE)

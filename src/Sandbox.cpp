@@ -176,6 +176,10 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 		SceneRenderer::ToggleToneMapping();
 		break;
 
+	case 's':
+		SceneRenderer::ToggleShadows();
+		break;
+
 	case'+':
 		SceneRenderer::ChangeTracingDepth(1);
 		break;
@@ -227,19 +231,26 @@ void Sandbox::InitScene()
 	printf("\nResolutionX = %d  ResolutionY= %d.\n", RES_WIDTH, RES_HEIGHT);
 	printf("Warning: Resolution parameters are set in application class.\n");
 
-	std::cout << std::endl << "Gamma correction: " << (SceneRenderer::GetGammaCorrection() ? "ON" : "OFF") << std::endl;
-	std::cout << "'G' - Toggle Off/On" << std::endl << std::endl;
+	std::cout << std::endl << "------------- OPTIONS ---------------" << std::endl;
+	std::cout << std::endl << "Gamma correction: " << (SceneRenderer::GetGammaCorrection() ? "ON" : "OFF") << std::endl << std::endl;
 
-	std::cout << "Tone mapping: " << (SceneRenderer::GetToneMapping ? "ON" : "OFF") << std::endl;
-	std::cout << "'T' - Toggle Off/On" << std::endl << std::endl;
+	std::cout << "Tone mapping: " << (SceneRenderer::GetToneMapping ? "ON" : "OFF") << std::endl << std::endl;
 
-	std::cout << "Max Depth: " << SceneRenderer::GetTracingDepth() << std::endl;
-	std::cout << "'+'/'-' - Increment/Decrement depth " << std::endl << std::endl;
+	std::cout << "Max Depth: " << SceneRenderer::GetTracingDepth() << std::endl << std::endl;
 
 	AntialiasingMode mode = SceneRenderer::GetAntialiasingMode();
 	std::string modeName = mode == AntialiasingMode::NONE ? "None" : mode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
-	std::cout << "Antialiasing Mode: " << modeName << std::endl;
+	std::cout << "Antialiasing Mode: " << modeName << std::endl << std::endl;
+
+	std::cout << "----------------------------------" << std::endl << std::endl;
+
+	std::cout << "------------- INPUTS ---------------" << std::endl;
+	std::cout << "'G' - Toggle Off/On Gamma Correction" << std::endl << std::endl;
+	std::cout << "'T' - Toggle Off/On Tonemapping" << std::endl << std::endl;
+	std::cout << "'S' - Toggle Off/On Shadows (Global)" << std::endl << std::endl;
+	std::cout << "'+'/'-' - Increment/Decrement Max Depth" << std::endl << std::endl;
 	std::cout << "'1' - No antialiasing | '2' - Regular Sampling | '3' - Jittering" << std::endl << std::endl;
+	std::cout << "----------------------------------" << std::endl;
 
 }
 

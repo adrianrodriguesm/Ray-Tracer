@@ -146,6 +146,26 @@ namespace rayTracer
 		std::cout << "Tone mapping: " << (s_Data.toneMappingActivated ? "On" : "Off") << std::endl;
 	}
 
+	void SceneRenderer::ToggleShadows()
+	{
+		int lightsOn = 0;
+		int lightsOff = 0;
+		for each(auto& light in s_Data.DataScene.Scene->GetLights())
+		{
+			bool onOff = !light->shadows;
+			light->shadows = onOff;
+			if (onOff)
+				lightsOn++;
+			else
+				lightsOff++;
+		}
+		if(lightsOff > 0)
+			std::cout << "Deactivated shadows for " << lightsOff << " lights." << std::endl;
+		if(lightsOn > 0)
+			std::cout << "Activated shadows for " << lightsOn << " lights." << std::endl;
+		std::cout << std::endl;
+	}
+
 	void SceneRenderer::ChangeTracingDepth(int change) 
 	{
 		s_Data.DataScene.MaxDepth = std::max(1, (int)s_Data.DataScene.MaxDepth + change);
@@ -184,12 +204,16 @@ namespace rayTracer
 		auto& lights = s_Data.DataScene.Scene->GetLights();
 		for (auto& light : lights)
 		{
-			float intensity = light->GetIntensityAtPoint(emissionPoint, s_Data.DataScene.Objects, s_Data.antialiasingMode);
-			
-			if (intensity == 0)
+			Vec3 lightDir =  Vec3(light->position - hit.InterceptionPoint).Normalized();
+
+			if (DotProduct(lightDir, normal) <= 0)
 				continue;
 
-			Vec3 lightDir =  Vec3(light->position - hit.InterceptionPoint).Normalized();
+			float intensity = light->GetIntensityAtPoint(emissionPoint, s_Data.DataScene.Objects, s_Data.antialiasingMode);
+			
+			if (intensity <= 0)
+				continue;
+
 			color += BlinnPhong(material, light, lightDir, viewDir, normal, intensity);
 		}
 

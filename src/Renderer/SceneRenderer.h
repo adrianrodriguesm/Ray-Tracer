@@ -27,11 +27,14 @@ namespace rayTracer
 		static void SumitRenderSpec(SceneRendererSpec spec);
 		static void SumitObject(Object* obj);
 		static void OnResize(int width, int height);
+		static void Render();
+
+		// Rendering Options
 		static void ToggleGammaCorrection();
 		static void ToggleToneMapping();
+		static void ToggleShadows();
 		static void ChangeTracingDepth(int change);
 		static void SwitchAntialiasingMode(AntialiasingMode newMode);
-		static void Render();
 
 		// Getters
 		static std::vector<Vec2> GetLightSamplingArray();

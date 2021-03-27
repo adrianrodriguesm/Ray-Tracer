@@ -15,6 +15,8 @@ namespace rayTracer
 		Vec3 position;
 		Vec3 color;
 
+		bool shadows = true;
+
 		virtual float GetIntensityAtPoint(const Vec3& EmissionPoint, const std::vector<Object*>& objectsInScene, AntialiasingMode antialiasingMode);
 	};
 

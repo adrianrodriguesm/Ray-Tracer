@@ -13,7 +13,8 @@ Sandbox::~Sandbox()
 void Sandbox::OnAttach()
 {
 	InitScene();
-	AddObjects();
+	if(m_Scene->GetNumObjects() == 0)
+		AddObjects();
 }
 
 void Sandbox::OnDetach()
@@ -259,14 +260,12 @@ void Sandbox::InitScene()
 /// </summary>
 void Sandbox::AddObjects()
 {
-	return;
-
 	//Sphere* testSphere = new Sphere(Vec3(0,5,0), 5);
 	Material* mat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 1.0f);
 	Material* transparentChildMat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 2);
 	Material* diffuseMat = new Material(Vec3(0.8,0.8,0.8), 1.0f, Vec3(0.2, 0.2, 0.2), 0.0f, 1.0f, 0, 1);
 
-	BubbleSphere* testSphere = new BubbleSphere(Vec3(0,5,0), 5, 10, 0.8f, transparentChildMat);
+	BubbleSphere* testSphere = new BubbleSphere(Vec3(0,5,0), 5, 10, 0.6f, transparentChildMat);
 	testSphere->SetSampleStep(0.01f);
 	testSphere->SetMaterial(mat);
 	//testSphere->SetTestChildren();

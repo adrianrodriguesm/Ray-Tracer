@@ -103,6 +103,16 @@ namespace rayTracer
 		return !(left == right);
 	}
 
+	bool operator<(const Vec2& left, const Vec2& right)
+	{
+		return left.x < right.x && left.y < right.y;
+	}
+
+	bool operator>(const Vec2& left, const Vec2& right)
+	{
+		return left.x > right.x && left.y > right.y;
+	}
+
 	Vec2& Vec2::operator=(const Vec2& other)
 	{
 		this->x = other.x;
@@ -182,6 +192,11 @@ namespace rayTracer
 	{
 	}
 
+	Vec2 Vec3::ToVec2()
+	{
+		return Vec2(this->x, this->y);
+	}
+
 	float* Vec3::Data()
 	{
 		return &x;
@@ -245,7 +260,7 @@ namespace rayTracer
 	{
 		float dotValue = DotProduct(normal, incident);
 		float k = 1.f - refractionIndex * refractionIndex * (1 - dotValue * dotValue);
-		Vec3 result = (k > 0.f) ? (refractionIndex * incident - (refractionIndex * dotValue + std::sqrtf(k)) * normal) : Vec3(0);
+		Vec3 result = (k > 0.f) ? (refractionIndex * incident - (refractionIndex * dotValue + std::sqrtf(k)) * normal) : -1 * incident;
 		return result;
 	}
 

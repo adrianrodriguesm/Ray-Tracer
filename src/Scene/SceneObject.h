@@ -3,6 +3,8 @@
 #include "Math/BoundingBox.h"
 #include "Renderer/Material.h"
 #include "Math/Ray.h"
+#include <vector>
+
 namespace rayTracer
 {
 	class Object
@@ -74,8 +76,10 @@ namespace rayTracer
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 		virtual bool isInsideObject(const Vec3& point, const Ray& ray);
 
+		float GetRadius() { return m_Radius; }
+		Vec3 GetCenter() { return m_Center; }
 
-	private:
+	protected:
 		void CalculateAABB();
 
 		AABB m_BoundingBox;
@@ -96,5 +100,33 @@ namespace rayTracer
 	private:
 		AABB m_BoundingBox;
 		Vec3 m_Center;
+	};
+
+	class BubbleSphere : public Sphere
+	{
+	public:
+		BubbleSphere(Vec3& a_center, float a_radiusfloat, float _perlingFreq, float bubbleLowLimit, Material* childMaterial) ;
+		
+		// Ray Tracing
+		RayCastHit Intercepts(Ray& ray);
+
+		// Getters / Setters
+		std::vector<Sphere*> GetChildSpheres();
+		void SetSampleStep(float step);
+		void SetBubbleThreshold(float threshold);
+		void SetPerlinSamplingFreq(float frequency);
+
+		// Print
+		friend std::ostream& operator << (std::ostream& stream, const BubbleSphere& sphere);
+
+	private:
+		void GenerateChildSpheres();
+		RayCastHit GetClosestHitInChildSpheres(Ray& ray, float tmin);
+
+		float m_Step = 0.05f; // step used in generation of childspheres
+		float m_BubbleThreshold = 0.7f;
+		float m_PerlinSampingFreq;
+		std::vector<Sphere*> m_ChildSpheres;
+		Material* m_ChildMaterial;
 	};
 }

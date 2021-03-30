@@ -88,7 +88,7 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
-		AntialiasingMode antialiasingMode = AntialiasingMode::REGULAR_SAMPLING;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 
 	};
@@ -109,7 +109,7 @@ namespace rayTracer
 		DestroyBuffers();
 	}
 
-	void SceneRenderer::SumitRenderSpec(SceneRendererSpec spec)
+	void SceneRenderer::SubmitRenderSpec(SceneRendererSpec spec)
 	{
 		s_Data.DataScene.Camera = spec.Camera;
 		s_Data.DataScene.Scene = spec.Scene;
@@ -120,7 +120,7 @@ namespace rayTracer
 		InitData();
 	}
 
-	void SceneRenderer::SumitObject(Object* obj)
+	void SceneRenderer::SubmitObject(Object* obj)
 	{
 		s_Data.DataScene.Objects.push_back(obj);
 	}
@@ -213,7 +213,7 @@ namespace rayTracer
 			
 			if (intensity <= 0)
 				continue;
-
+			
 			color += BlinnPhong(material, light, lightDir, viewDir, normal, intensity);
 		}
 

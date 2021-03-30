@@ -13,7 +13,7 @@ Sandbox::~Sandbox()
 void Sandbox::OnAttach()
 {
 	InitScene();
-	//AddObjects();
+	AddObjects();
 }
 
 void Sandbox::OnDetach()
@@ -31,11 +31,11 @@ void Sandbox::OnUploadScene()
 	spec.Height = RES_HEIGHT;
 	spec.Scene = m_Scene;
 	// Upload the needed data for the renderer
-	SceneRenderer::SumitRenderSpec(spec);
+	SceneRenderer::SubmitRenderSpec(spec);
 	auto& objects = m_Scene->GetObjects();
 	for(auto& object : objects)
 	{
-		SceneRenderer::SumitObject(object);
+		SceneRenderer::SubmitObject(object);
 	}
 	Mat4 ortho = MatFactory::CreateOrthographicProjectionMatrix(0, (float)RES_WIDTH, 0, (float)RES_HEIGHT, -1.0, 1.0);
 	m_Camera->SetProjectionMatrix(ortho);
@@ -259,9 +259,31 @@ void Sandbox::InitScene()
 /// </summary>
 void Sandbox::AddObjects()
 {
-	Sphere* testSphere = new Sphere(Vec3(0,5,0), 5);
-	Material* mat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 2);
+	return;
+
+	//Sphere* testSphere = new Sphere(Vec3(0,5,0), 5);
+	Material* mat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 1.0f);
+	Material* transparentChildMat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 2);
+	Material* diffuseMat = new Material(Vec3(0.8,0.8,0.8), 1.0f, Vec3(0.2, 0.2, 0.2), 0.0f, 1.0f, 0, 1);
+
+	BubbleSphere* testSphere = new BubbleSphere(Vec3(0,5,0), 5, 10, 0.8f, transparentChildMat);
+	testSphere->SetSampleStep(0.01f);
 	testSphere->SetMaterial(mat);
+	//testSphere->SetTestChildren();
+	std::cout << *testSphere << std::endl;
+
 	m_Scene->AddObject(testSphere);
-	SceneRenderer::SumitObject(testSphere);
+	SceneRenderer::SubmitObject(testSphere);
+	//for each (auto & child in testSphere->GetChildSpheres())
+	//{
+	//	m_Scene->AddObject(child);
+	//	SceneRenderer::SubmitObject(child);
+	//}
+
+	// Lights
+	//AreaLight* aLight = new AreaLight(Vec3(0, 15, 0), Vec3(0.2f, 0.2f, 0.8f), Vec3(1, 0, 0), Vec3(0, 0, 1), 4);
+	Light* pointLight = new Light(Vec3(0, 15, 0), Vec3(0.2f, 0.2f, 0.8f));
+
+	//m_Scene->AddLight(aLight);
+	m_Scene->AddLight(pointLight);
 }

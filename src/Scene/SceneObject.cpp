@@ -1,6 +1,8 @@
 #include "SceneObject.h"
 #include "Core/Constant.h"
+#include "PerlinNoise.hpp"
 #include <algorithm>
+#include <map>
 namespace rayTracer
 {
 	Object::~Object()
@@ -270,4 +272,202 @@ namespace rayTracer
 		return false;
 	}
 
+#pragma region BubbleSphere
+	BubbleSphere::BubbleSphere(Vec3& a_center, float a_radiusfloat, float _perlingFreq, float bubbleLowLimit, Material* _childMaterial) : Sphere(a_center, a_radiusfloat)
+	{
+		m_BubbleThreshold = bubbleLowLimit;
+		m_PerlinSampingFreq = _perlingFreq;
+		m_ChildMaterial = _childMaterial;
+		GenerateChildSpheres();
+	}
+
+	std::vector<Sphere*> BubbleSphere::GetChildSpheres()
+	{
+		return m_ChildSpheres;
+	}
+
+	void BubbleSphere::SetSampleStep(float step)
+	{
+		m_Step = step;
+		GenerateChildSpheres();
+	}
+
+	void BubbleSphere::SetBubbleThreshold(float threshold)
+	{
+		m_BubbleThreshold = threshold;
+		GenerateChildSpheres();
+	}
+
+	void BubbleSphere::SetPerlinSamplingFreq(float frequency)
+	{
+		m_PerlinSampingFreq = frequency;
+		GenerateChildSpheres();
+	}
+
+	void BubbleSphere::GenerateChildSpheres()
+	{
+		siv::PerlinNoise perlin = siv::PerlinNoise(time(NULL));
+
+		// Maps each a set of sphere centers to (x,y,diameter)
+		// These will later be compared and for each sphere center, the coordinate with the largest diameter prevails
+		std::map<float, std::vector<Vec3>> CoordSphereCenters = std::map<float, std::vector<Vec3>>();
+
+		bool inSphere = false;
+		float enterZ = 0.0f;
+
+		// Step 1: Sampling/Mapping 
+		for (float x = -1; x <= (1 + EPSILON); x += m_Step)
+		{
+			for (float y = -1; y <= (1 + EPSILON); y += m_Step)
+			{
+				for (float z = -1; z <= (1 + EPSILON); z += m_Step)
+				{
+					if ((x * x + y * y + z * z) > 1)
+						continue; // Keep inside sphere
+
+					Vec3 samplePos = m_Center + Vec3(x, y, z) * this->m_Radius;
+					float value = perlin.noise3D_0_1(samplePos.x * m_PerlinSampingFreq, samplePos.y * m_PerlinSampingFreq, samplePos.z * m_PerlinSampingFreq);
+					if (value >= this->m_BubbleThreshold)
+					{
+						if (!inSphere)
+						{
+							// Entering sphere
+							inSphere = true;
+							enterZ = samplePos.z;
+						}
+					}
+					else if (inSphere)
+					{
+						// Exiting sphere
+						inSphere = false;
+
+						float diameter = (m_Center.z + z * m_Radius) - enterZ;
+						float center = enterZ + (diameter / 2);
+
+						if (CoordSphereCenters.count(center) == 0)
+							CoordSphereCenters[center] = std::vector<Vec3>();
+
+						CoordSphereCenters[center].push_back(Vec3(samplePos.x, samplePos.y, diameter));
+					}
+
+					// If next step would reset iteration - end child sphere
+					float nextZ = z + m_Step;
+					if (((fabs(z - 1) < EPSILON) || ((x * x + y * y + nextZ * nextZ) > 1)) && inSphere)
+					{
+						// Exiting child sphere
+						inSphere = false;
+
+						float diameter = (m_Center.z + z * m_Radius) - enterZ;
+						if (diameter <= EPSILON)
+							continue;
+
+						float center = enterZ + (diameter / 2);
+
+						if (CoordSphereCenters.count(center) == 0)
+							CoordSphereCenters[center] = std::vector<Vec3>();
+
+						CoordSphereCenters[center].push_back(Vec3(samplePos.x, samplePos.y, diameter));
+					}
+				}
+			}
+		}
+
+		// Step 2: Finding spheres
+		std::map<float, Vec3> Spheres = std::map<float, Vec3>();
+		for each (auto & centerToCoordDiameters in CoordSphereCenters)
+		{
+			Spheres[centerToCoordDiameters.first] = centerToCoordDiameters.second[0];
+			for each (Vec3 centerDiam in centerToCoordDiameters.second)
+			{
+				// If diameter larger than current diameter - replace
+				if (centerDiam.z > Spheres[centerToCoordDiameters.first].z)
+					Spheres[centerToCoordDiameters.first] = centerDiam;
+			}
+		}
+
+		// Step 3: Building spheres
+		for each (auto & sphere in Spheres)
+		{
+			float radius = sphere.second.z / 2;
+			float xPos = sphere.second.x;
+			float yPos = sphere.second.y;
+			float zPos = sphere.first; //m_Center.z + sphere.first * radius;
+			Sphere* child = new Sphere(Vec3(xPos, yPos, zPos), radius);
+			child->SetMaterial(m_ChildMaterial);
+			m_ChildSpheres.push_back(child);
+		}
+	}
+
+	RayCastHit BubbleSphere::Intercepts(Ray& ray)
+	{
+		// center and origin inversed and signs of b inversed for sphere optimization
+		Vec3 temp = m_Center - ray.Origin;
+
+		float b = DotProduct(temp, ray.Direction);
+		float c = DotProduct(temp, temp) - m_Radius * m_Radius;
+
+		// If origin outside and pointing away from sphere
+		if (c > 0 && b <= 0)
+			return { false };
+
+		float a = 1;// length of ray.Direction should be 1 
+		float disc = b * b - a * c;
+
+		if (disc <= 0.0)
+			return { false };
+
+		float e = sqrtf(disc);
+		float denom = a;
+		float t = (b - e) / denom; // root 1
+
+		if (t > EPSILON)
+		{
+			RayCastHit parentHit = RayCastHit(true, t, this, ray.Origin + t * ray.Direction);
+			RayCastHit childHit = this->GetClosestHitInChildSpheres(ray, t);
+			return childHit ? childHit : parentHit;
+		}
+
+		t = (b + e) / denom; //root 2
+
+		if (t > EPSILON)
+		{
+			RayCastHit parentHit = RayCastHit(true, t, this, ray.Origin + t * ray.Direction);
+			RayCastHit childHit = this->GetClosestHitInChildSpheres(ray, t);
+			return childHit ? childHit : parentHit;
+		}
+
+		return { false };
+	}
+
+	RayCastHit BubbleSphere::GetClosestHitInChildSpheres(Ray& ray, float tmin)
+	{
+		RayCastHit hit, temphit;
+		for (auto& sphere : m_ChildSpheres)
+		{
+			temphit = sphere->Intercepts(ray);
+			if (temphit && temphit.Tdist < tmin && (temphit.InterceptionPoint - this->m_Center).SqrMagnitude() < this->SqRadius)
+			{
+				tmin = temphit.Tdist;
+				hit = temphit;
+			}
+		}
+		return hit;
+	}
+
+	std::ostream& operator<<(std::ostream& stream, const BubbleSphere& sphere)
+	{
+		// TODO: insert return statement here
+		stream << "Bubble Sphere : {\n";
+		stream << "		Parent : Center = " << sphere.m_Center << "		Radius = " << sphere.m_Radius << std::endl;
+		stream << "		Children : [\n";
+		for each (auto& child in sphere.m_ChildSpheres)
+		{
+			stream << "			Center = " << child->GetCenter() << "	Radius = " << child->GetRadius() << std::endl;
+		}
+		stream << "		]\n";
+		stream << "}\n";
+		return stream;
+	}
+
+#pragma endregion BubbleSphere
 }

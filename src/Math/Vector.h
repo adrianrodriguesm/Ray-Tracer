@@ -34,6 +34,8 @@ namespace rayTracer
 		friend Vec2 operator /  (const Vec2& left, const float right);
 		friend bool operator == (const Vec2& left, const Vec2& right);
 		friend bool operator != (const Vec2& left, const Vec2& right);
+		friend bool operator < (const Vec2& left, const Vec2& right);
+		friend bool operator > (const Vec2& left, const Vec2& right);
 		Vec2 operator-() const;
 		Vec2& operator += (const Vec2& other);
 		Vec2& operator -= (const Vec2& other);
@@ -59,6 +61,8 @@ namespace rayTracer
 		Vec3(const float& x, const float& y, const float& z);
 		Vec3(const Vec3& other);
 		Vec3(Vec3&& other) noexcept;
+
+		Vec2 ToVec2();
 
 		float* Data();
 		const float* Data() const;

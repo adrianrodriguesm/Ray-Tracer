@@ -24,8 +24,8 @@ namespace rayTracer
 	public:
 		static void Init();
 		static void Shutdown();
-		static void SumitRenderSpec(SceneRendererSpec spec);
-		static void SumitObject(Object* obj);
+		static void SubmitRenderSpec(SceneRendererSpec spec);
+		static void SubmitObject(Object* obj);
 		static void OnResize(int width, int height);
 		static void Render();
 

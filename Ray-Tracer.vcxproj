@@ -222,6 +222,7 @@
     <ClInclude Include="src\Math\Matrix.h" />
     <ClInclude Include="src\Math\Quaternion.h" />
     <ClInclude Include="src\Math\Random.h" />
+    <ClInclude Include="src\PerlinNoise.hpp" />
     <ClInclude Include="src\RayTracer.h" />
     <ClInclude Include="src\Renderer\AntiAliasing.h" />
     <ClInclude Include="src\Renderer\Camera.h" />

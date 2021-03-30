@@ -327,6 +327,16 @@ namespace rayTracer
 		return *this;
 	}
 
+	float Vec3::operator[](const uint32_t index) const
+	{
+		return components[index];
+	}
+
+	float& Vec3::operator[](uint32_t index)
+	{
+		return components[index];
+	}
+
 	float DotProduct(const Vec3& v0, const Vec3& v1)
 	{
 		return (v0.x * v1.x + v0.y * v1.y + v0.z * v1.z);
@@ -380,6 +390,16 @@ namespace rayTracer
 		return Vec3(left.x / right, left.y / right, left.z / right);
 	}
 
+	const Vec3 operator/(const Vec3& left, const Vec3& right)
+	{
+		return Vec3(left.x / right.x, left.y / right.y, left.z / right.z);
+	}
+
+	const Vec3 operator/(const Vec3& left, const Vec3Int& right)
+	{
+		return Vec3(left.x / right.x, left.y / right.y, left.z / right.z);
+	}
+
 	const bool operator==(const Vec3& left, const Vec3& right)
 	{
 		return fabs(left.x - right.x) <= EPSILON && fabs(left.y - right.y) <= EPSILON && fabs(left.z - right.z) <= EPSILON;
@@ -411,6 +431,145 @@ namespace rayTracer
 			p = Vec3(rand_float(), rand_float(), 0.0) * 2 - Vec3(1.0, 1.0, 0.0);
 		} while (p.DotProduct(p) >= 1.0);
 		return p;
+	}
+	Vec3Int::Vec3Int()
+		: x(0), y(0), z(0)
+	{
+	}
+	Vec3Int::Vec3Int(const int& k)
+		: x(k), y(k), z(k)
+	{
+	}
+	Vec3Int::Vec3Int(const int& x, const int& y, const int& z)
+		: x(x), y(y), z(z)
+	{
+	}
+	Vec3Int::Vec3Int(const Vec3Int& other)
+		: x(other.x), y(other.y), z(other.z)
+	{
+	}
+	Vec3Int::Vec3Int(Vec3Int&& other) noexcept
+		: x(other.x), y(other.y), z(other.z)
+	{
+	}
+	int* Vec3Int::Data()
+	{
+		return &x;;
+	}
+	const int* Vec3Int::Data() const
+	{
+		return &x;
+	}
+
+	const Vec3Int operator+(const Vec3Int& left, const Vec3Int& right)
+	{
+		return Vec3Int(left.x + right.x, left.y + right.y, left.z + right.z);
+	}
+
+	const Vec3Int operator-(const Vec3Int& left, const Vec3Int& right)
+	{
+		return Vec3Int(left.x - right.x, left.y - right.y, left.z - right.z);
+	}
+
+	const Vec3Int operator*(const Vec3Int& vector, const int scalar)
+	{
+		return Vec3Int(vector.x * scalar, vector.y * scalar, vector.z * scalar);
+	}
+
+	const Vec3Int operator*(const int scalar, const Vec3Int& vector)
+	{
+		return Vec3Int(vector.x * scalar, vector.y * scalar, vector.z * scalar);
+	}
+
+	const Vec3Int operator*(const Vec3Int& v1, const Vec3Int& v2)
+	{
+		return Vec3Int(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+	}
+
+	const Vec3Int operator/(const Vec3Int& left, const int right)
+	{
+		return Vec3Int(left.x / right, left.y / right, left.z / right);
+	}
+
+	const Vec3Int operator/(const Vec3Int& left, const Vec3Int& right)
+	{
+		return Vec3Int(left.x / right.x, left.y / right.y, left.z / right.z);
+	}
+
+	const bool operator==(const Vec3Int& left, const Vec3Int& right)
+	{
+		return abs(left.x - right.x) <= EPSILON && abs(left.y - right.y) <= EPSILON && abs(left.z - right.z) <= EPSILON;
+	}
+
+	const bool operator!=(const Vec3Int& left, const Vec3Int& right)
+	{
+		return !(left == right);
+	}
+
+	std::ostream& operator<<(std::ostream& stream, const Vec3Int& Vector)
+	{
+		stream << "Vector 3D: (" << Vector.x << ", " << Vector.y << ", " << Vector.z << ")";
+		return stream;
+	}
+
+	std::istream& operator>>(std::istream& stream, Vec3Int& Vector)
+	{
+		return stream >> Vector.x >> Vector.y >> Vector.z;
+	}
+
+	Vec3Int Vec3Int::operator-() const
+	{
+		return -1 * (*this);
+	}
+
+	Vec3Int& Vec3Int::operator+=(const Vec3Int& other)
+	{
+		this->x += other.x;
+		this->y += other.y;
+		this->z += other.z;
+		return *this;
+	}
+
+	Vec3Int& Vec3Int::operator-=(const Vec3Int& other)
+	{
+		this->x -= other.x;
+		this->y -= other.y;
+		this->z -= other.z;
+		return *this;
+	}
+
+	Vec3Int& Vec3Int::operator*=(const int& scalar)
+	{
+		this->x *= scalar;
+		this->y *= scalar;
+		this->z *= scalar;
+		return *this;
+	}
+
+	Vec3Int& Vec3Int::operator=(const Vec3Int& other)
+	{
+		this->x = other.x;
+		this->y = other.y;
+		this->z = other.z;
+		return *this;
+	}
+
+	Vec3Int& Vec3Int::operator=(Vec3Int&& other) noexcept
+	{
+		this->x = other.x;
+		this->y = other.y;
+		this->z = other.z;
+		return *this;
+	}
+
+	int Vec3Int::operator[](const uint32_t index) const
+	{
+		return components[index];
+	}
+
+	int& Vec3Int::operator[](uint32_t index)
+	{
+		return components[index];
 	}
 	/**/
 }

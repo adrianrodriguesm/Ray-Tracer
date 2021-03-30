@@ -1,39 +1,43 @@
 #pragma once
 
 #include <vector>
-#include "Scene/scene.h"
+#include "Scene/Scene.h"
 
 namespace rayTracer
 {
 	class Grid
 	{
 	public:
-		Grid(void);
-		//~Grid(void);
+		Grid();
+		Grid(const std::vector<Object*> objects);
+		virtual ~Grid();
+		
+		uint32_t GetNumObjects();
+		Object* GetSceneObject(uint32_t index);
+		// TODO removed
+		void AddObject(Object* o);
 
-		int getNumObjects();
-		void addObject(Object* o);
-		Object* getObject(unsigned int index);
-
-		void Build(void);   // set up grid cells
-
+		// Set up grid cells
+		void BuildGrid();   
+		RayCastHit Intercepts(Ray& r);
 		bool Traverse(Ray& ray, Object** hitobject, Vec3& hitpoint);  //(const Ray& ray, double& tmin, ShadeRec& sr)
-		bool Traverse(Ray& ray);  //Traverse for shadow ray
-
+		//Traverse for shadow ray
+		bool Traverse(Ray& ray);  
 	private:
-		std::vector<Object*> objects;
-		std::vector<std::vector<Object*>> cells;
-
-		int nx, ny, nz; // number of cells in the x, y, and z directions
-		float m = 2.0f; // factor that allows to vary the number of cells
-
-		Vec3 find_min_bounds(void);
-		Vec3 find_max_bounds(void);
-
+		Vec3 FindMinBounds();
+		Vec3 FindMaxBounds();
+		RayCastHit GetClossestHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray);
 		//Setup function for Grid traversal
-		bool Init_Traverse(Ray& ray, int& ix, int& iy, int& iz, double& dtx, double& dty, double& dtz, double& tx_next, double& ty_next, double& tz_next,
+		bool InitTraverse(Ray& ray, int& ix, int& iy, int& iz, float& dtx, float& dty, float& dtz, float& tx_next, float& ty_next, float& tz_next,
 			int& ix_step, int& iy_step, int& iz_step, int& ix_stop, int& iy_stop, int& iz_stop);
+	private:
+		std::vector<Object*> m_SceneObjects;
+		std::vector<std::vector<Object*>> m_Cells;
+		// Number of cells in the x, y, and z directions
+		Vec3Int m_CellNumberPerDim;
+		// factor that allows to vary the number of cells
+		float m_CellMultiplierFactor = 2.0f; // Approximately 8 times more cells than objects
 
-		AABB bbox;
+		AABB m_BBox;	
 	};
 }

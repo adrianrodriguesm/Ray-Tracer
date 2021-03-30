@@ -31,12 +31,13 @@ void Sandbox::OnUploadScene()
 	spec.Height = RES_HEIGHT;
 	spec.Scene = m_Scene;
 	// Upload the needed data for the renderer
-	SceneRenderer::SumitRenderSpec(spec);
+	SceneRenderer::BeginSumit(spec);
 	auto& objects = m_Scene->GetObjects();
 	for(auto& object : objects)
 	{
 		SceneRenderer::SumitObject(object);
 	}
+	SceneRenderer::EndSumit();
 	Mat4 ortho = MatFactory::CreateOrthographicProjectionMatrix(0, (float)RES_WIDTH, 0, (float)RES_HEIGHT, -1.0, 1.0);
 	m_Camera->SetProjectionMatrix(ortho);
 

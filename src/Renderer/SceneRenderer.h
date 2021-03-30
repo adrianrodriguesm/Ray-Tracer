@@ -24,8 +24,10 @@ namespace rayTracer
 	public:
 		static void Init();
 		static void Shutdown();
-		static void SumitRenderSpec(SceneRendererSpec spec);
+		static void BeginSumit(SceneRendererSpec spec);
 		static void SumitObject(Object* obj);
+		// Creation of the grid
+		static void EndSumit();
 		static void OnResize(int width, int height);
 		static void ToggleGammaCorrection();
 		static void ToggleToneMapping();
@@ -43,7 +45,7 @@ namespace rayTracer
 	private:
 		// Ray tracing Methods
 		static Vec3 TraceRays(Ray& ray, uint32_t depth, float refractionIndex);
-		static RayCastHit GetClosestHit(Ray& ray, float tmin);
+		static RayCastHit GetClosestHit(Ray& ray);
 		static RayCastHit IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance);
 		static Vec3 BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity);
 		// Here is were the render of the points happen

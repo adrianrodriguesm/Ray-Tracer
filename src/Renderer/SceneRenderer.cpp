@@ -2,7 +2,7 @@
 #include <math.h>
 #include <Math/Maths.h>
 #include <algorithm>    // std::random_shuffle
-
+#include "Renderer/Grid.h"
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -70,7 +70,8 @@ namespace rayTracer
 			uint32_t Width = 512, Height = 512;
 			uint32_t MaxDepth = 3;
 		} DataScene;
-
+		// Grid
+		Grid* Grid;
 		// Rendering Mode
 		RenderMode RenderMode = RenderMode::Default; // This is define by the application
 		// Points defined by 2 attributes: positions which are stored in vertices array and colors which are stored in colors array
@@ -88,7 +89,7 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
-		AntialiasingMode antialiasingMode = AntialiasingMode::REGULAR_SAMPLING;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 
 	};
@@ -104,12 +105,13 @@ namespace rayTracer
 
 	void SceneRenderer::Shutdown()
 	{
+		delete s_Data.Grid;
 		DestroyData();
 		DestroyShaders();
 		DestroyBuffers();
 	}
 
-	void SceneRenderer::SumitRenderSpec(SceneRendererSpec spec)
+	void SceneRenderer::BeginSumit(SceneRendererSpec spec)
 	{
 		s_Data.DataScene.Camera = spec.Camera;
 		s_Data.DataScene.Scene = spec.Scene;
@@ -123,6 +125,12 @@ namespace rayTracer
 	void SceneRenderer::SumitObject(Object* obj)
 	{
 		s_Data.DataScene.Objects.push_back(obj);
+	}
+
+	void SceneRenderer::EndSumit()
+	{
+		s_Data.Grid = new Grid(s_Data.DataScene.Objects);
+		s_Data.Grid->BuildGrid();
 	}
 
 	void SceneRenderer::OnResize(int width, int height)
@@ -166,10 +174,11 @@ namespace rayTracer
 		if (ray.Direction.SqrMagnitude() == 0)
 			return Vec3();
 
-		float tmin = DBL_MAX;
-		RayCastHit hit = GetClosestHit(ray, tmin);
+		//RayCastHit hit = GetClosestHit(ray);
+		RayCastHit hit = s_Data.Grid->Intercepts(ray);
 		if (!hit)
 			return s_Data.DataScene.Scene->GetSkyboxColor(ray); //GetBackgroundColor();
+			
 
 		Material* material = hit.Object->GetMaterial();
 		Vec3 color;
@@ -230,8 +239,9 @@ namespace rayTracer
 		}
 		return color;
 	}
-	RayCastHit SceneRenderer::GetClosestHit(Ray& ray, float tmin)
+	RayCastHit SceneRenderer::GetClosestHit(Ray& ray)
 	{
+		float tmin = FLOAT_MAX;
 		RayCastHit hit, temphit;
 		for (auto& obj : s_Data.DataScene.Objects)
 		{

@@ -18,6 +18,7 @@
     <ClCompile Include="src\Math\Vector.cpp" />
     <ClCompile Include="src\Scene\SceneLoader.cpp" />
     <ClCompile Include="src\Scene\SceneObject.cpp" />
+    <ClCompile Include="src\Renderer\LensCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
@@ -44,6 +45,7 @@
     <ClInclude Include="src\Math\Vector.h" />
     <ClInclude Include="src\Scene\SceneLoader.h" />
     <ClInclude Include="src\Scene\SceneObject.h" />
+    <ClInclude Include="src\Renderer\LensCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox\back.jpg" />

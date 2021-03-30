@@ -325,8 +325,17 @@ namespace rayTracer
 				// Calculate Color
 				for each (Vec2 sampleOffset in samplingOffsets)
 				{
-					Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel + sampleOffset);
-					color += TraceRays(ray, 1, 1.0);
+					if(s_Data.antialiasingMode != AntialiasingMode::NONE)
+					{
+						Vec2 pixelSample = pixel + sampleOffset;
+						Ray ray = s_Data.DataScene.Camera->PrimaryRay(Vec3(pixelSample.x, pixelSample.y, 0.0f));
+					}
+					else
+					{
+						Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel + sampleOffset);
+						color += TraceRays(ray, 1, 1.0);
+					}
+
 				}
 				color = color / samplingOffsets.size();
 

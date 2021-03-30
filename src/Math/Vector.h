@@ -105,7 +105,7 @@ namespace rayTracer
 
 		// TODO: CHECK IF NECESARY
 		Vec3& ClampColor();
-		Vec3 sample_unit_disk();
+		friend Vec3 sample_unit_disk();
 	};
 	
 	

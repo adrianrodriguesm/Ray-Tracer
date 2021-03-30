@@ -92,13 +92,15 @@ namespace rayTracer
 			return ray;
 		}
 
-		Ray PrimaryRay(const Vec3& lens_sample, const Vec3& pixel_sample) // DOF: Rays cast from  a thin lens sample to a pixel sample
+		Ray PrimaryRay(const Vec3& pixel_sample) // DOF: Rays cast from  a thin lens sample to a pixel sample
 		{
 
-			Vec3 ray_dir;
-			Vec3 eye_offset;
+			Vec3 lensSample = GetAperture() * sample_unit_disk();
+			Vec3 p = Vec3(pixel_sample.x * focal_ratio, pixel_sample.y * focal_ratio, -focal_ratio * plane_dist);
+			Vec3 rayDir = Normalize((p.x - lensSample.x) * m_XAxis + (p.y - lensSample.y) * m_YAxis + p.z * m_ZAxis);
+			Vec3 eyeOffset = eye + lensSample.x * m_XAxis + lensSample.y * m_YAxis;
 
-			return Ray(eye_offset, ray_dir);
+			return Ray(eyeOffset, rayDir);
 		}
 
 		void DumpSelf()

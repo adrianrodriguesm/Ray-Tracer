@@ -93,7 +93,6 @@ namespace rayTracer
 				min[index] = (m_BBox.Max[index] - ray.Origin[index]) * delta[index];
 				max[index] = (m_BBox.Min[index] - ray.Origin[index]) * delta[index];
 			}
-
 		}
 		// Largest entry point
 		float tMin = std::max({ min.x, min.y, min.z });
@@ -183,7 +182,6 @@ namespace rayTracer
 			}
 			else
 			{
-
 				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
 				if (hit && hit.Tdist < next.z)
 					return hit;

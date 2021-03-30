@@ -89,7 +89,7 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
-		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 
 	};

@@ -72,6 +72,7 @@ namespace rayTracer
 
 	Plane::Plane(Vec3& P0, Vec3& P1, Vec3& P2)
 	{
+		CalculateAABB(P0, P1, P2);
 		//Calculate the normal plane: counter-clockwise vectorial product.
 		m_Normal = CrossProduct((P1 - P0), (P2 - P0));
 		
@@ -107,6 +108,17 @@ namespace rayTracer
 			return RayCastHit(true, t, this, r.Origin + t * r.Direction);
 		}
 		return RayCastHit(false);
+	}
+
+	void Plane::CalculateAABB(Vec3& P0, Vec3& P1, Vec3& P2)
+	{
+		m_BoundingBox.Min.x = std::min({ P0.x, P1.x, P2.x });
+		m_BoundingBox.Min.y = std::min({ P0.y, P1.y, P2.y });
+		m_BoundingBox.Min.z = std::min({ P0.z, P1.z, P2.z });
+
+		m_BoundingBox.Max.x = std::max({ P0.x, P1.x, P2.x });
+		m_BoundingBox.Max.y = std::max({ P0.y, P1.y, P2.y });
+		m_BoundingBox.Max.z = std::max({ P0.z, P1.z, P2.z });
 	}
 
 

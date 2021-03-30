@@ -319,25 +319,6 @@ namespace rayTracer
 		int index_col = 0;
 		uint32_t counter = 0;
 
-		// Initialize vertices for procedural drawing
-		if (s_Data.RenderMode == RenderMode::DrawMode && s_Data.VerticesSize <= 0)
-		{
-			for (uint32_t y = 0; y < height; y++)
-			{
-				for (uint32_t x = 0; x < width; x++)
-				{
-					s_Data.Vertices[index_pos++] = (float)x;
-					s_Data.Vertices[index_pos++] = (float)y;
-					s_Data.Colors[index_col++] = 0.3f;
-					s_Data.Colors[index_col++] = 0.3f;
-					s_Data.Colors[index_col++] = 0.3f;
-				}
-			}
-			index_col = 0;
-			index_pos = 0;
-		}
-		//
-
 		constexpr uint32_t nbSamples = 4;
 
 		glClear(GL_COLOR_BUFFER_BIT);

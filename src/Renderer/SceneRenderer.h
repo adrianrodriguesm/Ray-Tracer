@@ -24,7 +24,8 @@ namespace rayTracer
 	public:
 		static void Init();
 		static void Shutdown();
-		static void SubmitRenderSpec(SceneRendererSpec spec);
+		static void BeginSubmit(SceneRendererSpec spec);
+		static void EndSubmit();
 		static void SubmitObject(Object* obj);
 		static void OnResize(int width, int height);
 		static void Render();
@@ -46,7 +47,7 @@ namespace rayTracer
 	private:
 		// Ray tracing Methods
 		static Vec3 TraceRays(Ray& ray, uint32_t depth, float refractionIndex);
-		static RayCastHit GetClosestHit(Ray& ray, float tmin);
+		static RayCastHit GetClosestHit(Ray& ray);
 		static RayCastHit IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance);
 		static Vec3 BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity);
 		// Here is were the render of the points happen

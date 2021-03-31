@@ -2,7 +2,7 @@
 #include <math.h>
 #include <Math/Maths.h>
 #include <algorithm>    // std::random_shuffle
-
+#include "Renderer/Grid.h"
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -70,7 +70,8 @@ namespace rayTracer
 			uint32_t Width = 512, Height = 512;
 			uint32_t MaxDepth = 3;
 		} DataScene;
-
+		// Grid
+		Grid* Grid;
 		// Rendering Mode
 		RenderMode RenderMode = RenderMode::Default; // This is define by the application
 		// Points defined by 2 attributes: positions which are stored in vertices array and colors which are stored in colors array
@@ -104,12 +105,13 @@ namespace rayTracer
 
 	void SceneRenderer::Shutdown()
 	{
+		delete s_Data.Grid;
 		DestroyData();
 		DestroyShaders();
 		DestroyBuffers();
 	}
 
-	void SceneRenderer::SubmitRenderSpec(SceneRendererSpec spec)
+	void SceneRenderer::BeginSubmit(SceneRendererSpec spec)
 	{
 		s_Data.DataScene.Camera = spec.Camera;
 		s_Data.DataScene.Scene = spec.Scene;
@@ -123,6 +125,12 @@ namespace rayTracer
 	void SceneRenderer::SubmitObject(Object* obj)
 	{
 		s_Data.DataScene.Objects.push_back(obj);
+	}
+
+	void SceneRenderer::EndSubmit()
+	{
+		s_Data.Grid = new Grid(s_Data.DataScene.Objects);
+		s_Data.Grid->BuildGrid();
 	}
 
 	void SceneRenderer::OnResize(int width, int height)
@@ -186,15 +194,16 @@ namespace rayTracer
 		if (ray.Direction.SqrMagnitude() == 0)
 			return Vec3();
 
-		float tmin = DBL_MAX;
-		RayCastHit hit = GetClosestHit(ray, tmin);
+		//RayCastHit hit = GetClosestHit(ray);
+		RayCastHit hit = s_Data.Grid->Intercepts(ray);
 		if (!hit)
 			return s_Data.DataScene.Scene->GetSkyboxColor(ray); //GetBackgroundColor();
+			
 
 		Material* material = hit.Object->GetMaterial();
 		Vec3 color;
 		Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
-		if (hit.Object->isInsideObject(hit.InterceptionPoint, ray))
+		if (hit.Object->IsInsideObject(hit.InterceptionPoint, ray))
 			normal *= -1; // Inverse normal if inside object (For transparent objects)
 		Vec3 viewDir = ray.Direction; // Unit vector
 		Vec3 invViewDir = -1 * viewDir; // Unit vector
@@ -254,8 +263,9 @@ namespace rayTracer
 		}
 		return color;
 	}
-	RayCastHit SceneRenderer::GetClosestHit(Ray& ray, float tmin)
+	RayCastHit SceneRenderer::GetClosestHit(Ray& ray)
 	{
+		float tmin = FLOAT_MAX;
 		RayCastHit hit, temphit;
 		for (auto& obj : s_Data.DataScene.Objects)
 		{
@@ -383,7 +393,7 @@ namespace rayTracer
 
 		}
 		// Render Data
-		Flush();
+		//Flush();
 	}
 	std::vector<Vec2> SceneRenderer::GetLightSamplingArray()
 	{
@@ -426,7 +436,7 @@ namespace rayTracer
 
 		glUniformMatrix4fv(s_Data.UniformId, 1, GL_FALSE, s_Data.DataScene.Camera->GetProjectionMatrix().Data());
 		glDrawArrays(GL_POINTS, 0, s_Data.DataScene.Width * s_Data.DataScene.Height);
-		glFinish();
+		//glFinish();
 
 		glUseProgram(0);
 		glBindVertexArray(0);
@@ -526,8 +536,6 @@ namespace rayTracer
 		glGenBuffers(2, s_Data.VboId);
 		glBindBuffer(GL_ARRAY_BUFFER, s_Data.VboId[0]);
 
-		/* S� se faz a aloca��o dos arrays glBufferData (NULL), e o envio dos pontos para a placa gr�fica
-		� feito na drawPoints com GlBufferSubData em tempo de execu��o pois os arrays s�o GL_DYNAMIC_DRAW */
 		glBufferData(GL_ARRAY_BUFFER, s_Data.VerticesSize, NULL, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(s_Data.VERTEX_COORD_ATTRIB);
 		glVertexAttribPointer(s_Data.VERTEX_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);

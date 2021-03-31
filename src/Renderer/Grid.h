@@ -1,39 +1,34 @@
 #pragma once
 
 #include <vector>
-#include "Scene/scene.h"
+#include "Scene/Scene.h"
+#include <unordered_map>
 
 namespace rayTracer
 {
 	class Grid
 	{
 	public:
-		Grid(void);
-		//~Grid(void);
-
-		int getNumObjects();
-		void addObject(Object* o);
-		Object* getObject(unsigned int index);
-
-		void Build(void);   // set up grid cells
-
-		bool Traverse(Ray& ray, Object** hitobject, Vec3& hitpoint);  //(const Ray& ray, double& tmin, ShadeRec& sr)
-		bool Traverse(Ray& ray);  //Traverse for shadow ray
-
+		Grid();
+		Grid(const std::vector<Object*> objects);
+		virtual ~Grid();
+		
+		// Set up grid cells
+		void BuildGrid();   
+		RayCastHit Intercepts(Ray& r); 
 	private:
-		std::vector<Object*> objects;
-		std::vector<std::vector<Object*>> cells;
+		Vec3 FindMinBounds();
+		Vec3 FindMaxBounds();
+		RayCastHit GetClossestHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray);
+	private:
+		std::vector<Object*> m_SceneObjects;
+		std::vector<std::vector<Object*>> m_Cells;
+		std::unordered_map<Object*, RayCastHit> m_CachedInterceptions;
+		// Number of cells in the x, y, and z directions
+		Vec3Int m_CellNumberPerDim;
+		// factor that allows to vary the number of cells
+		float m_CellMultiplierFactor = 2.0f; // Approximately 8 times more cells than objects
 
-		int nx, ny, nz; // number of cells in the x, y, and z directions
-		float m = 2.0f; // factor that allows to vary the number of cells
-
-		Vec3 find_min_bounds(void);
-		Vec3 find_max_bounds(void);
-
-		//Setup function for Grid traversal
-		bool Init_Traverse(Ray& ray, int& ix, int& iy, int& iz, double& dtx, double& dty, double& dtz, double& tx_next, double& ty_next, double& tz_next,
-			int& ix_step, int& iy_step, int& iz_step, int& ix_stop, int& iy_stop, int& iz_stop);
-
-		AABB bbox;
+		AABB m_BBox;	
 	};
 }

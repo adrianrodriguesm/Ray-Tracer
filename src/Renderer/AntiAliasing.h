@@ -1,6 +1,5 @@
 #pragma once
 #include "Math/Vector.h"
-#include "Math/Random.h"
 #include <vector>
 
 namespace rayTracer

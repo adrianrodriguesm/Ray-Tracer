@@ -11,7 +11,7 @@ namespace rayTracer
 	public:
 
 		Light(const Vec3& pos, const Vec3& col) : position(pos), color(col) {};
-		~Light() = default;
+		virtual ~Light() = default;
 		Vec3 position;
 		Vec3 color;
 

@@ -1,4 +1,5 @@
 #include "AntiAliasing.h"
+#include "Math/Random.h"
 namespace rayTracer
 {
 	/// <summary>

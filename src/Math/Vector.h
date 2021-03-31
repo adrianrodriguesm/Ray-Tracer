@@ -4,6 +4,7 @@ namespace rayTracer
 {
 	struct Vec2;
 	struct Vec3;
+	struct Vec3Int;
 	/////////////////////////////////////////////////////////////////////// Vec2
 	struct Vec2
 	{
@@ -89,20 +90,25 @@ namespace rayTracer
 		friend float Distance(const Vec3& v0, const Vec3& v1);
 
 		friend const Vec3 operator + (const Vec3& left, const Vec3& right);
+		
 		friend const Vec3 operator - (const Vec3& left, const Vec3& right);
 		friend const Vec3 operator * (const Vec3& Vector, const float scalar);
 		friend const Vec3 operator * (const float scalar, const Vec3& Vector);
 		friend const Vec3 operator * (const Vec3& v1, const Vec3& v2);
 		friend const Vec3 operator / (const Vec3& left, const float right);
+		friend const Vec3 operator / (const Vec3& left, const Vec3& right);
+		friend const Vec3 operator / (const Vec3& left, const Vec3Int& right);
 		friend const bool operator == (const Vec3& left, const Vec3& right);
 		friend const bool operator != (const Vec3& left, const Vec3& right);
 
-		Vec3 operator-() const;
-		Vec3& operator += (const Vec3& other);
-		Vec3& operator -= (const Vec3& other);
-		Vec3& operator *= (const float& scalar);
-		Vec3& operator = (const Vec3& other);
-		Vec3& operator = (Vec3&& other) noexcept;
+		Vec3   operator -   () const;
+		Vec3&  operator += (const Vec3& other);
+		Vec3&  operator -= (const Vec3& other);
+		Vec3&  operator *= (const float& scalar);
+		Vec3&  operator =  (const Vec3& other);
+		Vec3&  operator =  (Vec3&& other) noexcept;
+		float  operator [] (const uint32_t index) const;
+		float& operator [] (uint32_t index);
 
 		friend std::ostream& operator << (std::ostream& stream, const Vec3& Vector);
 		friend std::istream& operator >> (std::istream& stream, Vec3& Vector);
@@ -112,6 +118,47 @@ namespace rayTracer
 		Vec3 sample_unit_disk();
 	};
 	
-	
-	
+	/////////////////////////////////////////////////////////////////////// Vec3
+	struct Vec3Int
+	{
+		union
+		{
+			struct { int x, y, z; };
+			struct { int r, g, b; };
+			int components[3] = { 0, 0, 0 };
+		};
+
+		Vec3Int();
+		Vec3Int(const int& k);
+		Vec3Int(const int& x, const int& y, const int& z);
+		Vec3Int(const Vec3Int& other);
+		Vec3Int(Vec3Int&& other) noexcept;
+
+		int* Data();
+		const int* Data() const;
+
+		friend const Vec3Int operator + (const Vec3Int& left, const Vec3Int& right);
+
+		friend const Vec3Int operator - (const Vec3Int& left, const Vec3Int& right);
+		friend const Vec3Int operator * (const Vec3Int& Vector, const int scalar);
+		friend const Vec3Int operator * (const int scalar, const Vec3Int& Vector);
+		friend const Vec3Int operator * (const Vec3Int& v1, const Vec3Int& v2);
+		friend const Vec3Int operator / (const Vec3Int& left, const int right);
+		friend const Vec3Int operator / (const Vec3Int& left, const Vec3Int& right);
+		friend const bool operator == (const Vec3Int& left, const Vec3Int& right);
+		friend const bool operator != (const Vec3Int& left, const Vec3Int& right);
+
+		Vec3Int   operator -   () const;
+		Vec3Int& operator += (const Vec3Int& other);
+		Vec3Int& operator -= (const Vec3Int& other);
+		Vec3Int& operator *= (const int& scalar);
+		Vec3Int& operator =  (const Vec3Int& other);
+		Vec3Int& operator =  (Vec3Int&& other) noexcept;
+		int  operator [] (const uint32_t index) const;
+		int& operator [] (uint32_t index);
+
+		friend std::ostream& operator << (std::ostream& stream, const Vec3Int& Vector);
+		friend std::istream& operator >> (std::istream& stream, Vec3Int& Vector);
+
+	};
 }

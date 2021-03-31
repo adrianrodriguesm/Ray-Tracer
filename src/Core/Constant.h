@@ -8,7 +8,9 @@ namespace rayTracer
 	const float DEGREES_TO_RADIANS = 0.01745329251994329547f;
 	const float RADIANS_TO_DEGREES = 57.29577951308232185913f;
 	const float DISPLACEMENT_BIAS = 1.E-4; // For reflecting and refraction to avoid self occlusion
-
+	const float FLOAT_INFINITY = std::numeric_limits<float>::infinity();
+	const float FLOAT_MAX = std::numeric_limits<float>::max();
+	const float FLOAT_MIN = std::numeric_limits<float>::min();
 	namespace Vector
 	{
 		const Vec2 AXIS2D_X = { 1.0f, 0.0f };

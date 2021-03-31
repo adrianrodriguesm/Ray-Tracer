@@ -2,8 +2,6 @@
 #include "Core/Base.h"
 namespace rayTracer
 {
-
-#define KEPSILON 0.0001f
 	Grid::Grid()
 	{
 	}
@@ -13,19 +11,6 @@ namespace rayTracer
 	}
 	Grid::~Grid()
 	{
-	}
-	uint32_t Grid::GetNumObjects()
-	{
-		return (uint32_t)m_SceneObjects.size();
-	}
-	void Grid::AddObject(Object* object)
-	{
-		m_SceneObjects.push_back(object);
-	}
-	Object* Grid::GetSceneObject(const uint32_t index)
-	{
-		ASSERT(m_SceneObjects.size() > index, "Overflow! index greater than list size");
-		return m_SceneObjects[index];
 	}
 	void Grid::BuildGrid()
 	{
@@ -73,7 +58,7 @@ namespace rayTracer
 
 
 		}
-
+		
 
 	}
 	RayCastHit Grid::Intercepts(Ray& ray)
@@ -147,6 +132,7 @@ namespace rayTracer
 				stop[index] --;
 			}
 		}
+		m_CachedInterceptions.clear();
 		// Grid traversal loop
 		while (true)
 		{
@@ -155,8 +141,7 @@ namespace rayTracer
 			auto& sceneObject = m_Cells[index];
 
 			if (next.x < next.y && next.x < next.z)
-			{
-				
+			{			
 				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
 				if (hit && hit.Tdist < next.x)
 					return hit;
@@ -196,14 +181,6 @@ namespace rayTracer
 
 		}
 		return {false};
-	}
-	bool Grid::Traverse(Ray& ray, Object** hitobject, Vec3& hitpoint)
-	{
-		return false;
-	}
-	bool Grid::Traverse(Ray& ray)
-	{
-		return false;
 	}
 	Vec3 Grid::FindMinBounds()
 	{
@@ -250,10 +227,19 @@ namespace rayTracer
 
 		RayCastHit hit;
 		float tDist = FLOAT_MAX;
-
 		for (auto& object : sceneObjects)
 		{
-			RayCastHit hitTemp = object->Intercepts(ray);
+			// Mailbox: cached the objects in order to avoid the calculation 
+			// of the interception  of an object more than one
+			RayCastHit hitTemp;
+			if (m_CachedInterceptions.find(object) == m_CachedInterceptions.end())
+			{
+				hitTemp = object->Intercepts(ray);
+				m_CachedInterceptions[object] = hitTemp;
+			}
+			else
+				hitTemp = m_CachedInterceptions[object];
+
 			if (hitTemp && hitTemp.Tdist < tDist)
 			{
 				tDist = hitTemp.Tdist;
@@ -261,9 +247,5 @@ namespace rayTracer
 			}
 		}
 		return hit;
-	}
-	bool Grid::InitTraverse(Ray& ray, int& ix, int& iy, int& iz, float& dtx, float& dty, float& dtz, float& tx_next, float& ty_next, float& tz_next, int& ix_step, int& iy_step, int& iz_step, int& ix_stop, int& iy_stop, int& iz_stop)
-	{
-		return false;
 	}
 }

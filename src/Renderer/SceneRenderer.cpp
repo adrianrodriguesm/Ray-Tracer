@@ -421,6 +421,12 @@ namespace rayTracer
 	{
 		return s_Data.DataScene.MaxDepth;
 	}
+
+	float SceneRenderer::GetAperture()
+	{
+		return s_Data.DataScene.Camera->GetAperture();
+	}
+
 	AntialiasingMode SceneRenderer::GetAntialiasingMode()
 	{
 		return s_Data.antialiasingMode;

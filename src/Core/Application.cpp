@@ -82,6 +82,11 @@ namespace rayTracer
 		Application::Get().GetLayer().OnKeyPress(key,  xx, yy);
 	}
 
+	static void OnSpecialKeyPress(int key, int xx, int yy)
+	{
+		Application::Get().GetLayer().OnSpecialKeyPress(key, xx, yy);
+	}
+
 	static void OnMouseMove(int xx, int yy)
 	{
 		Application::Get().GetLayer().OnMouseMove(xx, yy);
@@ -115,6 +120,7 @@ namespace rayTracer
 			
 		glutDisplayFunc(OnUpdate);
 		glutKeyboardFunc(OnKeyPress);
+		glutSpecialFunc(OnSpecialKeyPress);
 		glutCloseFunc(OnWindowClose);
 		glutReshapeFunc(OnWindowResize);
 		glutMouseFunc(OnMouseKeyPress);

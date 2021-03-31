@@ -23,6 +23,7 @@ namespace rayTracer
 		inline float GetNear() { return m_Near; }
 		inline float GetFar() { return m_Far; }
 		inline float GetAperture() { return m_Aperture; }
+		inline float SetAperture(float ap) { return m_Aperture = ap; }
 
 		void OnResize(int width, int height);
 

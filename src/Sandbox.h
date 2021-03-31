@@ -22,11 +22,14 @@ public:
 	virtual void OnMouseScroll(int wheel, int direction, int x, int y) override;
 
 	virtual void OnKeyPress(unsigned char key, int xx, int yy) override;
+	virtual void OnSpecialKeyPress(int key, int xx, int yy) override;
+
 
 private:
 	void InitScene();
 	void AddObjects();
-private:
+	void ChangeAperture(float change);
+
 	Camera* m_Camera = nullptr;
 	Scene* m_Scene = nullptr;
 	uint32_t RES_WIDTH = 512, RES_HEIGHT = 512;

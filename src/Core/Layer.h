@@ -21,7 +21,8 @@ namespace rayTracer
 		virtual void OnMouseScroll(int wheel, int direction, int x, int y) = 0;
 
 		virtual void OnKeyPress(unsigned char key, int xx, int yy) = 0;
-		
+		virtual void OnSpecialKeyPress(int key, int xx, int yy) = 0;
+
 
 	};
 }

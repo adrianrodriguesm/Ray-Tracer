@@ -42,6 +42,7 @@ namespace rayTracer
 		static bool GetGammaCorrection();
 		static bool GetToneMapping();
 		static int GetTracingDepth();
+		static float GetAperture();
 		static AntialiasingMode GetAntialiasingMode();
 
 	private:

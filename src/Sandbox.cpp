@@ -10,6 +10,7 @@ Sandbox::~Sandbox()
 {
 }
 
+#pragma region Callbacks
 void Sandbox::OnAttach()
 {
 	InitScene();
@@ -201,8 +202,26 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 	case'3':
 		SceneRenderer::SwitchAntialiasingMode(AntialiasingMode::JITTERING);
 		break;
+
+
 	}
 }
+
+void Sandbox::OnSpecialKeyPress(int key, int xx, int yy)
+{
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		ChangeAperture(0.1f);
+		break;
+
+	case GLUT_KEY_DOWN:
+		ChangeAperture(-0.1f);
+		break;
+	}
+}
+
+#pragma endregion
 
 void Sandbox::InitScene()
 {
@@ -240,6 +259,8 @@ void Sandbox::InitScene()
 
 	std::cout << "Max Depth: " << SceneRenderer::GetTracingDepth() << std::endl << std::endl;
 
+	std::cout << "Camera Aperture: " << m_Camera->GetAperture() << std::endl << std::endl;
+
 	AntialiasingMode mode = SceneRenderer::GetAntialiasingMode();
 	std::string modeName = mode == AntialiasingMode::NONE ? "None" : mode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
 	std::cout << "Antialiasing Mode: " << modeName << std::endl << std::endl;
@@ -251,6 +272,7 @@ void Sandbox::InitScene()
 	std::cout << "'T' - Toggle Off/On Tonemapping" << std::endl << std::endl;
 	std::cout << "'S' - Toggle Off/On Shadows (Global)" << std::endl << std::endl;
 	std::cout << "'+'/'-' - Increment/Decrement Max Depth" << std::endl << std::endl;
+	std::cout << "'UP'/'DOWN' - Increment/Decrement Aperture" << std::endl << std::endl;
 	std::cout << "'1' - No antialiasing | '2' - Regular Sampling | '3' - Jittering" << std::endl << std::endl;
 	std::cout << "----------------------------------" << std::endl;
 
@@ -286,4 +308,10 @@ void Sandbox::AddObjects()
 
 	//m_Scene->AddLight(aLight);
 	m_Scene->AddLight(pointLight);
+}
+
+void Sandbox::ChangeAperture(float change)
+{
+	float newAperture = m_Camera->SetAperture(m_Camera->GetAperture() + change);
+	std::cout << "Aperture: " << newAperture << std::endl;
 }

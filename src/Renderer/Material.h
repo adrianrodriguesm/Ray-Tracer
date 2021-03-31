@@ -10,7 +10,8 @@ namespace rayTracer
 		Material() :
 			m_diffColor(Vec3(0.2f, 0.2f, 0.2f)), m_Diff(0.2f), m_specColor(Vec3(1.0f, 1.0f, 1.0f)), m_Spec(0.8f), m_Shine(20), m_Refl(1.0f), m_T(0.0f), m_RIndex(1.0f) {};
 
-		Material(Vec3& c, float Kd, Vec3& cs, float Ks, float Shine, float T, float ior) {
+		Material(Vec3& c, float Kd, Vec3& cs, float Ks, float Shine, float T, float ior) 
+		{
 			m_diffColor = c; m_Diff = Kd; m_specColor = cs; m_Spec = Ks; m_Shine = Shine; m_Refl = Ks; m_T = T; m_RIndex = ior;
 		}
 

@@ -19,13 +19,14 @@ namespace rayTracer
 		inline int GetResX() { return m_WidthRes; }
 		inline int GetResY() { return m_HeightRes; }
 		inline float GetFov() { return m_FOV; }
-		inline float GetPlaneDist() { return m_PlaneDistance; }
+		inline float GetPlaneDistance() { return m_PlaneDistance; }
+		inline float GetNear() { return m_Near; }
 		inline float GetFar() { return m_Far; }
 		inline float GetAperture() { return m_Aperture; }
 
 		void OnResize(int width, int height);
 
-		Ray PrimaryRay(const Vec2& pixelSample);
+		//Ray PrimaryRay(const Vec2& pixelSample);
 		Ray PrimaryCenterRay(const Vec2& pixelSample);
 		Ray PrimaryLensRay(const Vec2& pixelSample);
 

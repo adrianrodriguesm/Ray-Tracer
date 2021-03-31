@@ -17,7 +17,7 @@ namespace rayTracer
 		m_YAxis = CrossProduct(m_ZAxis, m_XAxis);
 
 		//Dimensions of the vis window
-		m_Height = 2 * m_PlaneDistance * tan((M_PI * angle / 180) / 2.0f);
+		m_Height = 2 * m_PlaneDistance * tanf((M_PI * angle / 180) / 2.0f);
 		m_Width = ((float)m_WidthRes / m_HeightRes) * m_Height;
 
 		m_Aperture = Aperture_ratio * (m_Width / m_WidthRes); //Lens aperture = aperture_ratio * pixel_size
@@ -47,6 +47,7 @@ namespace rayTracer
 
 		m_Aperture = m_ApertureRatio * (m_Width / m_WidthRes); //Lens aperture = aperture_ratio * pixel_size
 	}
+	/** /
 	Ray Camera::PrimaryRay(const Vec2& pixelSample)
 	{
 		Ray ray;
@@ -55,6 +56,7 @@ namespace rayTracer
 		ray.Direction = ray.Direction.Normalized();
 		return ray;
 	}
+	/**/
 	Ray Camera::PrimaryCenterRay(const Vec2& pixelSample)
 	{
 		Ray ray;
@@ -78,11 +80,11 @@ namespace rayTracer
 	}
 	void Camera::DumpSelf()
 	{
-		printf("\nCamera:\n");
-		std::cout << "Eye = " << m_Eye << "\n";
-		std::cout << "Center = " << m_LookAt << "\n";
-		std::cout << "Up = " << m_Up << "\n";
-		std::cout << "Width x Height = " << m_WidthRes << " x " << m_HeightRes << "\n";
+		std::cout << "Camera:" << std::endl;
+		std::cout << "Eye = " << m_Eye << std::endl;
+		std::cout << "Center = " << m_LookAt << std::endl;
+		std::cout << "Up = " << m_Up << std::endl;
+		std::cout << "Width x Height = " << m_WidthRes << " x " << m_HeightRes << std::endl;
 	}
 	Vec2 Camera::CalculateSamplePoint()
 	{

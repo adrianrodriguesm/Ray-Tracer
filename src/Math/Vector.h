@@ -21,6 +21,7 @@ namespace rayTracer
 
 		float* Data();
 		const float* Data() const;
+		float SqrMagnitude() const;
 		friend float Magnitude(const Vec2& vector);
 		friend Vec2 Normalize(const Vec2& vector);
 		friend Vec2 Lerp(const Vec2& v0, const Vec2& v1, const float time);

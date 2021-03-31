@@ -44,7 +44,12 @@ namespace rayTracer
 		return &x;
 	}
 
-
+	float Vec2::SqrMagnitude() const
+	{
+		float x = powf(this->x, 2);
+		float y = powf(this->y, 2);
+		return x + y;
+	}
 	float Magnitude(const Vec2& vector)
 	{
 		float x = powf(vector.x, 2);

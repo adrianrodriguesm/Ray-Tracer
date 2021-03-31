@@ -2,7 +2,7 @@
 #include <math.h>
 #include <Math/Maths.h>
 #include <algorithm>    // std::random_shuffle
-
+#include "Core/Constant.h"
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -327,12 +327,12 @@ namespace rayTracer
 				{
 					if(s_Data.antialiasingMode != AntialiasingMode::NONE)
 					{
-						Vec2 pixelSample = pixel + sampleOffset;
-						Ray ray = s_Data.DataScene.Camera->PrimaryRay(Vec3(pixelSample.x, pixelSample.y, 0.0f));
+						Ray ray = s_Data.DataScene.Camera->PrimaryLensRay(pixel + sampleOffset);
+						color += TraceRays(ray, 1, 1.0);
 					}
 					else
 					{
-						Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel + sampleOffset);
+						Ray ray = s_Data.DataScene.Camera->PrimaryCenterRay(pixel + sampleOffset);
 						color += TraceRays(ray, 1, 1.0);
 					}
 

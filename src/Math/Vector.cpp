@@ -2,6 +2,7 @@
 #include "Core/Constant.h"
 #include "Core/Base.h"
 #include "Math/Maths.h"
+#include "Math/Random.h"
 #include <algorithm>
 namespace rayTracer
 {
@@ -43,7 +44,12 @@ namespace rayTracer
 		return &x;
 	}
 
-
+	float Vec2::SqrMagnitude() const
+	{
+		float x = powf(this->x, 2);
+		float y = powf(this->y, 2);
+		return x + y;
+	}
 	float Magnitude(const Vec2& vector)
 	{
 		float x = powf(vector.x, 2);
@@ -438,12 +444,12 @@ namespace rayTracer
 
 	/**/
 	// Sampling with rejection method
-	Vec3 Vec3::sample_unit_disk()
+	Vec3 sample_unit_disk()
 	{
 		Vec3 p;
 		do
 		{
-			p = Vec3(rand_float(), rand_float(), 0.0) * 2 - Vec3(1.0, 1.0, 0.0);
+			p = Vec3(Random::Float(), Random::Float(), 0.0) * 2 - Vec3(1.0, 1.0, 0.0);
 		} while (p.DotProduct(p) >= 1.0);
 		return p;
 	}

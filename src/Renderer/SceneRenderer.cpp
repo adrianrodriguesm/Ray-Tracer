@@ -3,6 +3,7 @@
 #include <Math/Maths.h>
 #include <algorithm>    // std::random_shuffle
 #include "Renderer/Grid.h"
+#include "Core/Constant.h"
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -359,8 +360,17 @@ namespace rayTracer
 				// Calculate Color
 				for each (Vec2 sampleOffset in samplingOffsets)
 				{
-					Ray ray = s_Data.DataScene.Camera->PrimaryRay(pixel + sampleOffset);
-					color += TraceRays(ray, 1, 1.0);
+					if(s_Data.antialiasingMode != AntialiasingMode::NONE)
+					{
+						Ray ray = s_Data.DataScene.Camera->PrimaryLensRay(pixel + sampleOffset);
+						color += TraceRays(ray, 1, 1.0);
+					}
+					else
+					{
+						Ray ray = s_Data.DataScene.Camera->PrimaryCenterRay(pixel + sampleOffset);
+						color += TraceRays(ray, 1, 1.0);
+					}
+
 				}
 				color = color / samplingOffsets.size();
 

@@ -89,11 +89,11 @@ namespace rayTracer
 		float m_Radius, SqRadius;
 	};
 
-	class aaBox : public Object   //Axis aligned box: another geometric object
+	class Box : public Object   //Axis aligned box: another geometric object
 	{
 	public:
-		aaBox(Vec3& minPoint, Vec3& maxPoint);
-		virtual ~aaBox() = default;
+		Box(Vec3& minPoint, Vec3& maxPoint);
+		virtual ~Box() = default;
 		virtual AABB GetBoundingBox(void) override { return m_BoundingBox; }
 		virtual RayCastHit Intercepts(Ray& r) override;
 		virtual Vec3 GetNormal(Vec3 point) override;

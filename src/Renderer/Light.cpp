@@ -13,7 +13,7 @@ namespace rayTracer
 		float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
 		lightDir = lightDir.Normalized();
 		Ray shadowFeeler(emissionPoint, lightDir);
-
+		/** /
 		for (auto obj : objectsInScene)
 		{
 			if (obj->GetMaterial()->GetTransmittance() > 0)
@@ -23,6 +23,11 @@ namespace rayTracer
 			if (shadowHit && shadowHit.Tdist < lightDistance)
 				return 0;
 		}
+		/**/
+		RayCastHit shadowHit = SceneRenderer::GetGrid().InterceptsShadows(shadowFeeler);
+		if (shadowHit && shadowHit.Tdist < lightDistance)
+			return 0;
+		/**/
 		return 1;
 	}
 

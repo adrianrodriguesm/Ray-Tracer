@@ -431,6 +431,10 @@ namespace rayTracer
 	{
 		return s_Data.antialiasingMode;
 	}
+	Grid& SceneRenderer::GetGrid()
+	{
+		return *(s_Data.Grid);
+	}
 	void SceneRenderer::Flush()
 	{
 		switch (s_Data.RenderMode)

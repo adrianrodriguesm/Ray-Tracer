@@ -46,10 +46,10 @@ namespace rayTracer
 				else if (cmd == "box")    //axis aligned box
 				{
 					Vec3 minpoint, maxpoint;
-					aaBox* box;
+					Box* box;
 
 					file >> minpoint >> maxpoint;
-					box = new aaBox(minpoint, maxpoint);
+					box = new Box(minpoint, maxpoint);
 					if (material) box->SetMaterial(material);
 					scene->AddObject((Object*)box);
 				}

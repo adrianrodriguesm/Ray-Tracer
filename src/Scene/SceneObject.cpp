@@ -184,13 +184,13 @@ namespace rayTracer
 		return ((contactPoint - m_Center).DotProduct(ray.Direction)) > 0;
 	}
 
-	aaBox::aaBox(Vec3& minPoint, Vec3& maxPoint) //Axis aligned Box: another geometric object
+	Box::Box(Vec3& minPoint, Vec3& maxPoint) //Axis aligned Box: another geometric object
 		: m_BoundingBox(minPoint, maxPoint), m_Center((minPoint + maxPoint) * 0.5f)
 	{
 
 	}
 
-	RayCastHit aaBox::Intercepts(Ray& ray)
+	RayCastHit Box::Intercepts(Ray& ray)
 	{
 		Vec3 dirfrac;
 		// r.dir is unit direction vector of ray
@@ -225,7 +225,7 @@ namespace rayTracer
 		return { true, tmin, this,  ray.Origin + tmin * ray.Direction };
 	}
 
-	Vec3 aaBox::GetNormal(Vec3 point)
+	Vec3 Box::GetNormal(Vec3 point)
 	{
 		// TODO maybe a possible aproach to avoid this calculus could be the addition of the normal
 		// ---  to the RayCastHit class
@@ -246,7 +246,7 @@ namespace rayTracer
 		
 	}
 
-	bool aaBox::IsInsideObject(const Vec3& point, const Ray& ray)
+	bool Box::IsInsideObject(const Vec3& point, const Ray& ray)
 	{
 		// TODO maybe a possible aproach to avoid this calculus could be the addition of the normal
 		// ---  to the RayCastHit class

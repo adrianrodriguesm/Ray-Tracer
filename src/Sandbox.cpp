@@ -107,7 +107,6 @@ void Sandbox::OnMouseMove(int xx, int yy)
 			beta = -85.0f;
 
 		Vec3 center = m_Camera->GetCenter();
-		Vec3 tempPoint = m_Camera->GetEye() - center;// Translate to center
 
 		Qtrn pitch = Qtrn(beta, { -1,0,0 });
 		Qtrn yaw = Qtrn(alpha, { 0,1,0 });

@@ -1,7 +1,8 @@
 #include "Math/Ray.h"
 #include "Scene/SceneObject.h"
 #include "Core/Constant.h"
-
+#include "Math/Random.h"
+#include "Renderer/SceneRenderer.h"
 namespace rayTracer
 {
 
@@ -26,6 +27,33 @@ namespace rayTracer
 		Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
 		Vec3 emissionPoint = hit.InterceptionPoint + normal * DISPLACEMENT_BIAS;
 		Vec3 reflectionDir = Reflect(dir, normal);
+		// Objects without roughness
+		if (hit.Object->GetMaterial()->GetRoughness() <= 0)
+			return { emissionPoint , reflectionDir };
+		/**/
+		Vec3 spherePoint = SceneRenderer::SampleHemisphere();
+		Vec3 reflectionFuzzyDir = Normalize(reflectionDir + hit.Object->GetMaterial()->GetRoughness() * spherePoint);
+		if (reflectionFuzzyDir.DotProduct(hit.Object->GetNormal(hit.InterceptionPoint)) < 0)
+		{
+			spherePoint.x *= -1.f;
+			spherePoint.y *= -1.f;
+			reflectionDir = Normalize(reflectionDir + hit.Object->GetMaterial()->GetRoughness() * spherePoint);
+		}
+		else
+		{
+			return { emissionPoint , reflectionFuzzyDir };
+		}
+		/** /
+		Vec3 w = reflectionDir;
+		Vec3 u = (CrossProduct(Vec3(0.00424f, 1, 0.00764f), w)).Normalized();
+		Vec3 v = CrossProduct(u, w);
+
+		Vec3 hemispherePoint = SceneRenderer::SampleHemisphere() * hit.Object->GetMaterial()->GetRoughness();
+		reflectionDir = hemispherePoint.x * u + hemispherePoint.y * v + hemispherePoint.z * w;
+
+		if (hit.Object->GetNormal(hit.InterceptionPoint).DotProduct(reflectionDir) < 0.f)
+			reflectionDir = -hemispherePoint.x * u - hemispherePoint.y * v + hemispherePoint.z * w;
+		/**/
 		return { emissionPoint , reflectionDir };
 	}
 }

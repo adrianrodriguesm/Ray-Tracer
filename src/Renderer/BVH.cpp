@@ -31,6 +31,56 @@ namespace rayTracer
 	int BVH::getNumObjects() { return objects.size(); }
 
 #pragma region Build Functions
+
+	int GetLargestAxis(vector<Object*>& objs, int ind1, int ind2)
+	{
+		// TODO: Check if you can just find longest axis on bounding box
+		Vec3 Min = Vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+		Vec3 Max = Vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+		for (Object* obj : objs)
+		{
+			Vec3 centroid = obj->GetBoundingBox().centroid();
+			if (Min.x > centroid.x) Min.x = centroid.x;
+			if (Min.y > centroid.y) Min.y = centroid.y;
+			if (Min.z > centroid.z) Min.z = centroid.z;
+
+			if (Max.x < centroid.x) Max.x = centroid.x;
+			if (Max.y < centroid.y) Max.y = centroid.y;
+			if (Max.z < centroid.z) Max.z = centroid.z;
+		}
+		Vec3 diff = Max - Min;
+		float maxLength = MAX3(diff.x, diff.y, diff.z);
+		if (diff.x == maxLength)
+			return 0;
+		else if (diff.y == maxLength)
+			return 1;
+		else
+			return 2;
+	}
+
+	int GetSplitIndex(vector<Object*>& objs, int ind1, int ind2, Vec3 midPoint, int axis)
+	{
+		for (int i = ind1; i < ind2; i++)
+		{
+			switch (axis)
+			{
+			case(0):	if (objs[i]->GetBoundingBox().centroid().x > midPoint.x) return i;
+			case(1):	if (objs[i]->GetBoundingBox().centroid().y > midPoint.y) return i;
+			default:	if (objs[i]->GetBoundingBox().centroid().z > midPoint.z) return i;
+			}
+		}
+	}
+
+	AABB CalculateBoundingBox(vector<Object*>& objs, int ind1, int ind2)
+	{
+		AABB result;
+		for (int i = ind1; i < ind2; i++) {
+			AABB bbox = objs[i]->GetBoundingBox();
+			result.extend(bbox);
+		}
+		return result;
+	}
+
 	void BVH::Build(vector<Object*>& objs) 
 	{
 
@@ -99,54 +149,7 @@ namespace rayTracer
 
 	}
 
-	int GetLargestAxis(vector<Object*>& objs, int ind1, int ind2)
-	{
-		// TODO: Check if you can just find longest axis on bounding box
-		Vec3 Min = Vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-		Vec3 Max = Vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-		for (Object* obj : objs)
-		{
-			Vec3 centroid = obj->GetBoundingBox().centroid();
-			if (Min.x > centroid.x) Min.x = centroid.x;
-			if (Min.y > centroid.y) Min.y = centroid.y;
-			if (Min.z > centroid.z) Min.z = centroid.z;
 
-			if (Max.x < centroid.x) Max.x = centroid.x;
-			if (Max.y < centroid.y) Max.y = centroid.y;
-			if (Max.z < centroid.z) Max.z = centroid.z;
-		}
-		Vec3 diff = Max - Min;
-		float maxLength = MAX3(diff.x, diff.y, diff.z);
-		if (diff.x == maxLength)
-			return 0;
-		else if (diff.y == maxLength)
-			return 1;
-		else
-			return 2;
-	}
-
-	int GetSplitIndex(vector<Object*>& objs, int ind1, int ind2, Vec3 midPoint, int axis)
-	{
-		for (int i = ind1; i < ind2; i++)
-		{
-			switch (axis)
-			{
-			case(0):	if (objs[i]->GetBoundingBox().centroid().x > midPoint.x) return i;
-			case(1):	if (objs[i]->GetBoundingBox().centroid().y > midPoint.y) return i;
-			default:	if (objs[i]->GetBoundingBox().centroid().z > midPoint.z) return i;
-			}
-		}
-	}
-
-	AABB CalculateBoundingBox(vector<Object*>& objs, int ind1, int ind2)
-	{
-		AABB result;
-		for (int i = ind1; i < ind2; i++) {
-			AABB bbox = objs[i]->GetBoundingBox();
-			result.extend(bbox);
-		}
-		return result;
-	}
 
 #pragma endregion Build Functions
 

@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 #include <Core/Base.h>
 #include <GL/freeglut.h>
+#include <Renderer/Grid.h>
 namespace rayTracer
 {
 	struct SceneRendererSpec
@@ -44,6 +45,7 @@ namespace rayTracer
 		static int GetTracingDepth();
 		static float GetAperture();
 		static AntialiasingMode GetAntialiasingMode();
+		static Grid& GetGrid();
 
 	private:
 		// Ray tracing Methods

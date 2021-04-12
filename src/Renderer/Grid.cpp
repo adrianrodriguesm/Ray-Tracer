@@ -183,6 +183,127 @@ namespace rayTracer
 		}
 		return {false};
 	}
+	bool Grid::InterceptsShadows(Ray& ray)
+	{
+		Vec3 min, max;
+		Vec3 delta;
+		for (uint32_t index = 0; index < 3; index++)
+		{
+			delta[index] = 1 / ray.Direction[index];
+			if (delta[index] >= 0)
+			{
+				min[index] = (m_BBox.Min[index] - ray.Origin[index]) * delta[index];
+				max[index] = (m_BBox.Max[index] - ray.Origin[index]) * delta[index];
+			}
+			else
+			{
+				min[index] = (m_BBox.Max[index] - ray.Origin[index]) * delta[index];
+				max[index] = (m_BBox.Min[index] - ray.Origin[index]) * delta[index];
+			}
+		}
+		// Largest entry point
+		float tMin = std::max({ min.x, min.y, min.z });
+		// Nearest exit point
+		float tMax = std::min({ max.x, max.y, max.z });
+
+		if (tMin > tMax)
+			return { false };
+
+
+		Vec3Int cellCoordinates;
+		// Check if ray start inside the grid
+		if (m_BBox.IsInside(ray.Origin))
+		{
+			for (uint32_t index = 0; index < 3; index++)
+			{
+				cellCoordinates[index] = std::clamp((int)((ray.Origin[index] - m_BBox.Min[index]) * m_CellNumberPerDim[index] / (m_BBox.Max[index] - m_BBox.Min[index])),
+					0, m_CellNumberPerDim[index] - 1);
+			}
+		}
+		else
+		{
+			// Initial hit point with grid's BB
+			Vec3 point = ray.Origin + (ray.Direction * tMin);
+			for (uint32_t index = 0; index < 3; index++)
+			{
+				cellCoordinates[index] = std::clamp((int)((point[index] - m_BBox.Min[index]) * m_CellNumberPerDim[index] / (m_BBox.Max[index] - m_BBox.Min[index])),
+					0, m_CellNumberPerDim[index] - 1);
+			}
+		}
+
+		// Find the nearest intersection
+		Vec3 deltaT = (max - min) / m_CellNumberPerDim;
+		Vec3 next;
+		Vec3Int step, stop;
+		for (uint32_t index = 0; index < 3; index++)
+		{
+			if (delta[index] > 0)
+			{
+				next[index] = min[index] + (cellCoordinates[index] + 1) * deltaT[index];
+				step[index] ++;
+				stop[index] = m_CellNumberPerDim[index];
+			}
+			else
+			{
+				if (delta[index] == 0)
+					next[index] = FLOAT_MAX;
+				else
+					next[index] = min[index] + (m_CellNumberPerDim[index] - cellCoordinates[index]) * deltaT[index];
+
+				step[index] --;
+				stop[index] --;
+			}
+		}
+		m_CachedInterceptions.clear();
+		// Grid traversal loop
+		while (true)
+		{
+			// Get the objects of that cell
+			uint32_t index = cellCoordinates.x + m_CellNumberPerDim.x * cellCoordinates.y + m_CellNumberPerDim.x * m_CellNumberPerDim.y * cellCoordinates.z;
+			auto& sceneObject = m_Cells[index];
+
+			if (next.x < next.y && next.x < next.z)
+			{
+				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				if (hit)
+					return hit;
+
+				next.x += deltaT.x;
+				cellCoordinates.x += step.x;
+
+				if (cellCoordinates.x == stop.x)
+					return { false };
+			}
+			else if (next.y < next.z)
+			{
+
+				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				if (hit)
+					return hit;
+
+				next.y += deltaT.y;
+				cellCoordinates.y += step.y;
+
+				if (cellCoordinates.y == stop.y)
+					return { false };
+			}
+			else
+			{
+				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				if (hit)
+					return hit;
+
+				next.z += deltaT.z;
+				cellCoordinates.z += step.z;
+
+				if (cellCoordinates.z == stop.z)
+					return { false };
+			}
+
+
+		}
+		return { false };
+	}
 	Vec3 Grid::FindMinBounds()
 	{
 		Vec3 minBounds = { FLOAT_MAX };

@@ -16,6 +16,7 @@ namespace rayTracer
 		// Set up grid cells
 		void BuildGrid();   
 		RayCastHit Intercepts(Ray& r); 
+		bool InterceptsShadows(Ray& r);
 	private:
 		Vec3 FindMinBounds();
 		Vec3 FindMaxBounds();

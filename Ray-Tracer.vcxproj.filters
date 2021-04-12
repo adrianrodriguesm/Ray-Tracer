@@ -19,6 +19,7 @@
     <ClCompile Include="src\Scene\SceneLoader.cpp" />
     <ClCompile Include="src\Scene\SceneObject.cpp" />
     <ClCompile Include="src\Renderer\Grid.cpp" />
+    <ClCompile Include="src\Renderer\BVH.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
@@ -46,6 +47,7 @@
     <ClInclude Include="src\Scene\SceneLoader.h" />
     <ClInclude Include="src\Scene\SceneObject.h" />
     <ClInclude Include="src\PerlinNoise.hpp" />
+    <ClInclude Include="src\Renderer\BVH.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox\back.jpg" />

@@ -1,6 +1,7 @@
 #pragma once
 #include "vector.h"
 #include "ray.h"
+#include "Math/Maths.h"
 
 namespace rayTracer
 {
@@ -9,27 +10,18 @@ namespace rayTracer
 		Vec3 Min = { };
 		Vec3 Max = { };
 
-		AABB() = default;
+		AABB();
 		AABB(const Vec3& min, const Vec3& max)
 			: Min(min), Max(max) {}
 		AABB(const AABB& bbox)
 			: Min(bbox.Min), Max(bbox.Max){}
-
 		virtual ~AABB() = default;
 
-		AABB operator = (const AABB& rhs)
-		{
-			if (this == &rhs)
-				return (*this);
-			Min = rhs.Min;
-			Max = rhs.Max;
-			return (*this);
-		}
-		// --------------------------------------------------------------------- inside
-		// used to test if a ray starts inside a grid
-		inline bool IsInside(const Vec3& p)
-		{
-			return ((p.x >= Min.x && p.x <= Max.x) && (p.y >= Min.y && p.y <= Max.y) && (p.z >= Min.z && p.z <= Max.z));
-		}
+
+		AABB operator = (const AABB& rhs);
+		bool IsInside(const Vec3& p);
+		bool intercepts(const Ray& r, float& t);
+		Vec3 centroid();
+		void extend(AABB box);
 	};
 }

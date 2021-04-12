@@ -66,6 +66,8 @@ namespace rayTracer
 
 		Vec2 ToVec2();
 
+		float GetAxisValue(int axis);
+
 		float* Data();
 		const float* Data() const;
 		friend const void Clean(Vec3& v);

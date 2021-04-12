@@ -7,6 +7,7 @@
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// Vec2
+#pragma region Vec2
 	Vec2::Vec2()
 		: x(0), y(0)
 	{
@@ -173,9 +174,9 @@ namespace rayTracer
 		stream >> Vector.y;
 		return stream;
 	}
-
+#pragma endregion Vec2
 	/////////////////////////////////////////////////////////////////////// Vec3
-
+#pragma region Vec3
 	Vec3::Vec3()
 		: x(0), y(0), z(0)
 	{}
@@ -201,6 +202,11 @@ namespace rayTracer
 	Vec2 Vec3::ToVec2()
 	{
 		return Vec2(this->x, this->y);
+	}
+
+
+	float Vec3::GetAxisValue(int axis) {
+		return (axis == 0) ? x : (axis == 1) ? y : z;
 	}
 
 	float* Vec3::Data()
@@ -453,6 +459,10 @@ namespace rayTracer
 		} while (p.DotProduct(p) >= 1.0);
 		return p;
 	}
+
+#pragma endregion Vec3
+	/////////////////////////////////////////////////////////////////////// Vec3Int
+#pragma region Vec3Int
 	Vec3Int::Vec3Int()
 		: x(0), y(0), z(0)
 	{
@@ -593,4 +603,5 @@ namespace rayTracer
 		return components[index];
 	}
 	/**/
+#pragma endregion Vec3Int
 }

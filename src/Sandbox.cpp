@@ -296,11 +296,6 @@ void Sandbox::AddObjects()
 
 	m_Scene->AddObject(testSphere);
 	SceneRenderer::SubmitObject(testSphere);
-	//for each (auto & child in testSphere->GetChildSpheres())
-	//{
-	//	m_Scene->AddObject(child);
-	//	SceneRenderer::SubmitObject(child);
-	//}
 
 	// Lights
 	//AreaLight* aLight = new AreaLight(Vec3(0, 15, 0), Vec3(0.2f, 0.2f, 0.8f), Vec3(1, 0, 0), Vec3(0, 0, 1), 4);

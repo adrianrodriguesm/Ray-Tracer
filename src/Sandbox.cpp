@@ -202,6 +202,17 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 		SceneRenderer::SwitchAntialiasingMode(AntialiasingMode::JITTERING);
 		break;
 
+	case'4':
+		SceneRenderer::SwitchAccelererationStructure(AccelerationStructure::NONE);
+		break;
+
+	case'5':
+		SceneRenderer::SwitchAccelererationStructure(AccelerationStructure::GRID);
+		break;
+
+	case'6':
+		SceneRenderer::SwitchAccelererationStructure(AccelerationStructure::BVH);
+		break;
 
 	}
 }
@@ -264,6 +275,10 @@ void Sandbox::InitScene()
 	std::string modeName = mode == AntialiasingMode::NONE ? "None" : mode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
 	std::cout << "Antialiasing Mode: " << modeName << std::endl << std::endl;
 
+	AccelerationStructure accStruct = SceneRenderer::GetAccelerationStruct();
+	std::string structName = accStruct == AccelerationStructure::NONE ? "None" : accStruct == AccelerationStructure::GRID ? "Grid" : "BVH";
+	std::cout << "Acceleration Structure: " << structName << std::endl << std::endl;
+
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
 	std::cout << "------------- INPUTS ---------------" << std::endl;
@@ -273,6 +288,7 @@ void Sandbox::InitScene()
 	std::cout << "'+'/'-' - Increment/Decrement Max Depth" << std::endl << std::endl;
 	std::cout << "'UP'/'DOWN' - Increment/Decrement Aperture" << std::endl << std::endl;
 	std::cout << "'1' - No antialiasing | '2' - Regular Sampling | '3' - Jittering" << std::endl << std::endl;
+	std::cout << "'4' - No Acceleration Structure | '5' - Grid Acceleration | '6' - BVH Acceleration " << std::endl << std::endl;
 	std::cout << "----------------------------------" << std::endl;
 
 }

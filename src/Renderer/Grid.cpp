@@ -56,11 +56,7 @@ namespace rayTracer
 					}
 				}
 			}
-
-
 		}
-		
-
 	}
 	RayCastHit Grid::Intercepts(Ray& ray)
 	{	
@@ -183,7 +179,7 @@ namespace rayTracer
 		}
 		return {false};
 	}
-	bool Grid::InterceptsShadows(Ray& ray)
+	bool Grid::InterceptsShadows(Ray& ray, float lightDist)
 	{
 		Vec3 min, max;
 		Vec3 delta;
@@ -207,7 +203,7 @@ namespace rayTracer
 		float tMax = std::min({ max.x, max.y, max.z });
 
 		if (tMin > tMax)
-			return { false };
+			return false;
 
 
 		Vec3Int cellCoordinates;
@@ -231,7 +227,7 @@ namespace rayTracer
 			}
 		}
 
-		// Find the nearest intersection
+		// Find shadow intersection
 		Vec3 deltaT = (max - min) / m_CellNumberPerDim;
 		Vec3 next;
 		Vec3Int step, stop;
@@ -264,20 +260,20 @@ namespace rayTracer
 
 			if (next.x < next.y && next.x < next.z)
 			{
-				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
 				if (hit)
-					return hit;
+					return true;
 
 				next.x += deltaT.x;
 				cellCoordinates.x += step.x;
 
 				if (cellCoordinates.x == stop.x)
-					return { false };
+					return false;
 			}
 			else if (next.y < next.z)
 			{
 
-				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
 				if (hit)
 					return hit;
 
@@ -285,24 +281,24 @@ namespace rayTracer
 				cellCoordinates.y += step.y;
 
 				if (cellCoordinates.y == stop.y)
-					return { false };
+					return false;
 			}
 			else
 			{
-				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
 				if (hit)
-					return hit;
+					return true;
 
 				next.z += deltaT.z;
 				cellCoordinates.z += step.z;
 
 				if (cellCoordinates.z == stop.z)
-					return { false };
+					return false;
 			}
 
 
 		}
-		return { false };
+		return false;
 	}
 	Vec3 Grid::FindMinBounds()
 	{
@@ -369,5 +365,32 @@ namespace rayTracer
 			}
 		}
 		return hit;
+	}
+
+	RayCastHit Grid::GetShadowHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray, float lightDist)
+	{
+		if (sceneObjects.empty())
+			return { false };
+
+		for (auto& object : sceneObjects)
+		{
+			if (object->GetMaterial()->GetTransmittance() > 1)
+				continue; // Transparent object
+
+			RayCastHit hitTemp;
+			if (m_CachedInterceptions.find(object) == m_CachedInterceptions.end())
+			{
+				hitTemp = object->Intercepts(ray);
+				m_CachedInterceptions[object] = hitTemp;
+			}
+			else
+				hitTemp = m_CachedInterceptions[object];
+
+			if (hitTemp && hitTemp.Tdist < lightDist)
+			{
+				return hitTemp;
+			}
+		}
+		return { false };
 	}
 }

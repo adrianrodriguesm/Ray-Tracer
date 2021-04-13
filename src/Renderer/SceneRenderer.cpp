@@ -71,8 +71,6 @@ namespace rayTracer
 			uint32_t Width = 512, Height = 512;
 			uint32_t MaxDepth = 3;
 		} DataScene;
-		// Grid
-		Grid* Grid;
 		// Rendering Mode
 		RenderMode RenderMode = RenderMode::Default; // This is define by the application
 		// Points defined by 2 attributes: positions which are stored in vertices array and colors which are stored in colors array
@@ -90,9 +88,12 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
-		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
-
+		// Acceleration Structures
+		AccelerationStructure currentAccelerationStruct = AccelerationStructure::GRID;
+		Grid* Grid;
+		BVH* Bvh;
 	};
 	static RendererData s_Data;
 
@@ -107,6 +108,7 @@ namespace rayTracer
 	void SceneRenderer::Shutdown()
 	{
 		delete s_Data.Grid;
+		delete s_Data.Bvh;
 		DestroyData();
 		DestroyShaders();
 		DestroyBuffers();
@@ -132,6 +134,9 @@ namespace rayTracer
 	{
 		s_Data.Grid = new Grid(s_Data.DataScene.Objects);
 		s_Data.Grid->BuildGrid();
+
+		s_Data.Bvh = new BVH();
+		s_Data.Bvh->Build(s_Data.DataScene.Objects);
 	}
 
 	void SceneRenderer::OnResize(int width, int height)
@@ -187,6 +192,12 @@ namespace rayTracer
 		std::string modeName = newMode == AntialiasingMode::NONE ? "None" : newMode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
 		std::cout << "Antialiasing Mode: " << modeName << std::endl;
 	}
+	void SceneRenderer::SwitchAccelererationStructure(AccelerationStructure newStruct)
+	{
+		s_Data.currentAccelerationStruct = newStruct;
+		std::string modeName = newStruct == AccelerationStructure::NONE ? "None" : newStruct == AccelerationStructure::GRID ? "Grid" : "BVH";
+		std::cout << "Acceleration Structure: " << modeName << std::endl;
+	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Render
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -195,8 +206,19 @@ namespace rayTracer
 		if (ray.Direction.SqrMagnitude() == 0)
 			return Vec3();
 
-		//RayCastHit hit = GetClosestHit(ray);
-		RayCastHit hit = s_Data.Grid->Intercepts(ray);
+		RayCastHit hit;
+		switch (s_Data.currentAccelerationStruct)
+		{
+		case(AccelerationStructure::NONE): hit = GetClosestHit(ray); break;
+		case(AccelerationStructure::GRID): hit = s_Data.Grid->Intercepts(ray); break;
+		case(AccelerationStructure::BVH): hit = s_Data.Bvh->Intercepts(ray); break;
+		default:
+			{
+				std::cout << "\nERROR: The attempted accelleration structure has not been implemented\n";
+				exit(EXIT_FAILURE);
+			}
+		}
+		
 		if (!hit)
 			return s_Data.DataScene.Scene->GetSkyboxColor(ray); //GetBackgroundColor();
 			
@@ -431,9 +453,17 @@ namespace rayTracer
 	{
 		return s_Data.antialiasingMode;
 	}
+	AccelerationStructure SceneRenderer::GetAccelerationStruct()
+	{
+		return s_Data.currentAccelerationStruct;
+	}
 	Grid& SceneRenderer::GetGrid()
 	{
 		return *(s_Data.Grid);
+	}
+	BVH& SceneRenderer::GetBVH()
+	{
+		return *(s_Data.Bvh);
 	}
 	void SceneRenderer::Flush()
 	{

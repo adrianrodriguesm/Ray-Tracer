@@ -4,6 +4,36 @@
 
 namespace rayTracer
 {
+	bool StandardShadowTest(const std::vector<Object*>& objectsInScene, Ray& shadowFeeler, float lightDist)
+	{
+		for (auto obj : objectsInScene)
+		{
+			if (obj->GetMaterial()->GetTransmittance() > 0)
+				continue; // Transparent objects do not block light (Should refract light, but....)
+
+			RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
+			if (shadowHit && shadowHit.Tdist < lightDist)
+				return true;
+		}
+		return false; 
+	}
+
+	bool LightBlocked(const std::vector<Object*>& objectsInScene, Ray& shadowFeeler, float lightDist)
+	{
+		switch (SceneRenderer::GetAccelerationStruct())
+		{
+		case(AccelerationStructure::NONE): return StandardShadowTest(objectsInScene, shadowFeeler, lightDist);
+		case(AccelerationStructure::GRID): return SceneRenderer::GetGrid().InterceptsShadows(shadowFeeler, lightDist);
+		case(AccelerationStructure::BVH): return SceneRenderer::GetBVH().InterceptsShadows(shadowFeeler, lightDist);
+		default:
+		{
+			std::cout << "\nERROR: The attempted accelleration structure has not been implemented\n";
+			exit(EXIT_FAILURE);
+		}
+		}
+	}
+
+#pragma region Point Light
 	float Light::GetIntensityAtPoint(const Vec3& emissionPoint, const std::vector<Object*>& objectsInScene, AntialiasingMode antialiasingMode)
 	{
 		if (!shadows)
@@ -13,24 +43,16 @@ namespace rayTracer
 		float lightDistance = lightDir.Magnitude();//Light should not be blocked by objects behind the light source
 		lightDir = lightDir.Normalized();
 		Ray shadowFeeler(emissionPoint, lightDir);
-		/** /
-		for (auto obj : objectsInScene)
-		{
-			if (obj->GetMaterial()->GetTransmittance() > 0)
-				continue; // Transparent objects do not block light (Should refract light, but....)
 
-			RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
-			if (shadowHit && shadowHit.Tdist < lightDistance)
-				return 0;
-		}
-		/**/
-		RayCastHit shadowHit = SceneRenderer::GetGrid().InterceptsShadows(shadowFeeler);
-		if (shadowHit && shadowHit.Tdist < lightDistance)
+		if (LightBlocked(objectsInScene, shadowFeeler, lightDistance))
 			return 0;
-		/**/
-		return 1;
+		else
+			return 1;
 	}
 
+#pragma endregion Point Light
+
+#pragma region Area Light
 
 	AreaLight::AreaLight(const Vec3& pos, const Vec3& col, const Vec3& side1, const Vec3& side2) : Light(pos, col)
 	{
@@ -70,18 +92,8 @@ namespace rayTracer
 					Vec3 lightDir = Normalize(position - emissionPoint);
 					Ray shadowFeeler(emissionPoint, lightDir);
 
-					for (auto obj : objectsInScene)
-					{
-						if (obj->GetMaterial()->GetTransmittance() > 0)
-							continue; // Transparent objects do not block light (Should refract light, but....)
-
-						RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
-						if (shadowHit && shadowHit.Tdist < lightDistance)
-						{
-							intensity -= 1.0f;
-							break;
-						}
-					}
+					if (LightBlocked(objectsInScene, shadowFeeler, lightDistance))
+						intensity -= 1.0f;
 				}
 			}
 			return intensity / (sqrdNbPoints * sqrdNbPoints);
@@ -104,17 +116,12 @@ namespace rayTracer
 			Vec3 lightDir = Normalize(position - emissionPoint);
 			Ray shadowFeeler(emissionPoint, lightDir);
 
-			for (auto obj : objectsInScene)
-			{
-				if (obj->GetMaterial()->GetTransmittance() > 0)
-					continue; // Transparent objects do not block light (Should refract light, but....)
-
-				RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
-				if (shadowHit && shadowHit.Tdist < lightDistance)
-					return 0.0f;
-			}
-
-			return 1.0f;
+			if (LightBlocked(objectsInScene, shadowFeeler, lightDistance))
+				return 0.0f;
+			else
+				return 1.0f;
 		}
 	}
+#pragma endregion Area Light
+
 }

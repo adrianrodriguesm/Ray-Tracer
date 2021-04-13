@@ -6,12 +6,20 @@
 #include "AntiAliasing.h"
 #include "Core/Application.h"
 #include "Core/Utility.h"
+#include "Renderer/BVH.h"
 #include <GL/glew.h>
 #include <Core/Base.h>
 #include <GL/freeglut.h>
 #include <Renderer/Grid.h>
 namespace rayTracer
 {
+	enum class AccelerationStructure 
+	{ 
+		NONE, 
+		GRID, 
+		BVH 
+	};
+
 	struct SceneRendererSpec
 	{
 		Camera* Camera;
@@ -37,6 +45,7 @@ namespace rayTracer
 		static void ToggleShadows();
 		static void ChangeTracingDepth(int change);
 		static void SwitchAntialiasingMode(AntialiasingMode newMode);
+		static void SwitchAccelererationStructure(AccelerationStructure newStruct);
 
 		// Getters
 		static std::vector<Vec2> GetLightSamplingArray();
@@ -45,7 +54,9 @@ namespace rayTracer
 		static int GetTracingDepth();
 		static float GetAperture();
 		static AntialiasingMode GetAntialiasingMode();
+		static AccelerationStructure GetAccelerationStruct();
 		static Grid& GetGrid();
+		static BVH& GetBVH();
 
 	private:
 		// Ray tracing Methods

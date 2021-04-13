@@ -65,8 +65,11 @@ namespace rayTracer
 			switch (axis)
 			{
 			case(0):	if (objs[i]->GetBoundingBox().centroid().x > midPoint.x) return i;
+				break;
 			case(1):	if (objs[i]->GetBoundingBox().centroid().y > midPoint.y) return i;
+				break;
 			default:	if (objs[i]->GetBoundingBox().centroid().z > midPoint.z) return i;
+				break;
 			}
 		}
 	}
@@ -142,9 +145,6 @@ namespace rayTracer
 		}
 
 	}
-
-
-
 #pragma endregion Build Functions
 
 #pragma region Interception Functions
@@ -208,10 +208,10 @@ namespace rayTracer
 			}
 			else {
 				// Leaf Node - Process objects
-				for (int i = currentNode->getIndex(); i < currentNode->getNObjs(); i++)
+				for (int i = currentNode->getIndex(); i < (currentNode->getIndex() + currentNode->getNObjs()); i++)
 				{
-					tempHit = objects[i]->Intercepts(ray);
-					if (tempHit.Tdist < closestHit.Tdist)
+					RayCastHit tempHit = objects[i]->Intercepts(ray);
+					if (tempHit && tempHit.Tdist < closestHit.Tdist)
 						closestHit = tempHit;
 				}
 
@@ -294,10 +294,13 @@ namespace rayTracer
 			}
 			else {
 				// Leaf Node - Process objects
-				for (int i = currentNode->getIndex(); i < currentNode->getNObjs(); i++)
+				for (int i = currentNode->getIndex(); i < (currentNode->getIndex() + currentNode->getNObjs()); i++)
 				{
-					tempHit = objects[i]->Intercepts(ray);
-					if (tempHit.Tdist < lightDist)
+					if(objects[i]->GetMaterial()->GetTransmittance() > 0)
+						continue; // Transparent object
+
+					RayCastHit tempHit = objects[i]->Intercepts(ray);
+					if (tempHit && tempHit.Tdist < lightDist)
 						return true;
 				}
 

@@ -103,12 +103,6 @@ namespace rayTracer
 	}
 
 	void BVH::build_recursive(int left_index, int right_index, BVHNode* node) {
-		//PUT YOUR CODE HERE
-
-
-		 //right_index, left_index and split_index refer to the indices in the objects vector
-		// do not confuse with left_nodde_index and right_node_index which refer to indices in the nodes vector. 
-		 // node.index can have a index of objects vector or a index of nodes vector
 
 		if ((right_index - left_index) <= Threshold)
 		{
@@ -153,23 +147,192 @@ namespace rayTracer
 
 #pragma endregion Build Functions
 
+#pragma region Interception Functions
 
-	bool BVH::Traverse(Ray& ray, Object** hit_obj, Vec3& hit_point) {
-		float tmp;
-		float tmin = FLT_MAX;  //contains the closest primitive intersection
-		bool hit = false;
+	RayCastHit BVH::Intercepts(Ray& ray) {
+		RayCastHit tempHit;
+		RayCastHit closestHit;
+		closestHit.Tdist = FLT_MAX;
+
 
 		BVHNode* currentNode = nodes[0];
 
-		//PUT YOUR CODE HERE
+		// Check hit world box
+		if (!currentNode->getAABB().intercepts(ray, tempHit.Tdist))
+			return RayCastHit(false);
+
+
+		while (true)
+		{
+			if (!currentNode->isLeaf())
+			{
+				// Check hit child nodes
+				BVHNode* leftNode = nodes[currentNode->getIndex()];
+				float tLeft;
+				bool leftHit = leftNode->getAABB().intercepts(ray, tLeft);
+
+				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
+				float tRight;
+				bool rightHit = rightNode->getAABB().intercepts(ray, tRight);
+
+				if (leftHit && rightHit)
+				{
+					// Both hit - stack furthest node for later processing
+					if (tLeft <= tRight)
+					{
+						hit_stack.push(StackItem(rightNode, tRight));
+						currentNode = leftNode;
+						continue;
+					}
+					else {
+						hit_stack.push(StackItem(leftNode, tLeft));
+						currentNode = rightNode;
+						continue;
+					}
+				}
+				else if(leftHit){
+					// Only left node hit
+					currentNode = leftNode;
+					continue;
+				}
+				else if (rightHit)
+				{
+					// Only right node hit
+					currentNode = rightNode;
+					continue;
+				}
+				else
+				{
+					// No hit - Goto stack popping
+				}
+			}
+			else {
+				// Leaf Node - Process objects
+				for (int i = currentNode->getIndex(); i < currentNode->getNObjs(); i++)
+				{
+					tempHit = objects[i]->Intercepts(ray);
+					if (tempHit.Tdist < closestHit.Tdist)
+						closestHit = tempHit;
+				}
+
+			}
+
+			// Stack popping
+			currentNode = nullptr;
+			while (!hit_stack.empty())
+			{
+				StackItem stackNode = hit_stack.top();
+				hit_stack.pop();
+				if (stackNode.t < closestHit.Tdist)
+				{
+					currentNode = stackNode.ptr;
+					break;
+				}
+				else
+					currentNode = nullptr;
+			}
+			if (currentNode == nullptr)
+				break; // Termination
+		}
+		return closestHit; 
 	}
 
-	bool BVH::Traverse(Ray& ray) {  //shadow ray with length
-		float tmp;
+	bool BVH::InterceptsShadows(Ray& ray, float lightDist)  //shadow ray with length
+	{ 
+		RayCastHit tempHit;
 
-		//double length = ray.Direction.length(); //distance between light and intersection point
-		//ray.Direction.normalize();
+		BVHNode* currentNode = nodes[0];
 
-		//PUT YOUR CODE HERE
+		// Check hit world box
+		if (!currentNode->getAABB().intercepts(ray, tempHit.Tdist))
+			return false;
+
+
+		while (true)
+		{
+			if (!currentNode->isLeaf())
+			{
+				// Check hit child nodes
+				BVHNode* leftNode = nodes[currentNode->getIndex()];
+				float tLeft;
+				bool leftHit = leftNode->getAABB().intercepts(ray, tLeft);
+
+				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
+				float tRight;
+				bool rightHit = rightNode->getAABB().intercepts(ray, tRight);
+
+				if (leftHit && rightHit)
+				{
+					// Both hit - stack furthest node for later processing
+					if (tLeft <= tRight)
+					{
+						hit_stack.push(StackItem(rightNode, tRight));
+						currentNode = leftNode;
+						continue;
+					}
+					else {
+						hit_stack.push(StackItem(leftNode, tLeft));
+						currentNode = rightNode;
+						continue;
+					}
+				}
+				else if (leftHit) {
+					// Only left node hit
+					currentNode = leftNode;
+					continue;
+				}
+				else if (rightHit)
+				{
+					// Only right node hit
+					currentNode = rightNode;
+					continue;
+				}
+				else
+				{
+					// No hit - Goto stack popping
+				}
+			}
+			else {
+				// Leaf Node - Process objects
+				for (int i = currentNode->getIndex(); i < currentNode->getNObjs(); i++)
+				{
+					tempHit = objects[i]->Intercepts(ray);
+					if (tempHit.Tdist < lightDist)
+						return true;
+				}
+
+			}
+
+			// Stack popping
+			currentNode = nullptr;
+			while (!hit_stack.empty())
+			{
+				StackItem stackNode = hit_stack.top();
+				hit_stack.pop();
+				if (stackNode.t < lightDist)
+				{
+					currentNode = stackNode.ptr;
+					break;
+				}
+				else
+					currentNode = nullptr;
+			}
+			if (currentNode == nullptr)
+				break; // Termination
+		}
+		return false;
 	}
+
+	RayCastHit BVH::ProcessNode(BVHNode* node, float tMin)
+	{
+		if (node->isLeaf())
+		{
+
+		}
+		else {
+			return RayCastHit(false);
+		}
+	}
+
+#pragma endregion Interception Functions
 }

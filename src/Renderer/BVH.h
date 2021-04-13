@@ -55,13 +55,15 @@ namespace rayTracer
 		std::stack<StackItem> hit_stack;
 
 		void build_recursive(int left_index, int right_index, BVHNode* node);
+		RayCastHit ProcessNode(BVHNode* node, float tMin);
+
 	public:
 		BVH(void);
 		int getNumObjects();
 
 		void Build(std::vector<Object*>& objects);
-		bool Traverse(Ray& ray, Object** hit_obj, Vec3& hit_point);
-		bool Traverse(Ray& ray);
+		RayCastHit Intercepts(Ray& ray);
+		bool InterceptsShadows(Ray& ray, float lightDist);
 	};
 
 }

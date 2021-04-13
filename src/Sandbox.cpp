@@ -307,7 +307,7 @@ void Sandbox::AddObjects()
 	testSphere->SetSampleStep(0.01f);
 	testSphere->SetMaterial(mat);
 	//testSphere->SetTestChildren();
-	std::cout << *testSphere << std::endl;
+	//std::cout << *testSphere << std::endl;
 
 	m_Scene->AddObject(testSphere);
 	SceneRenderer::SubmitObject(testSphere);

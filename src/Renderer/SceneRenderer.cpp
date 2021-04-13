@@ -88,12 +88,14 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
-		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
-		AccelerationStructure currentAccelerationStruct = AccelerationStructure::GRID;
+		AccelerationStructure currentAccelerationStruct = AccelerationStructure::NONE;
 		Grid* Grid;
 		BVH* Bvh;
+		// Timer
+		bool ShowTime = true;
 	};
 	static RendererData s_Data;
 
@@ -152,12 +154,14 @@ namespace rayTracer
 	{
 		s_Data.gammaCorrectionActivated = !s_Data.gammaCorrectionActivated;
 		std::cout << "Gamma correction: " << (s_Data.gammaCorrectionActivated ? "On" : "Off") << std::endl;
+		s_Data.ShowTime = true;
 	}
 
 	void SceneRenderer::ToggleToneMapping() 
 	{
 		s_Data.toneMappingActivated = !s_Data.toneMappingActivated;
 		std::cout << "Tone mapping: " << (s_Data.toneMappingActivated ? "On" : "Off") << std::endl;
+		s_Data.ShowTime = true;
 	}
 
 	void SceneRenderer::ToggleShadows()
@@ -178,12 +182,14 @@ namespace rayTracer
 		if(lightsOn > 0)
 			std::cout << "Activated shadows for " << lightsOn << " lights." << std::endl;
 		std::cout << std::endl;
+		s_Data.ShowTime = true;
 	}
 
 	void SceneRenderer::ChangeTracingDepth(int change) 
 	{
 		s_Data.DataScene.MaxDepth = std::max(1, (int)s_Data.DataScene.MaxDepth + change);
 		std::cout << "Max Depth: " << s_Data.DataScene.MaxDepth << std::endl;
+		s_Data.ShowTime = true;
 	}
 
 	void SceneRenderer::SwitchAntialiasingMode(AntialiasingMode newMode)
@@ -191,12 +197,14 @@ namespace rayTracer
 		s_Data.antialiasingMode = newMode;
 		std::string modeName = newMode == AntialiasingMode::NONE ? "None" : newMode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
 		std::cout << "Antialiasing Mode: " << modeName << std::endl;
+		s_Data.ShowTime = true;
 	}
 	void SceneRenderer::SwitchAccelererationStructure(AccelerationStructure newStruct)
 	{
 		s_Data.currentAccelerationStruct = newStruct;
 		std::string modeName = newStruct == AccelerationStructure::NONE ? "None" : newStruct == AccelerationStructure::GRID ? "Grid" : "BVH";
 		std::cout << "Acceleration Structure: " << modeName << std::endl;
+		s_Data.ShowTime = true;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Render
@@ -214,7 +222,7 @@ namespace rayTracer
 		case(AccelerationStructure::BVH): hit = s_Data.Bvh->Intercepts(ray); break;
 		default:
 			{
-				std::cout << "\nERROR: The attempted accelleration structure has not been implemented\n";
+				std::cout << "\nERROR: The attempted acceleration structure has not been implemented\n";
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -301,6 +309,7 @@ namespace rayTracer
 		}
 		return hit;
 	}
+	/*
 	RayCastHit SceneRenderer::IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance)
 	{
 		Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
@@ -315,7 +324,7 @@ namespace rayTracer
 				return true;
 		}
 		return false;
-	}
+	}*/
 
 	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity)
 	{
@@ -345,6 +354,7 @@ namespace rayTracer
 	
 	void SceneRenderer::Render()
 	{
+		int startTime = glutGet(GLUT_ELAPSED_TIME);
 		auto& width = s_Data.DataScene.Width;
 		auto& height = s_Data.DataScene.Height;
 
@@ -424,6 +434,12 @@ namespace rayTracer
 			}
 
 		}
+		if (s_Data.ShowTime)
+		{
+			std::cout << "Elapsed Time: " << glutGet(GLUT_ELAPSED_TIME) - startTime << "ms" << std::endl;
+			s_Data.ShowTime = false;
+		}
+
 		// Render Data
 		//Flush();
 	}

@@ -6,7 +6,7 @@ namespace rayTracer
 {
 	bool StandardShadowTest(const std::vector<Object*>& objectsInScene, Ray& shadowFeeler, float lightDist)
 	{
-		for (auto obj : objectsInScene)
+		for (auto& obj : objectsInScene)
 		{
 			if (obj->GetMaterial()->GetTransmittance() > 0)
 				continue; // Transparent objects do not block light (Should refract light, but....)

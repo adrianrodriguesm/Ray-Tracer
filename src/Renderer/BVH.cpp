@@ -58,7 +58,7 @@ namespace rayTracer
 			return 2;
 	}
 
-	int GetSplitIndex(vector<Object*>& objs, int ind1, int ind2, Vec3 midPoint, int axis)
+	int GetSplitIndex(const vector<Object*>& objs, int ind1, int ind2, const Vec3& midPoint, int axis)
 	{
 		for (int i = ind1; i < ind2; i++)
 		{
@@ -153,6 +153,7 @@ namespace rayTracer
 		RayCastHit tempHit;
 		RayCastHit closestHit;
 		closestHit.Tdist = FLT_MAX;
+		closestHit.Hit = false;
 
 
 		BVHNode* currentNode = nodes[0];
@@ -169,11 +170,11 @@ namespace rayTracer
 				// Check hit child nodes
 				BVHNode* leftNode = nodes[currentNode->getIndex()];
 				float tLeft;
-				bool leftHit = leftNode->getAABB().intercepts(ray, tLeft);
+				bool leftHit = (leftNode->getAABB().intercepts(ray, tLeft));//&& tLeft < closestHit.Tdist);
 
 				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
 				float tRight;
-				bool rightHit = rightNode->getAABB().intercepts(ray, tRight);
+				bool rightHit = (rightNode->getAABB().intercepts(ray, tRight));//&& tRight < closestHit.Tdist);
 
 				if (leftHit && rightHit)
 				{
@@ -203,7 +204,7 @@ namespace rayTracer
 				}
 				else
 				{
-					// No hit - Goto stack popping
+					// No hit - Go to stack popping
 				}
 			}
 			else {
@@ -228,9 +229,8 @@ namespace rayTracer
 					currentNode = stackNode.ptr;
 					break;
 				}
-				else
-					currentNode = nullptr;
 			}
+
 			if (currentNode == nullptr)
 				break; // Termination
 		}
@@ -255,11 +255,11 @@ namespace rayTracer
 				// Check hit child nodes
 				BVHNode* leftNode = nodes[currentNode->getIndex()];
 				float tLeft;
-				bool leftHit = leftNode->getAABB().intercepts(ray, tLeft);
+				bool leftHit = (leftNode->getAABB().intercepts(ray, tLeft) && tLeft < lightDist);
 
 				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
 				float tRight;
-				bool rightHit = rightNode->getAABB().intercepts(ray, tRight);
+				bool rightHit = (rightNode->getAABB().intercepts(ray, tRight) && tRight < lightDist);
 
 				if (leftHit && rightHit)
 				{

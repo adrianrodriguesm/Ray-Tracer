@@ -45,6 +45,7 @@ namespace rayTracer
 		static void ToggleShadows();
 		static void ChangeTracingDepth(int change);
 		static void SwitchAntialiasingMode(AntialiasingMode newMode);
+		static Vec3 SampleHemisphere();
 		static void SwitchAccelererationStructure(AccelerationStructure newStruct);
 
 		// Getters
@@ -64,6 +65,8 @@ namespace rayTracer
 		static RayCastHit GetClosestHit(Ray& ray);
 		//static RayCastHit IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance);
 		static Vec3 BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity);
+		// With exp = 0 with obtain a uniform sampling
+		static void MapSamplesToHemisphere(std::vector<Vec2>& samplingOffsets, const float exp = 0);
 		// Here is were the render of the points happen
 		static void Flush();
 		static void DrawPoints();

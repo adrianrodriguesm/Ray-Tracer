@@ -88,7 +88,7 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
-		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
 		AccelerationStructure currentAccelerationStruct = AccelerationStructure::NONE;
@@ -96,6 +96,7 @@ namespace rayTracer
 		BVH* Bvh;
 		// Timer
 		bool ShowTime = true;
+		std::vector<Vec3> HemishepreSamples;
 	};
 	static RendererData s_Data;
 
@@ -139,6 +140,11 @@ namespace rayTracer
 
 		s_Data.Bvh = new BVH();
 		s_Data.Bvh->Build(s_Data.DataScene.Objects);
+
+		// Bind Vertex Array and Shader
+		glBindVertexArray(s_Data.VaoId);
+		glUseProgram(s_Data.ProgramId);
+
 	}
 
 	void SceneRenderer::OnResize(int width, int height)
@@ -351,7 +357,34 @@ namespace rayTracer
 		}
 		return Vec3(0.f);
 	}
-	
+	Vec3 SceneRenderer::SampleHemisphere()
+	{
+		static uint32_t currentSampleIndex = 0;
+		if (currentSampleIndex % 16 == 0)
+			currentSampleIndex = (rand_int() % 16);
+		
+		int index =  currentSampleIndex++ % s_Data.HemishepreSamples.size();
+		return s_Data.HemishepreSamples[index];
+	}
+	void SceneRenderer::MapSamplesToHemisphere(std::vector<Vec2>& samples, const float exp)
+	{
+		int size = samples.size();
+		s_Data.HemishepreSamples.clear();
+		s_Data.HemishepreSamples.reserve(samples.size());
+		for (int j = 0; j < size; j++) 
+		{
+			// Sample to hemisphere using a cosine power distribution
+			// https://blog.thomaspoulet.fr/uniform-sampling-on-unit-hemisphere/
+			float phi = 2.0f * M_PI * samples[j].x;
+			float cosPhi = cosf(phi);
+			float sinPhi = sinf(phi);
+			float cosTheta = powf((1.0f * samples[j].y), 1.0f / (exp + 1.0f));
+			float sintheta = sqrtf(1.0f - cosTheta * cosTheta);
+			s_Data.HemishepreSamples.push_back({ sintheta * cosPhi, sintheta * cosPhi, cosTheta });
+		}
+	}
+
+
 	void SceneRenderer::Render()
 	{
 		int startTime = glutGet(GLUT_ELAPSED_TIME);
@@ -364,7 +397,7 @@ namespace rayTracer
 
 		constexpr uint32_t nbSamples = 4;
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		
 		for (uint32_t y = 0; y < height; y++)
 		{
 			for (uint32_t x = 0; x < width; x++)
@@ -384,11 +417,10 @@ namespace rayTracer
 						exit(EXIT_FAILURE); 
 					}
 				}
-
 				// Set the lightoffset array to a scrambled version of the sampling offsets
 				s_Data.lightSamplingOffsetGrid = samplingOffsets;
 				std::shuffle(std::begin(s_Data.lightSamplingOffsetGrid), std::end(s_Data.lightSamplingOffsetGrid), std::default_random_engine{});
-
+				MapSamplesToHemisphere(samplingOffsets);
 				// Calculate Color
 				for each (Vec2 sampleOffset in samplingOffsets)
 				{
@@ -402,7 +434,6 @@ namespace rayTracer
 						Ray ray = s_Data.DataScene.Camera->PrimaryCenterRay(pixel + sampleOffset);
 						color += TraceRays(ray, 1, 1.0);
 					}
-
 				}
 				color = color / samplingOffsets.size();
 
@@ -492,9 +523,7 @@ namespace rayTracer
 
 	void SceneRenderer::DrawPoints()
 	{
-		glBindVertexArray(s_Data.VaoId);
-		glUseProgram(s_Data.ProgramId);
-
+		glClear(GL_COLOR_BUFFER_BIT);
 		glBindBuffer(GL_ARRAY_BUFFER, s_Data.VboId[0]);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, s_Data.VerticesSize, s_Data.Vertices);
 		glBindBuffer(GL_ARRAY_BUFFER, s_Data.VboId[1]);
@@ -503,12 +532,12 @@ namespace rayTracer
 		glUniformMatrix4fv(s_Data.UniformId, 1, GL_FALSE, s_Data.DataScene.Camera->GetProjectionMatrix().Data());
 		glDrawArrays(GL_POINTS, 0, s_Data.DataScene.Width * s_Data.DataScene.Height);
 		//glFinish();
-
+		/** /
 		glUseProgram(0);
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		CheckOpenGLError("ERROR: Could not draw scene.");
+		/**/
+		//CheckOpenGLError("ERROR: Could not draw scene.");
 
 		glutSwapBuffers();
 	}
@@ -585,6 +614,8 @@ namespace rayTracer
 		// Colors
 		s_Data.ColorsSize = 3 * s_Data.DataScene.Width * s_Data.DataScene.Height * sizeof(float);
 		s_Data.Colors = (float*)::operator new (s_Data.ColorsSize);
+
+		
 	}
 	void SceneRenderer::DestroyData()
 	{

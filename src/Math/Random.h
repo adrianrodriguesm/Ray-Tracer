@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include "Vector.h"
 namespace rayTracer
 {
 	class Random
@@ -14,6 +15,17 @@ namespace rayTracer
 		static float Float()
 		{
 			return (float)s_Distribution(s_RandomEngine) / (float)std::numeric_limits<uint32_t>::max();
+		}
+		// Return a random between 0 and 1
+		static Vec3 UnitSpherePoint()
+		{
+			Vec3 point;
+			// Calculate the sample point base on a unit sphere
+			do
+			{
+				point = Vec3(Random::Float(), Random::Float(), Random::Float()) * 2 - Vec3(1.0f, 1.0f, 1.0f);
+			} while (point.SqrMagnitude() >= 1.0);
+			return point;
 		}
 
 	private:

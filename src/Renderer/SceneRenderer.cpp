@@ -344,7 +344,7 @@ namespace rayTracer
 			// Specular
 			Vec3 halfwayVector = viewDir + lightDir;
 			Vec3 reflected = halfwayVector.Normalized();
-			float specAngle = std::fmax(DotProduct(reflected, -lightDir), 0.0f);
+			float specAngle = std::fmax(DotProduct(reflected, normal), 0.0f);
 			float specular = pow(specAngle, mat->GetShine());
 			float ksSpec = mat->GetSpecular() * specular;
 			Vec3 specularColor = light->color * ksSpec * mat->GetSpecColor();
@@ -614,8 +614,6 @@ namespace rayTracer
 		// Colors
 		s_Data.ColorsSize = 3 * s_Data.DataScene.Width * s_Data.DataScene.Height * sizeof(float);
 		s_Data.Colors = (float*)::operator new (s_Data.ColorsSize);
-
-		
 	}
 	void SceneRenderer::DestroyData()
 	{

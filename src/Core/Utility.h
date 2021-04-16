@@ -2,7 +2,7 @@
 #include "Math/Vector.h"
 namespace rayTracer::utils
 {
-	inline Vec3 ApplyToneMapping(const Vec3& color,const  float exposure)
+	inline Vec3 ApplyToneMapping(const Vec3& color, const  float exposure)
 	{
 		// Reinhard tonemapping
 		static constexpr float pureWhite = 1.f;

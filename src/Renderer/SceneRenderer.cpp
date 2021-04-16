@@ -523,7 +523,7 @@ namespace rayTracer
 
 	void SceneRenderer::DrawPoints()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT);
 		glBindBuffer(GL_ARRAY_BUFFER, s_Data.VboId[0]);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, s_Data.VerticesSize, s_Data.Vertices);
 		glBindBuffer(GL_ARRAY_BUFFER, s_Data.VboId[1]);

@@ -88,7 +88,10 @@ namespace rayTracer
 			if (ilLoadImage(filenames[i]))  //Image loaded with lower left origin
 				printf("Skybox face %d: Image sucessfully loaded.\n", i);
 			else
+			{
+				std::cerr << "ERROR: Could not load skybox image at path '" << filenames[i] << "'.\n";
 				exit(0);
+			}
 
 			ILint bpp = ilGetInteger(IL_IMAGE_BITS_PER_PIXEL);
 

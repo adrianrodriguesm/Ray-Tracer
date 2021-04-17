@@ -89,10 +89,10 @@ namespace rayTracer
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
 		// Antialiasing
-		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
-		AccelerationStructure currentAccelerationStruct = AccelerationStructure::NONE;
+		AccelerationStructure currentAccelerationStruct = AccelerationStructure::BVH;
 		Grid* Grid;
 		BVH* Bvh;
 		// Timer
@@ -136,10 +136,14 @@ namespace rayTracer
 	void SceneRenderer::EndSubmit()
 	{
 		s_Data.Grid = new Grid(s_Data.DataScene.Objects);
+		std::cout << std::endl << "Building grid..." << std::endl;
 		s_Data.Grid->BuildGrid();
+		std::cout << "Grid built!" << std::endl;
 
 		s_Data.Bvh = new BVH();
+		std::cout << std::endl << "Building BVH..." << std::endl;
 		s_Data.Bvh->Build(s_Data.DataScene.Objects);
+		std::cout << "BVH built!" << std::endl;
 	}
 
 	void SceneRenderer::OnResize(int width, int height)

@@ -23,12 +23,12 @@ namespace rayTracer
 
 				if (cmd == "f")   //Material
 				{
-					float Kd, Ks, Shine, T, ior;
+					float Kd, Ks, Shine, T, ior, roughness;
 					Vec3 cd, cs;
 
-					file >> cd >> Kd >> cs >> Ks >> Shine >> T >> ior;
+					file >> cd >> Kd >> cs >> Ks >> Shine >> T >> ior >> roughness;
 
-					material = new Material(cd, Kd, cs, Ks, Shine, T, ior);
+					material = new Material(cd, Kd, cs, Ks, Shine, T, ior, roughness);
 				}
 
 				else if (cmd == "s")    //Sphere

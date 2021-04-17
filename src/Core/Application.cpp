@@ -34,8 +34,6 @@ namespace rayTracer
 	void Application::Run()
 	{
 		m_Spec.AppLayer->OnUploadScene();
-		SceneRenderer::Render();
-
 		glutMainLoop();
 		
 	}

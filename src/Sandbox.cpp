@@ -309,9 +309,9 @@ void Sandbox::InitScene()
 void Sandbox::AddObjects()
 {
 	//Sphere* testSphere = new Sphere(Vec3(0,5,0), 5);
-	Material* mat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 1.0f);
-	Material* transparentChildMat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 2);
-	Material* diffuseMat = new Material(Vec3(0.8,0.8,0.8), 1.0f, Vec3(0.2, 0.2, 0.2), 0.0f, 1.0f, 0, 1);
+	Material* mat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 1.0f, 0);
+	Material* transparentChildMat = new Material(Vec3(0.2,0.2,0.7), 0.3, Vec3(0.2, 0.2, 0.2), 0.7, 20, 1, 2, 0);
+	Material* diffuseMat = new Material(Vec3(0.8,0.8,0.8), 1.0f, Vec3(0.2, 0.2, 0.2), 0.0f, 1.0f, 0, 1, 0);
 
 	BubbleSphere* testSphere = new BubbleSphere(Vec3(0,5,0), 5, 10, 0.6f, transparentChildMat);
 	testSphere->SetSampleStep(0.01f);

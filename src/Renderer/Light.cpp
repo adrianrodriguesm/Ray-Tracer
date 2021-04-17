@@ -54,20 +54,26 @@ namespace rayTracer
 
 #pragma region Area Light
 
-	AreaLight::AreaLight(const Vec3& pos, const Vec3& col, const Vec3& side1, const Vec3& side2) : Light(pos, col)
+	AreaLight::AreaLight(const Vec3& pos, const Vec3& col, const Vec3& side1, const Vec3& side2) 
+		: Light(pos, col), sideA(side1), sideB(side2), cornerPos(pos - 0.5f * side1 - 0.5f * side2), sqrdNbPoints(4)
 	{
+		/** /
 		sideA = side1;
 		sideB = side2;
 		cornerPos = pos - 0.5 * sideA - 0.5 * sideB;
 		sqrdNbPoints = 4;
+		/**/
 	}
 
-	AreaLight::AreaLight(const Vec3& pos, const Vec3& col, const Vec3& side1, const Vec3& side2, int _sqrdNbPoints) : Light(pos, col)
+	AreaLight::AreaLight(const Vec3& pos, const Vec3& col, const Vec3& side1, const Vec3& side2, int _sqrdNbPoints) 
+		: Light(pos, col), sideA(side1), sideB(side2), cornerPos(pos - 0.5 * side1 - 0.5 * side2), sqrdNbPoints(_sqrdNbPoints)
 	{
+		/** /
 		sideA = side1;
 		sideB = side2;
 		cornerPos = pos - 0.5 * sideA - 0.5 * sideB;
 		sqrdNbPoints = _sqrdNbPoints;
+		/**/
 	}
 
 	float AreaLight::GetIntensityAtPoint(const Vec3& emissionPoint, const std::vector<Object*>& objectsInScene, AntialiasingMode antialiasingMode)

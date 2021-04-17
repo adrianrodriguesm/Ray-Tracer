@@ -88,6 +88,7 @@ namespace rayTracer
 		// Additional Parameters
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
+		// Antialiasing
 		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
@@ -228,7 +229,7 @@ namespace rayTracer
 		}
 		
 		if (!hit)
-			return s_Data.DataScene.Scene->GetSkyboxColor(ray); //GetBackgroundColor();
+			return s_Data.DataScene.Scene->GetSkyBoxFlg() ? s_Data.DataScene.Scene->GetSkyboxColor(ray) : s_Data.DataScene.Scene->GetBackgroundColor(); //GetBackgroundColor();
 			
 
 		Material* material = hit.Object->GetMaterial();

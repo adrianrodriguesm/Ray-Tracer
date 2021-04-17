@@ -35,6 +35,7 @@ namespace rayTracer
 		int GetNativeWindow() const { return m_GlutWindow; }
 		const AplicationSpecification& GetSpecification() const { return m_Spec; }
 		Layer& GetLayer() { return *m_Spec.AppLayer; }
+		inline void SetResolution(int width, int height) { m_Spec.Width = width; m_Spec.Height = height; }
 
 		
 	private:

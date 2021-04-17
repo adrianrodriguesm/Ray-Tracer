@@ -27,7 +27,6 @@ namespace rayTracer
 		return((float)rand() / ((float)RAND_MAX) + 1);
 	}
 
-
 	// ---------------------------------------------------- set_rand_seed
 
 	inline void set_rand_seed(const int seed) 

@@ -55,7 +55,6 @@ namespace rayTracer
 		std::stack<StackItem> hit_stack;
 
 		void build_recursive(int left_index, int right_index, BVHNode* node);
-		RayCastHit ProcessNode(BVHNode* node, float tMin);
 
 	public:
 		BVH(void);

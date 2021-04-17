@@ -200,5 +200,82 @@ namespace rayTracer
 		file.close();
 		return scene;
 	}
+
+	Scene* SceneLoader::Create_random_scene() {
+		Camera* camera;
+		Material* material;
+		Sphere* sphere;
+		Scene* scene = new Scene();
+
+		set_rand_seed(time(NULL) * time(NULL) * time(NULL));
+		material = NULL;
+		scene->SetSkyBoxFlg(false);  //init with no skybox
+
+		scene->SetBackgroundColor(Vec3(0.5, 0.7, 1.0));
+		//scene->LoadSkybox("skybox");
+		//scene->SetSkyBoxFlg(true);
+
+		camera = new Camera(Vec3(13.0, 2.0, 3.0), Vec3(0.0, 0.0, 0), Vec3(0.0, 1.0, 0.0), 45.0, 0.01, 10000.0, 512, 512, 0, 1.5f);
+		scene->SetCamera(camera);
+
+		scene->AddLight(new Light(Vec3(7, 10, -5), Vec3(1.0, 1.0, 1.0)));
+		scene->AddLight(new Light(Vec3(-7, 10, -5), Vec3(1.0, 1.0, 1.0)));
+		scene->AddLight(new Light(Vec3(0, 10, 7), Vec3(1.0, 1.0, 1.0)));
+
+		material = new Material(Vec3(0.5, 0.5, 0.5), 1.0, Vec3(0.0, 0.0, 0.0), 0.0, 10, 0, 1);
+
+
+		sphere = new Sphere(Vec3(0.0, -1000, 0.0), 1000.0);
+		if (material) sphere->SetMaterial(material);
+		scene->AddObject((Object*)sphere);
+
+		for (int a = -5; a < 5; a++)
+			for (int b = -5; b < 5; b++) {
+
+				float choose_mat = Random::Float();
+
+				Vec3 center = Vec3(a + 0.9 * Random::Float(), 0.2, b + 0.9 * Random::Float());
+
+				if ((center - Vec3(4.0, 0.2, 0.0)).Magnitude() > 0.9) {
+					if (choose_mat < 0.4) {  //diffuse
+						material = new Material(Vec3(Random::Float(), Random::Float(), Random::Float()), 1.0, Vec3(0.0, 0.0, 0.0), 0.0, 10, 0, 1);
+						sphere = new Sphere(center, 0.2);
+						if (material) sphere->SetMaterial(material);
+						scene->AddObject((Object*)sphere);
+					}
+					else if (choose_mat < 0.9) {   //metal
+						material = new Material(Vec3(0.0, 0.0, 0.0), 0.0, Vec3(Random::Float(0.5, 1), Random::Float(0.5, 1), Random::Float(0.5, 1)), 1.0, 220, 0, 1);
+						sphere = new Sphere(center, 0.2);
+						if (material) sphere->SetMaterial(material);
+						scene->AddObject((Object*)sphere);
+					}
+					else {   //glass 
+						material = new Material(Vec3(0.0, 0.0, 0.0), 0.0, Vec3(1.0, 1.0, 1.0), 0.7, 20, 1, 1.5);
+						sphere = new Sphere(center, 0.2);
+						if (material) sphere->SetMaterial(material);
+						scene->AddObject((Object*)sphere);
+					}
+
+				}
+
+			}
+
+		material = new Material(Vec3(0.0, 0.0, 0.0), 0.0, Vec3(1.0, 1.0, 1.0), 0.7, 20, 1, 1.5);
+		sphere = new Sphere(Vec3(0.0, 1.0, 0.0), 1.0);
+		if (material) sphere->SetMaterial(material);
+		scene->AddObject((Object*)sphere);
+
+		material = new Material(Vec3(0.4, 0.2, 0.1), 0.9, Vec3(1.0, 1.0, 1.0), 0.1, 10, 0, 1.0);
+		sphere = new Sphere(Vec3(-4.0, 1.0, 0.0), 1.0);
+		if (material) sphere->SetMaterial(material);
+		scene->AddObject((Object*)sphere);
+
+		material = new Material(Vec3(0.4, 0.2, 0.1), 0.0, Vec3(0.7, 0.6, 0.5), 1.0, 220, 0, 1.0);
+		sphere = new Sphere(Vec3(4.0, 1.0, 0.0), 1.0);
+		if (material) sphere->SetMaterial(material);
+		scene->AddObject((Object*)sphere);
+
+		return scene;
+	}
 }
 

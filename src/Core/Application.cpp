@@ -18,13 +18,13 @@ namespace rayTracer
 			ASSERT(ilGetInteger(IL_VERSION_NUM) >= IL_VERSION, "Wrong DevIL version!")
 			ilInit();
 		}
+		// Random Seed
+		Random::Init();
+		m_Spec.AppLayer->OnAttach();
 		InitWindow();
 		InitGraphicContext();
 		SceneRenderer::Init();
 		SetCallBacks();
-		// Random Seed
-		Random::Init();
-		m_Spec.AppLayer->OnAttach();
 	}
 	Application::~Application()
 	{

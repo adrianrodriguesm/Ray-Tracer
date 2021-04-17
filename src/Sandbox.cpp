@@ -238,11 +238,17 @@ void Sandbox::InitScene()
 	char scenes_dir[70] = "assets/scenesP3D/";
 	char input_user[50];
 	char scene_name[70];
+	bool random_scene = false;
 
 	while (true) 
 	{
 		std::cout << "Input the Scene Name: ";
 		std::cin >> input_user;
+		if (strcmp(input_user, "random") == 0)
+		{
+			random_scene = true;
+			break;
+		}
 		strcpy_s(scene_name, sizeof(scene_name), scenes_dir);
 		strcat_s(scene_name, sizeof(scene_name), input_user);
 
@@ -253,14 +259,18 @@ void Sandbox::InitScene()
 			break;
 	}
 
-	m_Scene = SceneLoader::LoadP3D(scene_name);	
+	if (random_scene)
+		m_Scene = SceneLoader::Create_random_scene();
+	else
+		m_Scene = SceneLoader::LoadP3D(scene_name);	
 	m_Camera = m_Scene->GetCamera();
 	this->startPos = m_Camera->GetEye();
 	this->r = (m_Camera->GetCenter() - m_Camera->GetEye()).Magnitude();
 	RES_WIDTH = m_Camera->GetResX();
 	RES_HEIGHT = m_Camera->GetResY();
+	Application::Get().SetResolution(RES_WIDTH, RES_HEIGHT);
 	printf("\nResolutionX = %d  ResolutionY= %d.\n", RES_WIDTH, RES_HEIGHT);
-	printf("Warning: Resolution parameters are set in application class.\n");
+	//printf("Warning: Resolution parameters are set in application class.\n");
 
 	std::cout << std::endl << "------------- OPTIONS ---------------" << std::endl;
 	std::cout << std::endl << "Gamma correction: " << (SceneRenderer::GetGammaCorrection() ? "ON" : "OFF") << std::endl << std::endl;

@@ -16,6 +16,18 @@ namespace rayTracer
 			return (float)s_Distribution(s_RandomEngine) / (float)std::numeric_limits<uint32_t>::max();
 		}
 
+		/// <summary>
+		/// Returns a random float between min and max.
+		/// </summary>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <returns></returns>
+		static float Float(float min, float max)
+		{
+			float zero_one = (float)s_Distribution(s_RandomEngine) / (float)std::numeric_limits<uint32_t>::max();
+			return min + max * zero_one;
+		}
+
 	private:
 		static std::mt19937 s_RandomEngine;
 		static std::uniform_int_distribution<std::mt19937::result_type> s_Distribution;

@@ -326,16 +326,5 @@ namespace rayTracer
 		return false;
 	}
 
-	RayCastHit BVH::ProcessNode(BVHNode* node, float tMin)
-	{
-		if (node->isLeaf())
-		{
-
-		}
-		else {
-			return RayCastHit(false);
-		}
-	}
-
 #pragma endregion Interception Functions
 }

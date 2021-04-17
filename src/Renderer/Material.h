@@ -16,6 +16,12 @@ namespace rayTracer
 			//m_diffColor = c; m_Diff = Kd; m_specColor = cs; m_Spec = Ks; m_Shine = Shine; m_Refl = Ks; m_T = T; m_RIndex = ior;
 		}
 
+		Material(Vec3& c, float Kd, Vec3& cs, float Ks, float Shine, float T, float ior)
+		{
+			m_diffColor = c; m_Diff = Kd; m_specColor = cs; m_Spec = Ks; m_Shine = Shine; m_Refl = Ks; m_Transmittance = T; m_RIndex = ior;
+			m_Roughness = 0;
+		}
+
 		virtual ~Material() = default;
 
 		void SetDiffColor(Vec3& a_Color) { m_diffColor = a_Color; }

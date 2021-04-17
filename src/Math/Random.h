@@ -28,12 +28,6 @@ namespace rayTracer
 			return point;
 		}
 
-		/// <summary>
-		/// Returns a random float between min and max.
-		/// </summary>
-		/// <param name="min"></param>
-		/// <param name="max"></param>
-		/// <returns></returns>
 		static float Float(float min, float max)
 		{
 			float zero_one = (float)s_Distribution(s_RandomEngine) / (float)std::numeric_limits<uint32_t>::max();

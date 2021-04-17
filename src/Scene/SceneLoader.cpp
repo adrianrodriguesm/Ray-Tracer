@@ -26,9 +26,14 @@ namespace rayTracer
 					float Kd, Ks, Shine, T, ior, roughness;
 					Vec3 cd, cs;
 
-					file >> cd >> Kd >> cs >> Ks >> Shine >> T >> ior >> roughness;
+					file >> cd >> Kd >> cs >> Ks >> Shine >> T >> ior;
+					if(file.peek() == '\r' || file.peek() == '\n')
+						material = new Material(cd, Kd, cs, Ks, Shine, T, ior);
+					else {
+						file >> roughness;
+						material = new Material(cd, Kd, cs, Ks, Shine, T, ior, roughness);
+					}
 
-					material = new Material(cd, Kd, cs, Ks, Shine, T, ior, roughness);
 				}
 
 				else if (cmd == "s")    //Sphere

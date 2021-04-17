@@ -14,8 +14,6 @@ Sandbox::~Sandbox()
 void Sandbox::OnAttach()
 {
 	InitScene();
-	if(m_Scene->GetNumObjects() == 0)
-		AddObjects();
 }
 
 void Sandbox::OnDetach()
@@ -263,6 +261,13 @@ void Sandbox::InitScene()
 		m_Scene = SceneLoader::Create_random_scene();
 	else
 		m_Scene = SceneLoader::LoadP3D(scene_name);	
+
+	if (m_Scene->GetNumObjects() == 0)
+	{
+		std::cout << std::endl << "No objects in scene - Adding custom objects from sandbox" << std::endl << std::endl;
+		AddObjects();
+	}
+
 	m_Camera = m_Scene->GetCamera();
 	this->startPos = m_Camera->GetEye();
 	this->r = (m_Camera->GetCenter() - m_Camera->GetEye()).Magnitude();

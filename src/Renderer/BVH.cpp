@@ -34,22 +34,36 @@ namespace rayTracer
 
 	int GetLargestAxis(vector<Object*>& objs, int ind1, int ind2)
 	{
-		// TODO: Check if you can just find longest axis on bounding box
 		Vec3 Min = Vec3(FLT_MAX, FLT_MAX, FLT_MAX);
 		Vec3 Max = Vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-		for (Object* obj : objs)
-		{
-			Vec3 centroid = obj->GetBoundingBox().centroid();
-			if (Min.x > centroid.x) Min.x = centroid.x;
-			if (Min.y > centroid.y) Min.y = centroid.y;
-			if (Min.z > centroid.z) Min.z = centroid.z;
 
-			if (Max.x < centroid.x) Max.x = centroid.x;
-			if (Max.y < centroid.y) Max.y = centroid.y;
-			if (Max.z < centroid.z) Max.z = centroid.z;
+		for (int i = ind1; i < ind2; i++)
+		{
+			Vec3 centroid = objs[i]->GetBoundingBox().centroid();
+			// Min
+			if (Min.x > centroid.x) 
+				Min.x = centroid.x;
+
+			if (Min.y > centroid.y) 
+				Min.y = centroid.y;
+
+			if (Min.z > centroid.z) 
+				Min.z = centroid.z;
+
+			// Max
+			if (Max.x < centroid.x) 
+				Max.x = centroid.x;
+
+			if (Max.y < centroid.y) 
+				Max.y = centroid.y;
+
+			if (Max.z < centroid.z) 
+				Max.z = centroid.z;
 		}
+
 		Vec3 diff = Max - Min;
 		float maxLength = MAX3(diff.x, diff.y, diff.z);
+
 		if (diff.x == maxLength)
 			return 0;
 		else if (diff.y == maxLength)
@@ -64,11 +78,17 @@ namespace rayTracer
 		{
 			switch (axis)
 			{
-			case(0):	if (objs[i]->GetBoundingBox().centroid().x > midPoint.x) return i;
+			case(0):	
+				if (objs[i]->GetBoundingBox().centroid().x > midPoint.x) 
+					return i;
 				break;
-			case(1):	if (objs[i]->GetBoundingBox().centroid().y > midPoint.y) return i;
+			case(1):	
+				if (objs[i]->GetBoundingBox().centroid().y > midPoint.y) 
+					return i;
 				break;
-			default:	if (objs[i]->GetBoundingBox().centroid().z > midPoint.z) return i;
+			case(2):	
+				if (objs[i]->GetBoundingBox().centroid().z > midPoint.z) 
+					return i;
 				break;
 			}
 		}
@@ -125,11 +145,11 @@ namespace rayTracer
 			Vec3 midPoint = node->getAABB().centroid();
 			int splitIndex = GetSplitIndex(objects, left_index, right_index, midPoint, largestAxis);
 
-			// Make sure no side is empty
-			if (splitIndex == left_index) 
-				splitIndex++;
-			else if(splitIndex == right_index)
-				splitIndex--;
+			// If one side is empty - use median split
+			if (splitIndex == left_index || splitIndex == right_index)
+			{
+				splitIndex = left_index + (right_index - left_index) / 2;
+			}
 
 			// Create child nodes
 			BVHNode* left = new BVHNode();
@@ -170,11 +190,11 @@ namespace rayTracer
 				// Check hit child nodes
 				BVHNode* leftNode = nodes[currentNode->getIndex()];
 				float tLeft;
-				bool leftHit = (leftNode->getAABB().intercepts(ray, tLeft));//&& tLeft < closestHit.Tdist);
+				bool leftHit = (leftNode->getAABB().intercepts(ray, tLeft) && tLeft < closestHit.Tdist);
 
 				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
 				float tRight;
-				bool rightHit = (rightNode->getAABB().intercepts(ray, tRight));//&& tRight < closestHit.Tdist);
+				bool rightHit = (rightNode->getAABB().intercepts(ray, tRight) && tRight < closestHit.Tdist);
 
 				if (leftHit && rightHit)
 				{

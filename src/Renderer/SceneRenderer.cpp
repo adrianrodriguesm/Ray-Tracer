@@ -138,13 +138,15 @@ namespace rayTracer
 	{
 		s_Data.Grid = new Grid(s_Data.DataScene.Objects);
 		std::cout << std::endl << "Building grid..." << std::endl;
+		int startTime = glutGet(GLUT_ELAPSED_TIME);
 		s_Data.Grid->BuildGrid();
-		std::cout << "Grid built!" << std::endl;
+		std::cout << "Grid built! (" << glutGet(GLUT_ELAPSED_TIME) - startTime << "ms elapsed)" << std::endl;
 
 		s_Data.Bvh = new BVH();
 		std::cout << std::endl << "Building BVH..." << std::endl;
+		startTime = glutGet(GLUT_ELAPSED_TIME);
 		s_Data.Bvh->Build(s_Data.DataScene.Objects);
-		std::cout << "BVH built!" << std::endl;
+		std::cout << "BVH built! (" << glutGet(GLUT_ELAPSED_TIME) - startTime << "ms elapsed)" << std::endl;
 
 		// Bind Vertex Array and Shader
 		glBindVertexArray(s_Data.VaoId);
@@ -542,7 +544,7 @@ namespace rayTracer
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		/**/
-		//CheckOpenGLError("ERROR: Could not draw scene.");
+		CheckOpenGLError("ERROR: Could not draw scene.");
 
 		glutSwapBuffers();
 	}

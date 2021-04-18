@@ -4,6 +4,7 @@
 #include <algorithm>    // std::random_shuffle
 #include "Renderer/Grid.h"
 #include "Core/Constant.h"
+#include "Renderer/Sample.h"
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -104,6 +105,7 @@ namespace rayTracer
 
 	void SceneRenderer::Init()
 	{
+		Sample::SwichAntialiasingMode(s_Data.antialiasingMode);
 		InitData();
 		CreateShaders();
 		CreateBuffers();
@@ -208,6 +210,7 @@ namespace rayTracer
 	void SceneRenderer::SwitchAntialiasingMode(AntialiasingMode newMode)
 	{
 		s_Data.antialiasingMode = newMode;
+		Sample::SwichAntialiasingMode(newMode);
 		std::string modeName = newMode == AntialiasingMode::NONE ? "None" : newMode == AntialiasingMode::JITTERING ? "Jittering" : "Regular Sampling";
 		std::cout << "Antialiasing Mode: " << modeName << std::endl;
 		s_Data.ShowTime = true;
@@ -367,30 +370,9 @@ namespace rayTracer
 	Vec3 SceneRenderer::SampleHemisphere()
 	{
 		static uint32_t currentSampleIndex = 0;
-		if (currentSampleIndex % 16 == 0)
-			currentSampleIndex = (rand_int() % 16);
-		
 		int index =  currentSampleIndex++ % s_Data.HemishepreSamples.size();
 		return s_Data.HemishepreSamples[index];
 	}
-	void SceneRenderer::MapSamplesToHemisphere(std::vector<Vec2>& samples, const float exp)
-	{
-		int size = samples.size();
-		s_Data.HemishepreSamples.clear();
-		s_Data.HemishepreSamples.reserve(samples.size());
-		for (int j = 0; j < size; j++) 
-		{
-			// Sample to hemisphere using a cosine power distribution
-			// https://blog.thomaspoulet.fr/uniform-sampling-on-unit-hemisphere/
-			float phi = 2.0f * M_PI * samples[j].x;
-			float cosPhi = cosf(phi);
-			float sinPhi = sinf(phi);
-			float cosTheta = powf((1.0f * samples[j].y), 1.0f / (exp + 1.0f));
-			float sintheta = sqrtf(1.0f - cosTheta * cosTheta);
-			s_Data.HemishepreSamples.push_back({ sintheta * cosPhi, sintheta * cosPhi, cosTheta });
-		}
-	}
-
 
 	void SceneRenderer::Render()
 	{
@@ -411,23 +393,11 @@ namespace rayTracer
 			{
 				Vec3 color;
 				Vec2 pixel = Vec2(x, y);
-				std::vector<Vec2> samplingOffsets;
-				// Get Sampling points
-				switch (s_Data.antialiasingMode)
-				{
-					case(AntialiasingMode::NONE):				samplingOffsets = SingularSampling::GetSamplingOffsets(nbSamples); break;
-					case(AntialiasingMode::JITTERING):			samplingOffsets = JitteringSampling::GetSamplingOffsets(nbSamples); break;
-					case(AntialiasingMode::REGULAR_SAMPLING):	samplingOffsets = RegularSampling::GetSamplingOffsets(nbSamples); break;
-					default: 
-					{
-						std::cout << "\nERROR: The attempted antialasing mode has not been implemented\n";
-						exit(EXIT_FAILURE); 
-					}
-				}
+				std::vector<Vec2> samplingOffsets = Sample::GetSamplingOffsets(nbSamples);
 				// Set the lightoffset array to a scrambled version of the sampling offsets
 				s_Data.lightSamplingOffsetGrid = samplingOffsets;
 				std::shuffle(std::begin(s_Data.lightSamplingOffsetGrid), std::end(s_Data.lightSamplingOffsetGrid), std::default_random_engine{});
-				MapSamplesToHemisphere(samplingOffsets);
+				s_Data.HemishepreSamples = Sample::MapSamplesToHemisphere(s_Data.lightSamplingOffsetGrid);
 				// Calculate Color
 				for each (Vec2 sampleOffset in samplingOffsets)
 				{

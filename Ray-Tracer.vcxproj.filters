@@ -20,6 +20,7 @@
     <ClCompile Include="src\Scene\SceneObject.cpp" />
     <ClCompile Include="src\Renderer\Grid.cpp" />
     <ClCompile Include="src\Renderer\BVH.cpp" />
+    <ClCompile Include="src\Renderer\Sample.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
@@ -48,6 +49,7 @@
     <ClInclude Include="src\Scene\SceneObject.h" />
     <ClInclude Include="src\PerlinNoise.hpp" />
     <ClInclude Include="src\Renderer\BVH.h" />
+    <ClInclude Include="src\Renderer\Sample.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox\back.jpg" />

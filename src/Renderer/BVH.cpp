@@ -165,7 +165,6 @@ namespace rayTracer
 			// Find split
 			Vec3 midPoint = node->getAABB().Centroid();
 			int splitIndex = GetSplitIndex(m_Objects, leftIndex, rightIndex, midPoint, largestAxis);
-
 			// If one side is empty - use median split
 			if (splitIndex <= leftIndex || rightIndex <= splitIndex)
 			{

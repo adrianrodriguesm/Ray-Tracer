@@ -207,6 +207,7 @@
     <ClCompile Include="src\Renderer\Camera.cpp" />
     <ClCompile Include="src\Renderer\Grid.cpp" />
     <ClCompile Include="src\Renderer\Light.cpp" />
+    <ClCompile Include="src\Renderer\Sample.cpp" />
     <ClCompile Include="src\Renderer\SceneRenderer.cpp" />
     <ClCompile Include="src\Sandbox.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="src\Math\Ray.h" />
     <ClInclude Include="src\Renderer\Light.h" />
     <ClInclude Include="src\Renderer\Material.h" />
+    <ClInclude Include="src\Renderer\Sample.h" />
     <ClInclude Include="src\Renderer\SceneRenderer.h" />
     <ClInclude Include="src\Sandbox.h" />
     <ClInclude Include="src\Scene\Scene.h" />

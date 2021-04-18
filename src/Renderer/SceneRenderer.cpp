@@ -73,7 +73,7 @@ namespace rayTracer
 			std::vector<Object*> Objects;
 			Camera* Camera = nullptr;
 			Scene* Scene = nullptr;
-			uint32_t Width = 512, Height = 512;
+			uint32_t Width = 0, Height = 0;
 			uint32_t MaxDepth = 3;
 		} DataScene;
 		// Rendering Mode
@@ -94,7 +94,7 @@ namespace rayTracer
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
 		// Antialiasing
-		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
 		AccelerationStructure currentAccelerationStruct = AccelerationStructure::BVH;
@@ -110,6 +110,8 @@ namespace rayTracer
 	void SceneRenderer::Init()
 	{
 		Sample::SwichAntialiasingMode(s_Data.antialiasingMode);
+		//s_Data.DataScene.Width = Application::Get().GetSpecification().Width;
+		//s_Data.DataScene.Height = Application::Get().GetSpecification().Height;
 		InitData();
 		CreateShaders();
 		CreateBuffers();
@@ -163,7 +165,8 @@ namespace rayTracer
 	void SceneRenderer::OnResize(int width, int height)
 	{
 		s_Data.DataScene.Width = width;
-		s_Data.DataScene.Height = width;
+		s_Data.DataScene.Height = height;
+		
 		DestroyData();
 		InitData();
 

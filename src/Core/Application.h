@@ -13,7 +13,7 @@ namespace rayTracer
 		Layer* AppLayer = nullptr;
 		std::string Caption = "Distribution Ray-Tracer";
 		RenderMode Mode = RenderMode::DrawMode;
-		int Width = 512, Height = 512;
+		int Width = 0, Height = 0;
 		// TODO: Check if necessary
 		int argc; char** argv;
 	};

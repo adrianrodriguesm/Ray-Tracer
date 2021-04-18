@@ -164,13 +164,13 @@ namespace rayTracer
 			std::sort(m_Objects.begin() + leftIndex, m_Objects.begin() + rightIndex, cmp);
 			
 			// Find split
-			Vec3 midPoint = node->getAABB().centroid();
-			int splitIndex = GetSplitIndex(objects, left_index, right_index, midPoint, largestAxis);
+			Vec3 midPoint = node->getAABB().Centroid();
+			int splitIndex = GetSplitIndex(m_Objects, leftIndex, rightIndex, midPoint, largestAxis);
 
 			// If one side is empty - use median split
-			if (splitIndex == left_index || splitIndex == right_index)
+			if (splitIndex == leftIndex || splitIndex == rightIndex)
 			{
-				splitIndex = left_index + (right_index - left_index) / 2;
+				splitIndex = leftIndex + (rightIndex - leftIndex) / 2;
 			}
 
 			// Create child nodes

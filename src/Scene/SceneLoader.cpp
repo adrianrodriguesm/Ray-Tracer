@@ -1,5 +1,7 @@
+#include "pch.h"
 #include "SceneLoader.h"
 #include "Core/Application.h"
+#include <fstream>
 namespace rayTracer
 {
 	static void next_token(std::ifstream& file, char* token, const char* name)
@@ -212,8 +214,8 @@ namespace rayTracer
 		Sphere* sphere;
 		Scene* scene = new Scene();
 
-		set_rand_seed(time(NULL) * time(NULL) * time(NULL));
-		material = NULL;
+		//set_rand_seed(time(NULL) * time(NULL) * time(NULL));
+		material = nullptr;
 		scene->SetSkyBoxFlg(false);  //init with no skybox
 
 		scene->SetBackgroundColor(Vec3(0.5, 0.7, 1.0));

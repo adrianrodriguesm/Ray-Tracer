@@ -1,14 +1,12 @@
 #pragma once
-#include "vector.h"
-#include "ray.h"
-#include "Math/Maths.h"
-
+#include "Math/Ray.h"
+#include "Core/Constant.h"
 namespace rayTracer
 {
 	struct AABB
 	{
-		Vec3 Min = { };
-		Vec3 Max = { };
+		Vec3 Min = FLOAT_MAX;
+		Vec3 Max = FLOAT_MIN;
 
 		AABB();
 		AABB(const Vec3& min, const Vec3& max)
@@ -20,8 +18,8 @@ namespace rayTracer
 
 		AABB operator = (const AABB& rhs);
 		bool IsInside(const Vec3& p);
-		bool intercepts(const Ray& r, float& t);
-		Vec3 centroid();
-		void extend(AABB box);
+		bool Intercepts(const Ray& r, float& t);
+		Vec3 Centroid();
+		void Extend(AABB box);
 	};
 }

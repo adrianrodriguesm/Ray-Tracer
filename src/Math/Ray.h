@@ -1,6 +1,4 @@
 #pragma once
-#include "Vector.h"
-#include <algorithm>
 namespace rayTracer
 {
 	class Object;
@@ -19,7 +17,7 @@ namespace rayTracer
 	struct RayCastHit
 	{
 		bool Hit = false;
-		float Tdist = 0.f;
+		float Tdist = 0;
 		rayTracer::Object* Object = nullptr;
 		Vec3 InterceptionPoint = {};
 		RayCastHit() = default;

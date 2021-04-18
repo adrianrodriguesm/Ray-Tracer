@@ -1,5 +1,5 @@
 #pragma once
-#include <Scene/Scene.h>
+#include "Scene/Scene.h"
 #include "Math/Random.h"
 namespace rayTracer
 {

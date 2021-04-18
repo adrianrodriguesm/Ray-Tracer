@@ -3,8 +3,6 @@
 #include "Math/BoundingBox.h"
 #include "Renderer/Material.h"
 #include "Math/Ray.h"
-#include <vector>
-
 namespace rayTracer
 {
 	class Object

@@ -7,3 +7,4 @@
 #include "Scene/Scene.h"
 #include "Scene/SceneLoader.h"
 #include <GL/freeglut.h>
+#include "Renderer/Sample.h"

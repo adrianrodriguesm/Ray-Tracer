@@ -1,32 +1,38 @@
 #pragma once
-#include "Math/Vector.h"
-#include <vector>
-
 namespace rayTracer
 {
-	enum struct AntialiasingMode 
-	{
-		NONE,
-		REGULAR_SAMPLING,
-		JITTERING
-	};
-
-	class SingularSampling
+	enum class AntialiasingMode;
+	class SampleAPI
 	{
 	public:
-		static std::vector<Vec2> GetSamplingOffsets(int nbSamples);
+		SampleAPI() = default;
+		virtual ~SampleAPI() = default;
+		virtual std::vector<Vec2> GetSamplingOffsets(int nbSamples) = 0;
+		static std::shared_ptr<SampleAPI> Create(AntialiasingMode mode);
 	};
 
-	class RegularSampling
+	class SingularSampling : public SampleAPI
 	{
 	public:
-		static std::vector<Vec2> GetSamplingOffsets(int nbSamples);
+		SingularSampling() = default;
+		virtual ~SingularSampling() = default;
+		virtual std::vector<Vec2> GetSamplingOffsets(int nbSamples) override;
 	};
 
-	class JitteringSampling
+	class RegularSampling : public SampleAPI
 	{
 	public:
-		static std::vector<Vec2> GetSamplingOffsets(int nbSamples);
+		RegularSampling() = default;
+		virtual ~RegularSampling() = default;
+		virtual std::vector<Vec2> GetSamplingOffsets(int nbSamples) override;
+	};
+
+	class JitteringSampling : public SampleAPI
+	{
+	public:
+		JitteringSampling() = default;
+		virtual ~JitteringSampling() = default;
+		virtual std::vector<Vec2> GetSamplingOffsets(int nbSamples) override;
 	};
 }
 

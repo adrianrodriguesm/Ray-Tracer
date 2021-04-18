@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Math/Ray.h"
 #include "Scene/SceneObject.h"
 #include "Core/Constant.h"

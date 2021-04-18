@@ -105,6 +105,8 @@
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +129,8 @@
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,6 +155,8 @@
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,6 +183,8 @@
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -207,14 +215,23 @@
     <ClCompile Include="src\Renderer\Camera.cpp" />
     <ClCompile Include="src\Renderer\Grid.cpp" />
     <ClCompile Include="src\Renderer\Light.cpp" />
+    <ClCompile Include="src\Renderer\Sample.cpp" />
     <ClCompile Include="src\Renderer\SceneRenderer.cpp" />
-    <ClCompile Include="src\Sandbox.cpp" />
+    <ClCompile Include="src\Sandbox\Sandbox.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\Math\Vector.cpp" />
     <ClCompile Include="src\Scene\SceneLoader.cpp" />
     <ClCompile Include="src\Scene\SceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Math\Maths.h" />
+    <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Renderer\BVH.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Base.h" />
@@ -225,18 +242,17 @@
     <ClInclude Include="src\Math\Matrix.h" />
     <ClInclude Include="src\Math\Quaternion.h" />
     <ClInclude Include="src\Math\Random.h" />
-    <ClInclude Include="src\PerlinNoise.hpp" />
+    <ClInclude Include="src\Math\PerlinNoise.hpp" />
     <ClInclude Include="src\RayTracer.h" />
     <ClInclude Include="src\Renderer\AntiAliasing.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
-    <ClInclude Include="src\Renderer\Color.h" />
     <ClInclude Include="src\Renderer\Grid.h" />
-    <ClInclude Include="src\Math\Maths.h" />
     <ClInclude Include="src\Math\Ray.h" />
     <ClInclude Include="src\Renderer\Light.h" />
     <ClInclude Include="src\Renderer\Material.h" />
+    <ClInclude Include="src\Renderer\Sample.h" />
     <ClInclude Include="src\Renderer\SceneRenderer.h" />
-    <ClInclude Include="src\Sandbox.h" />
+    <ClInclude Include="src\Sandbox\Sandbox.h" />
     <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\Math\Vector.h" />
     <ClInclude Include="src\Scene\SceneLoader.h" />

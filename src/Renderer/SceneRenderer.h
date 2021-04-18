@@ -1,16 +1,10 @@
 #pragma once
-#include "Camera.h"
-#include "Scene/Scene.h"
+#include "Renderer/Sample.h"
 #include "Math/Ray.h"
-#include "Math/Random.h"
-#include "AntiAliasing.h"
-#include "Core/Application.h"
-#include "Core/Utility.h"
 #include "Renderer/BVH.h"
-#include <GL/glew.h>
-#include <Core/Base.h>
-#include <GL/freeglut.h>
-#include <Renderer/Grid.h>
+#include "Renderer/Grid.h"
+#include "Renderer/Camera.h"
+#include "Scene/Scene.h"
 namespace rayTracer
 {
 	enum class AccelerationStructure 
@@ -65,8 +59,6 @@ namespace rayTracer
 		static RayCastHit GetClosestHit(Ray& ray);
 		//static RayCastHit IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance);
 		static Vec3 BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity);
-		// With exp = 0 with obtain a uniform sampling
-		static void MapSamplesToHemisphere(std::vector<Vec2>& samplingOffsets, const float exp = 0);
 		// Here is were the render of the points happen
 		static void Flush();
 		static void DrawPoints();

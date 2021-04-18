@@ -1,10 +1,6 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <IL/il.h>
-
+#include "pch.h"
 #include "Math/maths.h"
-#include "scene.h"
+#include "Scene.h"
 
 namespace rayTracer
 {

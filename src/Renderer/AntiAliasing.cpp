@@ -1,5 +1,7 @@
+#include "pch.h"
 #include "AntiAliasing.h"
 #include "Math/Random.h"
+#include "Renderer/Sample.h"
 namespace rayTracer
 {
 	/// <summary>
@@ -45,5 +47,16 @@ namespace rayTracer
 			}
 		}
 		return sampleOffsets;
+	}
+	std::shared_ptr<SampleAPI> SampleAPI::Create(AntialiasingMode mode)
+	{
+		switch (mode)
+		{
+			case AntialiasingMode::NONE:			 return std::make_shared<SingularSampling>();
+			case AntialiasingMode::REGULAR_SAMPLING: return std::make_shared<RegularSampling>();  
+			case AntialiasingMode::JITTERING:		 return std::make_shared<JitteringSampling>();  
+			default: ASSERT(false, "ERROR: The attempted antialasing mode has not been implemented");
+		};
+		return nullptr;
 	}
 }

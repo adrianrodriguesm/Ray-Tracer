@@ -1,8 +1,7 @@
+#include "pch.h"
 #include "SceneObject.h"
 #include "Core/Constant.h"
-#include "PerlinNoise.hpp"
-#include <algorithm>
-#include <map>
+#include "Math/PerlinNoise.hpp"
 namespace rayTracer
 {
 	Object::~Object()

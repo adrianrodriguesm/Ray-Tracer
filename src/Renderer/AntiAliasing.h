@@ -1,6 +1,4 @@
 #pragma once
-#include "Math/Vector.h"
-#include <vector>
 namespace rayTracer
 {
 	enum class AntialiasingMode;

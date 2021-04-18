@@ -1,8 +1,6 @@
 #pragma once
-#include "Math/Vector.h"
 #include "Scene/SceneObject.h"
 #include "Renderer/AntiAliasing.h"
-#include <vector>
 
 namespace rayTracer
 {

@@ -1,10 +1,14 @@
-﻿#include "Renderer/SceneRenderer.h"
-#include <math.h>
-#include <Math/Maths.h>
-#include <algorithm>    // std::random_shuffle
-#include "Renderer/Grid.h"
+﻿#include "pch.h"
+#include "Renderer/SceneRenderer.h"
+#include "Math/Random.h"
+#include "Core/Application.h"
+#include "Core/Utility.h"
 #include "Core/Constant.h"
-#include "Renderer/Sample.h"
+
+#include <Core/Base.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <Renderer/Grid.h>
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks

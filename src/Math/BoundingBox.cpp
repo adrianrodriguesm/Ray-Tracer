@@ -1,6 +1,6 @@
+#include "pch.h"
 #include "BoundingBox.h"
-#include <Core/Constant.h>
-
+#include "Core/Constant.h"
 namespace rayTracer
 {
 	

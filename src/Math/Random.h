@@ -1,6 +1,5 @@
 #pragma once
 #include <random>
-#include "Vector.h"
 namespace rayTracer
 {
 	class Random

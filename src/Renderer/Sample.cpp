@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Sample.h"
 #include "AntiAliasing.h"
 namespace rayTracer

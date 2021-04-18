@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Camera.h"
 #include "Core/Constant.h"
 #include "Math/Random.h"

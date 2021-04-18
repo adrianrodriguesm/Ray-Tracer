@@ -1,8 +1,6 @@
 #pragma once
-
-#include <vector>
 #include "Scene/Scene.h"
-#include <unordered_map>
+
 
 namespace rayTracer
 {

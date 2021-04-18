@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Math/Quaternion.h"
 #include "Core/Constant.h"
 

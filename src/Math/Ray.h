@@ -1,6 +1,4 @@
 #pragma once
-#include "Vector.h"
-#include <algorithm>
 namespace rayTracer
 {
 	class Object;

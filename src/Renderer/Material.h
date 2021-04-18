@@ -1,6 +1,4 @@
 #pragma once
-#include "Renderer/Color.h"
-
 namespace rayTracer
 {
 	class Material

@@ -1,10 +1,5 @@
 #pragma once
 #include "Core/Layer.h"
-#include <string.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
 
 extern int main(int argc, char** argv);
 namespace rayTracer

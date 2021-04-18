@@ -1,6 +1,6 @@
+#include "pch.h"
 #include "Light.h"
 #include "Renderer/SceneRenderer.h"
-#include "Math/Maths.h"
 #include "Renderer/Sample.h"
 namespace rayTracer
 {

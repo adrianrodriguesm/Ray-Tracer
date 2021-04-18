@@ -1,5 +1,4 @@
 #pragma once
-#include "Math/Vector.h"
 namespace rayTracer::utils
 {
 	inline Vec3 ApplyToneMapping(const Vec3& color, const  float exposure)

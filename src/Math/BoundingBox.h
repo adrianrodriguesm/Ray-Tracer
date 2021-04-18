@@ -1,7 +1,5 @@
 #pragma once
-#include "vector.h"
-#include "ray.h"
-#include "Math/Maths.h"
+#include "Math/Ray.h"
 #include "Core/Constant.h"
 namespace rayTracer
 {

@@ -1,10 +1,5 @@
 #pragma once
-
-#include <vector>
-#include <IL/il.h>
-
 #include "Renderer/Camera.h"
-#include "Math/Vector.h"
 #include "Math/Ray.h"
 #include "Math/BoundingBox.h"
 #include "Scene/SceneObject.h"
@@ -49,7 +44,8 @@ namespace rayTracer
 
 		bool m_SkyBoxFlag = false;
 
-		struct {
+		struct
+		{
 			ILubyte* img;
 			uint32_t resX;
 			uint32_t resY;

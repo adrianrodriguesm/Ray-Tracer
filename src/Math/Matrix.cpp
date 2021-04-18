@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Math/Matrix.h"
 #include "Core/Constant.h"
 namespace rayTracer

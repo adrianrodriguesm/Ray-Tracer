@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "AntiAliasing.h"
 #include "Math/Random.h"
 #include "Renderer/Sample.h"

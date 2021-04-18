@@ -1,9 +1,9 @@
+#include "pch.h"
 #include "Vector.h"
 #include "Core/Constant.h"
 #include "Core/Base.h"
 #include "Math/Maths.h"
 #include "Math/Random.h"
-#include <algorithm>
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// Vec2

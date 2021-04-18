@@ -1,10 +1,7 @@
 #pragma once
 #include "Scene/Scene.h"
 #include "Core/Constant.h"
-#include <vector>
 #include <stack>
-#include <queue>
-#include <cmath>
 
 namespace rayTracer
 {

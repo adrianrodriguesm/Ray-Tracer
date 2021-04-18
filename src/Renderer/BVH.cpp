@@ -1,19 +1,20 @@
 #include "BVH.h"
 
-using namespace std;
 namespace rayTracer
 {
+#define VER_2 0
+	BVH::BVHNode::BVHNode() 
 
-
-	BVH::BVHNode::BVHNode() {
+	{
 		this->leaf = false;
 		this->index = 0;
 		this->n_objs = 0;
 	}
 
-	void BVH::BVHNode::setAABB(AABB& bbox_) { this->bbox = bbox_; }
+	void BVH::BVHNode::SetAABB(AABB& bbox_) { this->bbox = bbox_; }
 
-	void BVH::BVHNode::makeLeaf(unsigned int index_, unsigned int n_objs_) {
+	void BVH::BVHNode::MakeLeaf(unsigned int index_, unsigned int n_objs_) 
+	{
 		this->leaf = true;
 		this->index = index_;
 		this->n_objs = n_objs_;
@@ -26,20 +27,17 @@ namespace rayTracer
 	}
 
 
-	BVH::BVH(void) {}
-
-	int BVH::getNumObjects() { return objects.size(); }
 
 #pragma region Build Functions
 
-	int GetLargestAxis(vector<Object*>& objs, int ind1, int ind2)
+	int GetLargestAxis(const std::vector<Object*>& objs, int ind1, int ind2)
 	{
-		Vec3 Min = Vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-		Vec3 Max = Vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+		Vec3 Min = FLOAT_MAX;
+		Vec3 Max = FLOAT_MIN;
 
 		for (int i = ind1; i < ind2; i++)
 		{
-			Vec3 centroid = objs[i]->GetBoundingBox().centroid();
+			Vec3 centroid = objs[i]->GetBoundingBox().Centroid();
 			// Min
 			if (Min.x > centroid.x) 
 				Min.x = centroid.x;
@@ -62,7 +60,7 @@ namespace rayTracer
 		}
 
 		Vec3 diff = Max - Min;
-		float maxLength = MAX3(diff.x, diff.y, diff.z);
+		float maxLength = std::max({ diff.x, diff.y, diff.z });
 
 		if (diff.x == maxLength)
 			return 0;
@@ -72,117 +70,252 @@ namespace rayTracer
 			return 2;
 	}
 
-	int GetSplitIndex(const vector<Object*>& objs, int ind1, int ind2, const Vec3& midPoint, int axis)
+	uint32_t GetSplitIndex(const std::vector<Object*>& objs, int ind1, int ind2, const Vec3& midPoint, int axis)
 	{
 		for (int i = ind1; i < ind2; i++)
 		{
+			Vec3 centroid = objs[i]->GetBoundingBox().Centroid();
 			switch (axis)
 			{
 			case(0):	
-				if (objs[i]->GetBoundingBox().centroid().x > midPoint.x) 
+				if (centroid.x > midPoint.x)
 					return i;
 				break;
 			case(1):	
-				if (objs[i]->GetBoundingBox().centroid().y > midPoint.y) 
+				if (centroid.y > midPoint.y)
 					return i;
 				break;
 			case(2):	
-				if (objs[i]->GetBoundingBox().centroid().z > midPoint.z) 
+				if (centroid.z > midPoint.z)
 					return i;
 				break;
 			}
 		}
 	}
 
-	AABB CalculateBoundingBox(vector<Object*>& objs, int ind1, int ind2)
+	AABB CalculateBoundingBox(const std::vector<Object*>& objs, int ind1, int ind2)
 	{
 		AABB result;
-		for (int i = ind1; i < ind2; i++) {
+		result.Min = FLOAT_MAX;
+		result.Max = FLOAT_MIN;
+		for (int i = ind1; i < ind2; i++) 
+		{
 			AABB bbox = objs[i]->GetBoundingBox();
-			result.extend(bbox);
+			result.Extend(bbox);
 		}
 		return result;
 	}
 
-	void BVH::Build(vector<Object*>& objs) 
+	void BVH::Build(std::vector<Object*>& objects)
 	{
-
+#ifdef VER_2
+		m_Objects.reserve(objects.size());
+		Vec3 min = FLOAT_MAX;
+		Vec3 max = FLOAT_MIN;
+		AABB worldBBox = { min, max };
+		for (Object* obj : objects)
+		{
+			AABB bbox = obj->GetBoundingBox();
+			worldBBox.Extend(bbox);
+			m_Objects.push_back(obj);
+		}
+		m_Depth = 1;
+		ConstructRecursive(objects.size(), worldBBox);
+#else
 		BVHNode* root = new BVHNode();
 
-		Vec3 min = Vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-		Vec3 max = Vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+		Vec3 min = FLOAT_MAX;
+		Vec3 max = FLOAT_MIN;
 		AABB world_bbox = AABB(min, max);
-
-		for (Object* obj : objs) {
+		m_Objects.reserve(objects.size());
+		for (Object* obj : objects)
+		{
 			AABB bbox = obj->GetBoundingBox();
-			world_bbox.extend(bbox);
-			objects.push_back(obj);
+			world_bbox.Extend(bbox);
+			m_Objects.push_back(obj);
 		}
-		world_bbox.Min.x -= EPSILON; world_bbox.Min.y -= EPSILON; world_bbox.Min.z -= EPSILON;
-		world_bbox.Max.x += EPSILON; world_bbox.Max.y += EPSILON; world_bbox.Max.z += EPSILON;
-		root->setAABB(world_bbox);
+		//world_bbox.Min.x -= EPSILON; world_bbox.Min.y -= EPSILON; world_bbox.Min.z -= EPSILON;
+		//world_bbox.Max.x += EPSILON; world_bbox.Max.y += EPSILON; world_bbox.Max.z += EPSILON;
+		root->SetAABB(world_bbox);
 		nodes.push_back(root);
-		build_recursive(0, objects.size(), root); // -> root node takes all the 
+		BuildRecursive(0, m_Objects.size(), root, 0); // -> root node takes all the 
+#endif // VER_2
 	}
 
-	void BVH::build_recursive(int left_index, int right_index, BVHNode* node) {
+	void BVH::BuildRecursive(int leftIndex, int rightIndex, BVHNode* node, uint32_t depth)
+	{
 
-		if ((right_index - left_index) <= Threshold)
+		if ((rightIndex - leftIndex) <= MinLeafPrimitives || depth >= MaxDepth)
 		{
-			node->makeLeaf(left_index, right_index - left_index);
+			node->MakeLeaf(leftIndex, rightIndex - leftIndex);
 			return;
 		}
-		else {
+		else 
+		{
+			// Current node index is equal to the left child node index
 			node->makeNode(nodes.size());
 
 			// Sort objects by largest axis
 			Comparator cmp = Comparator();
-			int largestAxis = GetLargestAxis(objects, left_index, right_index);
-			cmp.dimension = largestAxis;
-			sort(objects.begin() + left_index, objects.begin() + right_index, cmp);
+			int largestAxis = GetLargestAxis(m_Objects, leftIndex, rightIndex);
+			cmp.Dimension = largestAxis;
+			// Sort the elements along the largest axis
+			std::sort(m_Objects.begin() + leftIndex, m_Objects.begin() + rightIndex, cmp);
 			
 			// Find split
-			Vec3 midPoint = node->getAABB().centroid();
-			int splitIndex = GetSplitIndex(objects, left_index, right_index, midPoint, largestAxis);
+			Vec3 midPoint = node->getAABB().Centroid();
+			int splitIndex = GetSplitIndex(m_Objects, leftIndex, rightIndex, midPoint, largestAxis);
 
 			// If one side is empty - use median split
-			if (splitIndex == left_index || splitIndex == right_index)
+			if (splitIndex == leftIndex || splitIndex == rightIndex)
 			{
-				splitIndex = left_index + (right_index - left_index) / 2;
+				splitIndex = leftIndex + (rightIndex - leftIndex) / 2;
 			}
 
 			// Create child nodes
 			BVHNode* left = new BVHNode();
 			BVHNode* right = new BVHNode();
-			left->setAABB(CalculateBoundingBox(objects, left_index, splitIndex));
-			right->setAABB(CalculateBoundingBox(objects, splitIndex, right_index));
+			left->SetAABB(CalculateBoundingBox(m_Objects, leftIndex, splitIndex));
+			right->SetAABB(CalculateBoundingBox(m_Objects, splitIndex, rightIndex));
 			nodes.push_back(left);
 			nodes.push_back(right);
 
 			// Recurse
-			build_recursive(left_index, splitIndex, left);
-			build_recursive(splitIndex, right_index, right);
+			depth++;
+			BuildRecursive(leftIndex, splitIndex, left, depth);
+			BuildRecursive(splitIndex, rightIndex, right, depth);
 		}
 
+	}
+	void BVH::ConstructRecursive(uint32_t numObject, const AABB& bbox)
+	{
+		m_Nodes.resize(1);
+		// Stack of temp object initialize with the root
+		// Work (Start, NumObjects, NodeIndex, Depeth, BBox)
+		Work worksStack[MaxDepth];
+		worksStack[0] = Work(0, numObject, 0, 1, bbox);
+		int stackIndex = 0;
+		uint32_t numObjectLeft, numObjectRight;
+		AABB bboxLeft, bboxRight;
+		while (0 <= stackIndex)
+		{
+			Work work = worksStack[stackIndex];
+			--stackIndex;
+			// Update current tree depth
+			m_Depth = std::max(work.Depth, m_Depth);
+			// If the number of object are less than the min or we reach 
+			// the max depth then make this node a leaf
+			if (work.NumObjects <= MinLeafPrimitives || MaxDepth <= work.Depth) 
+			{
+				m_Nodes[work.NodeIndex].MakeLeaf(work.Start, work.NumObjects);
+				continue;
+			}
+			uint32_t end = work.Start + work.NumObjects;
+			uint32_t largestAxis = GetLargestAxis(m_Objects, work.Start, end);
+			Comparator cmp = Comparator(largestAxis);
+			// Sort the elements along the largest axis
+			std::sort(m_Objects.begin() + work.Start, m_Objects.begin() + end, cmp);
+			// Find split
+			Vec3 midPoint = work.BBox.Centroid();
+			uint32_t splitIndex = GetSplitIndex(m_Objects, work.Start, end, midPoint, largestAxis);
+			// If one side is empty - use median split
+			/**/
+			if (splitIndex <= work.Start || end <= splitIndex)
+				splitIndex = work.Start + (work.NumObjects / 2); // >> 1 <=> / 2
+			/**/
+			splitIndex = work.Start + (work.NumObjects / 2);
+			numObjectLeft = splitIndex - work.Start;
+			numObjectRight = end - splitIndex;
+			// Calculate BBox of the child nodes
+			bboxLeft = CalculateBoundingBox(m_Objects, work.Start, splitIndex);
+			bboxRight = CalculateBoundingBox(m_Objects, splitIndex, end);
+
+			uint32_t childIndex = m_Nodes.size();
+			m_Nodes[work.NodeIndex].SetJoint(bboxLeft, bboxRight, childIndex);
+			// Resize the node in order to add the two childs
+			m_Nodes.resize(m_Nodes.size() + 2);
+			worksStack[++stackIndex] = Work(work.Start, numObjectLeft, childIndex, work.Depth + 1, bboxLeft);
+			worksStack[++stackIndex] = Work(work.Start + numObjectLeft, numObjectRight, childIndex + 1, work.Depth + 1, bboxRight);
+		}
 	}
 #pragma endregion Build Functions
 
 #pragma region Interception Functions
+	static constexpr float F32_HITEPSILON = 1.0e-5f;
+	RayCastHit BVH::Intercepts(Ray& ray)
+	{
+#ifdef VER_2
+		RayCastHit hitRecord;
+		hitRecord.Hit = false;
+		hitRecord.Tdist = FLOAT_MAX;
+		int statckIndex = 0, currentNodeIndex = 0;
+		// Stack that holds a node index per depth
+		uint32_t stack[MaxDepth];
+		while (true)
+		{
+			auto& currNode = m_Nodes[currentNodeIndex];
+			if (currNode.IsLeaf())
+			{
+				uint32_t startObjIndex = currNode.GetObjectIndex();
+				uint32_t numObj = currNode.GetNumObjects();
+				for (uint32_t i = startObjIndex; i < startObjIndex + numObj; i++)
+				{
+					RayCastHit hit = m_Objects[i]->Intercepts(ray);
+					if (!hit)
+						continue;
+					else if (F32_HITEPSILON < hit.Tdist && hit.Tdist < hitRecord.Tdist)
+						hitRecord = hit;
+				}
+				if (statckIndex <= 0)
+					break;
 
-	RayCastHit BVH::Intercepts(Ray& ray) {
+				currentNodeIndex = stack[--statckIndex];
+			}
+			else
+			{
+				float tLeft;
+				bool hitLeft = currNode.Joint.LeftBBox.Intercepts(ray, tLeft);
+				float tRight;
+				bool hitRight = currNode.Joint.RightBBox.Intercepts(ray, tRight);
+				uint32_t childNodeIndex = currNode.GetChildIndex();
+
+				if (hitLeft && !hitRight)		// Go to left
+					currentNodeIndex = childNodeIndex;
+				else if(!hitLeft && hitRight)	// Go to right
+					currentNodeIndex = childNodeIndex + 1;
+				else if (hitLeft && hitRight)	// Go to far node
+				{
+					currentNodeIndex = childNodeIndex;
+					int farNode = childNodeIndex + 1;
+					if(tRight < tLeft)
+						std::swap(currentNodeIndex, farNode);
+
+					stack[statckIndex++] = farNode;
+				}
+				else
+				{
+					if (statckIndex <= 0)
+						break;
+
+					currentNodeIndex = stack[--statckIndex];
+				}
+			}
+		}
+		return hitRecord;
+#else
 		RayCastHit tempHit;
 		RayCastHit closestHit;
-		closestHit.Tdist = FLT_MAX;
+		closestHit.Tdist = FLOAT_MAX;
 		closestHit.Hit = false;
 
 
 		BVHNode* currentNode = nodes[0];
 
 		// Check hit world box
-		if (!currentNode->getAABB().intercepts(ray, tempHit.Tdist))
+		if (!currentNode->getAABB().Intercepts(ray, tempHit.Tdist))
 			return RayCastHit(false);
 
-
+		// Traverse the BHV
 		while (true)
 		{
 			if (!currentNode->isLeaf())
@@ -190,11 +323,11 @@ namespace rayTracer
 				// Check hit child nodes
 				BVHNode* leftNode = nodes[currentNode->getIndex()];
 				float tLeft;
-				bool leftHit = (leftNode->getAABB().intercepts(ray, tLeft));//&& tLeft < closestHit.Tdist);
+				bool leftHit = (leftNode->getAABB().Intercepts(ray, tLeft));//&& tLeft < closestHit.Tdist);
 
 				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
 				float tRight;
-				bool rightHit = (rightNode->getAABB().intercepts(ray, tRight));//&& tRight < closestHit.Tdist);
+				bool rightHit = (rightNode->getAABB().Intercepts(ray, tRight));//&& tRight < closestHit.Tdist);
 
 				if (leftHit && rightHit)
 				{
@@ -205,13 +338,15 @@ namespace rayTracer
 						currentNode = leftNode;
 						continue;
 					}
-					else {
+					else
+					{
 						hit_stack.push(StackItem(leftNode, tLeft));
 						currentNode = rightNode;
 						continue;
 					}
 				}
-				else if(leftHit){
+				else if (leftHit)
+				{
 					// Only left node hit
 					currentNode = leftNode;
 					continue;
@@ -222,16 +357,14 @@ namespace rayTracer
 					currentNode = rightNode;
 					continue;
 				}
-				else
-				{
-					// No hit - Go to stack popping
-				}
+				// No hit - Go to stack popping
 			}
-			else {
+			else
+			{
 				// Leaf Node - Process objects
 				for (int i = currentNode->getIndex(); i < (currentNode->getIndex() + currentNode->getNObjs()); i++)
 				{
-					RayCastHit tempHit = objects[i]->Intercepts(ray);
+					RayCastHit tempHit = m_Objects[i]->Intercepts(ray);
 					if (tempHit && tempHit.Tdist < closestHit.Tdist)
 						closestHit = tempHit;
 				}
@@ -254,17 +387,74 @@ namespace rayTracer
 			if (currentNode == nullptr)
 				break; // Termination
 		}
-		return closestHit; 
+		return closestHit;
+#endif // VER_2
+
 	}
 
 	bool BVH::InterceptsShadows(Ray& ray, float lightDist)  //shadow ray with length
 	{ 
+#ifdef VER_2
+		int statckIndex = 0, currentNodeIndex = 0;
+		// Stack that holds a node index per depth
+		uint32_t stack[MaxDepth];
+		while (true)
+		{
+			auto& currNode = m_Nodes[currentNodeIndex];
+			if (currNode.IsLeaf())
+			{
+				uint32_t startObjIndex = currNode.GetObjectIndex();
+				uint32_t numObj = currNode.GetNumObjects();
+				for (uint32_t i = startObjIndex; i < startObjIndex + numObj; i++)
+				{
+					RayCastHit hit = m_Objects[i]->Intercepts(ray);
+					if (hit && !m_Objects[i]->GetMaterial()->GetTransmittance())
+						return true;
+
+				}
+				if (statckIndex <= 0)
+					break;
+
+				currentNodeIndex = stack[--statckIndex];
+			}
+			else
+			{
+				float tLeft;
+				bool hitLeft = currNode.Joint.LeftBBox.Intercepts(ray, tLeft);
+				float tRight;
+				bool hitRight = currNode.Joint.RightBBox.Intercepts(ray, tRight);
+				uint32_t childNodeIndex = currNode.GetChildIndex();
+
+				if (hitLeft && !hitRight)		// Go to left
+					currentNodeIndex = childNodeIndex;
+				else if (!hitLeft && hitRight)	// Go to right
+					currentNodeIndex = childNodeIndex + 1;
+				else if (hitLeft && hitRight)	// Go to far node
+				{
+					currentNodeIndex = childNodeIndex;
+					int farNode = childNodeIndex + 1;
+					if (tRight < tLeft)
+						std::swap(currentNodeIndex, farNode);
+
+					stack[statckIndex++] = farNode;
+				}
+				else
+				{
+					if (statckIndex <= 0)
+						break;
+
+					currentNodeIndex = stack[--statckIndex];
+				}
+			}
+		}
+		return false;
+#else
 		RayCastHit tempHit;
 
 		BVHNode* currentNode = nodes[0];
 
 		// Check hit world box
-		if (!currentNode->getAABB().intercepts(ray, tempHit.Tdist))
+		if (!currentNode->getAABB().Intercepts(ray, tempHit.Tdist))
 			return false;
 
 
@@ -275,11 +465,11 @@ namespace rayTracer
 				// Check hit child nodes
 				BVHNode* leftNode = nodes[currentNode->getIndex()];
 				float tLeft;
-				bool leftHit = (leftNode->getAABB().intercepts(ray, tLeft) && tLeft < lightDist);
+				bool leftHit = (leftNode->getAABB().Intercepts(ray, tLeft) && tLeft < lightDist);
 
 				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
 				float tRight;
-				bool rightHit = (rightNode->getAABB().intercepts(ray, tRight) && tRight < lightDist);
+				bool rightHit = (rightNode->getAABB().Intercepts(ray, tRight) && tRight < lightDist);
 
 				if (leftHit && rightHit)
 				{
@@ -316,10 +506,10 @@ namespace rayTracer
 				// Leaf Node - Process objects
 				for (int i = currentNode->getIndex(); i < (currentNode->getIndex() + currentNode->getNObjs()); i++)
 				{
-					if(objects[i]->GetMaterial()->GetTransmittance() > 0)
+					if (m_Objects[i]->GetMaterial()->GetTransmittance() > 0)
 						continue; // Transparent object
 
-					RayCastHit tempHit = objects[i]->Intercepts(ray);
+					RayCastHit tempHit = m_Objects[i]->Intercepts(ray);
 					if (tempHit && tempHit.Tdist < lightDist)
 						return true;
 				}
@@ -343,7 +533,9 @@ namespace rayTracer
 			if (currentNode == nullptr)
 				break; // Termination
 		}
+		/**/
 		return false;
+#endif // VER_2		
 	}
 
 #pragma endregion Interception Functions

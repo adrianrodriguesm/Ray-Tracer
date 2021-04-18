@@ -1,4 +1,5 @@
 #include "BoundingBox.h"
+#include <Core/Constant.h>
 
 namespace rayTracer
 {
@@ -27,12 +28,13 @@ namespace rayTracer
 	}
 	
 	// --------------------------------------------------------------------- compute centroid
-	Vec3 AABB::centroid() {
+	Vec3 AABB::Centroid() 
+	{
 		return (Min + Max) / 2;
 	}
 
 	// --------------------------------------------------------------------- extend AABB
-	void AABB::extend(AABB box) {
+	void AABB::Extend(AABB box) {
 		if (Min.x > box.Min.x) Min.x = box.Min.x;
 		if (Min.y > box.Min.y) Min.y = box.Min.y;
 		if (Min.z > box.Min.z) Min.z = box.Min.z;
@@ -43,9 +45,42 @@ namespace rayTracer
 	}
 
 	// --------------------------------------------------------------------- AABB intersection
-
-	bool AABB::intercepts(const Ray& ray, float& t)
+	bool AABB::Intercepts(const Ray& ray, float& t)
 	{
+		/**/
+		Vec3 dirfrac;
+		// r.dir is unit direction vector of ray
+		dirfrac.x = 1.0f / ray.Direction.x;
+		dirfrac.y = 1.0f / ray.Direction.y;
+		dirfrac.z = 1.0f / ray.Direction.z;
+		// lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+		// r.org is origin of ray
+		const Vec3& lb = Min;
+		const Vec3& rt = Max;
+		float t1 = (lb.x - ray.Origin.x) * dirfrac.x;
+		float t2 = (rt.x - ray.Origin.x) * dirfrac.x;
+		float t3 = (lb.y - ray.Origin.y) * dirfrac.y;
+		float t4 = (rt.y - ray.Origin.y) * dirfrac.y;
+		float t5 = (lb.z - ray.Origin.z) * dirfrac.z;
+		float t6 = (rt.z - ray.Origin.z) * dirfrac.z;
+
+		// find largest entering t value
+		float tmin = std::max({ std::min(t1, t2), std::min(t3, t4), std::min(t5, t6) });
+		// find smallest exiting t value
+		float tmax = std::min({ std::max(t1, t2), std::max(t3, t4), std::max(t5, t6) });
+
+		// Condition for a hit
+		// if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
+		if (tmax < EPSILON)
+			return  false;
+
+		// if tmin > tmax, ray doesn't intersect AABB
+		if (tmin > tmax)
+			return false;
+
+		t = tmin;
+		return true;
+		/** /
 		double t0, t1;
 
 		float ox = ray .Origin.x;
@@ -104,5 +139,6 @@ namespace rayTracer
 		t = (t0 < 0) ? t1 : t0;
 
 		return (t0 < t1&& t1 > 0);
+		/**/
 	}
 }

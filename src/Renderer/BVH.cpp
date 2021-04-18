@@ -2,7 +2,7 @@
 
 namespace rayTracer
 {
-#define VER_2 0
+#define VER_2 1
 	BVH::BVHNode::BVHNode() 
 
 	{
@@ -108,7 +108,7 @@ namespace rayTracer
 
 	void BVH::Build(std::vector<Object*>& objects)
 	{
-#ifdef VER_2
+#if VER_2
 		m_Objects.reserve(objects.size());
 		Vec3 min = FLOAT_MAX;
 		Vec3 max = FLOAT_MIN;
@@ -167,7 +167,7 @@ namespace rayTracer
 			int splitIndex = GetSplitIndex(m_Objects, leftIndex, rightIndex, midPoint, largestAxis);
 
 			// If one side is empty - use median split
-			if (splitIndex == leftIndex || splitIndex == rightIndex)
+			if (splitIndex <= leftIndex || rightIndex <= splitIndex)
 			{
 				splitIndex = leftIndex + (rightIndex - leftIndex) / 2;
 			}
@@ -244,7 +244,7 @@ namespace rayTracer
 	static constexpr float F32_HITEPSILON = 1.0e-5f;
 	RayCastHit BVH::Intercepts(Ray& ray)
 	{
-#ifdef VER_2
+#if VER_2
 		RayCastHit hitRecord;
 		hitRecord.Hit = false;
 		hitRecord.Tdist = FLOAT_MAX;
@@ -394,7 +394,7 @@ namespace rayTracer
 
 	bool BVH::InterceptsShadows(Ray& ray, float lightDist)  //shadow ray with length
 	{ 
-#ifdef VER_2
+#if VER_2
 		int statckIndex = 0, currentNodeIndex = 0;
 		// Stack that holds a node index per depth
 		uint32_t stack[MaxDepth];

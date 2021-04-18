@@ -19,7 +19,7 @@ namespace rayTracer
 		bool InterceptsShadows(Ray& ray, float lightDist);
 	public:
 		static const uint32_t MinLeafPrimitives = 2;
-		static const uint32_t MaxDepth = 15;
+		static const uint32_t MaxDepth = 30;
 	private:
 		struct Comparator 
 		{

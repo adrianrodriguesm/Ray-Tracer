@@ -50,8 +50,8 @@ namespace rayTracer
 	{
 		Vec3 Edge1 = m_Points[1] - m_Points[0];
 		Vec3 Edge2 = m_Points[2] - m_Points[0];
-		Vec3 N = CrossProduct(Edge1, Edge2);
-		float det = -DotProduct(ray.Direction, N);
+		//Vec3 N = CrossProduct(Edge1, Edge2);
+		float det = -DotProduct(ray.Direction, m_Normal);
 		float invdet = 1.0f / det;
 		Vec3 AO = ray.Origin - m_Points[0];
 		Vec3 DAO = CrossProduct(AO, ray.Direction);
@@ -59,7 +59,7 @@ namespace rayTracer
 		float v = -DotProduct(Edge1, DAO) * invdet;
 
 		RayCastHit hit;
-		hit.Tdist = DotProduct(AO, N) * invdet;
+		hit.Tdist = DotProduct(AO, m_Normal) * invdet;
 		hit.Hit = (det >= 1e-6 && hit.Tdist >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0f);
 		hit.Object = this;
 		hit.InterceptionPoint = ray.Origin + ray.Direction * hit.Tdist;

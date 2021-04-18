@@ -87,7 +87,7 @@ namespace rayTracer
 		float m_Radius, SqRadius;
 	};
 
-	class Box : public Object   //Axis aligned box: another geometric object
+	class Box : public Object 
 	{
 	public:
 		Box(Vec3& minPoint, Vec3& maxPoint);

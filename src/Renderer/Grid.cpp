@@ -266,7 +266,7 @@ namespace rayTracer
 			if (next.x < next.y && next.x < next.z)
 			{
 				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
-				if (hit)
+				if (hit && !hit.Object->GetMaterial()->GetTransmittance())
 					return true;
 
 				next.x += deltaT.x;
@@ -279,8 +279,8 @@ namespace rayTracer
 			{
 
 				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
-				if (hit)
-					return hit;
+				if (hit && !hit.Object->GetMaterial()->GetTransmittance())
+					return true;
 
 				next.y += deltaT.y;
 				cellCoordinates.y += step.y;
@@ -291,7 +291,7 @@ namespace rayTracer
 			else // Move in Z
 			{
 				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
-				if (hit)
+				if (hit && !hit.Object->GetMaterial()->GetTransmittance())
 					return true;
 
 				next.z += deltaT.z;

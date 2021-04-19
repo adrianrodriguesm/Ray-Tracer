@@ -61,6 +61,7 @@ namespace rayTracer
 	}
 	RayCastHit Grid::Intercepts(Ray& ray)
 	{	
+		// Fisrt we need to check if the ray hit the Grid's AABB
 		Vec3 min, max;
 		Vec3 delta;
 		for (uint32_t index = 0; index < 3; index++)
@@ -109,7 +110,9 @@ namespace rayTracer
 
 		// Find the nearest intersection
 		Vec3 deltaT = (max - min) / m_CellNumberPerDim;
-		Vec3 next; 
+		// Delta to move along each axis
+		Vec3 next;
+		// Step -> to move along cellcoordinate | Stop -> stop traverse point
 		Vec3Int step, stop;
 		for (uint32_t index = 0; index < 3; index++)
 		{
@@ -143,6 +146,8 @@ namespace rayTracer
 			if (next.x < next.y && next.x < next.z)
 			{			
 				RayCastHit hit = GetClosestHitInsideCell(sceneObject, ray);
+				// Check if the ray hit and if the 
+				// object is inside the current cell
 				if (hit && hit.Tdist < next.x)
 					return hit;
 
@@ -154,8 +159,9 @@ namespace rayTracer
 			}
 			else if (next.y < next.z)
 			{
-
 				RayCastHit hit = GetClosestHitInsideCell(sceneObject, ray);
+				// Check if the ray hit and if the 
+				// object is inside the current cell
 				if (hit && hit.Tdist < next.y)
 					return hit;
 
@@ -168,6 +174,8 @@ namespace rayTracer
 			else
 			{
 				RayCastHit hit = GetClosestHitInsideCell(sceneObject, ray);
+				// Check if the ray hit and if the 
+				// object is inside the current cell
 				if (hit && hit.Tdist < next.z)
 					return hit;
 
@@ -232,9 +240,9 @@ namespace rayTracer
 
 		// Find shadow intersection
 		Vec3 deltaT = (max - min) / m_CellNumberPerDim;
-		// Delta move along each axis
+		// Delta to move along each axis
 		Vec3 next;
-		// Step -> move along cellcoordinate | Stop -> stop traverse point
+		// Step -> to move along cellcoordinate | Stop -> stop traverse point
 		Vec3Int step, stop;
 		for (uint32_t index = 0; index < 3; index++)
 		{
@@ -277,7 +285,6 @@ namespace rayTracer
 			}
 			else if (next.y < next.z) // Move in Y
 			{
-
 				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
 				if (hit && !hit.Object->GetMaterial()->GetTransmittance())
 					return true;
@@ -300,8 +307,6 @@ namespace rayTracer
 				if (cellCoordinates.z == stop.z)
 					return false;
 			}
-
-
 		}
 		return false;
 	}

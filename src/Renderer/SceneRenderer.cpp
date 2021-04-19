@@ -94,10 +94,10 @@ namespace rayTracer
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
 		// Antialiasing
-		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
-		AccelerationStructure currentAccelerationStruct = AccelerationStructure::GRID;
+		AccelerationStructure currentAccelerationStruct = AccelerationStructure::BVH;
 		Grid* Grid;
 		BVH* Bvh;
 		// Timer
@@ -329,23 +329,6 @@ namespace rayTracer
 		}
 		return hit;
 	}
-	/*
-	RayCastHit SceneRenderer::IsPointInShadow(RayCastHit& hit, Vec3& lightDir, float lightDistance)
-	{
-		Vec3 normal = hit.Object->GetNormal(hit.InterceptionPoint);
-		Ray shadowFeeler(hit.InterceptionPoint + normal * DISPLACEMENT_BIAS, lightDir);
-		for (auto obj : s_Data.DataScene.Objects)
-		{
-			if (obj->GetMaterial()->GetTransmittance() > 0)
-				continue; // Transparent objects do not block light (Should refract light, but....)
-
-			RayCastHit shadowHit = obj->Intercepts(shadowFeeler);
-			if (shadowHit && shadowHit.Tdist < lightDistance)
-				return true;
-		}
-		return false;
-	}*/
-
 	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity)
 	{
 		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);

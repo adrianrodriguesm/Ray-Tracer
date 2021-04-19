@@ -2,6 +2,7 @@
 #include "RayTracer.h"
 #include "Math/Quaternion.h"
 #include <math.h>
+#include "CameraController.h"
 using namespace rayTracer;
 class Sandbox : public Layer
 {
@@ -35,17 +36,5 @@ private:
 	uint32_t RES_WIDTH = 512, RES_HEIGHT = 512;
 	const uint32_t MAX_DEPTH = 3;
 
-	// Camera Move
-	// Current Camera Position
-	//float camX = 0, camY = 0, camZ = 0;
-
-	//Original Camera position;
-	Vec3 startPos = {};
-
-	// Mouse Tracking Variables
-	int lastX = 0, lastY = 0, tracking = 0;
-
-	// Camera Spherical Coordinates
-	float alpha = 0.0f, beta = 0.0f;
-	float r = 4.0f;
+	CameraController m_CameraController;
 };

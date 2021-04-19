@@ -56,8 +56,8 @@ void CameraController::OnMouseMove(int xx, int yy)
 		rayTracer::Qtrn yaw = rayTracer::Qtrn(m_Alpha, { 0,1,0 });
 		rayTracer::Qtrn rot = pitch * yaw;
 		rayTracer::Qtrn rotatedPoint = rot * rayTracer::Qtrn(0, m_StartPos.x, m_StartPos.y, m_StartPos.z) * conjugate(rot);
-
-		finalPos = { rotatedPoint.x + center.x, rotatedPoint.y + center.y, rotatedPoint.z + center.z}; // Translate back
+		// Translate back
+		finalPos = { rotatedPoint.x + center.x, rotatedPoint.y + center.y, rotatedPoint.z + center.z}; 
 	}
 	// Right mouse button: zoom
 	else if (m_Tracking == 2)

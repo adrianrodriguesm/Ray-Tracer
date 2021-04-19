@@ -180,7 +180,7 @@ void Sandbox::InitScene()
 	}
 
 	if (random_scene)
-		m_Scene = SceneLoader::Create_random_scene();
+		m_Scene = SceneLoader::CreateRandomScene();
 	else
 		m_Scene = SceneLoader::LoadP3D(scene_name);	
 

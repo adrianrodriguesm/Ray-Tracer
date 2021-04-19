@@ -9,7 +9,7 @@
 namespace rayTracer
 {
 	Application* Application::s_Instance = nullptr;
-	Application::Application(AplicationSpecification spec)
+	Application::Application(ApplicationSpecification spec)
 		: m_Spec(spec)
 	{
 		ASSERT(!s_Instance, "Application already created!");
@@ -57,10 +57,10 @@ namespace rayTracer
 	}
 	// TODO CHECK if needed
 	static int FrameCount = 0;
-	void timer(int value)
+	void Timer(int value)
 	{
 		auto& app = Application::Get();
-		AplicationSpecification appSpec = app.GetSpecification();
+		ApplicationSpecification appSpec = app.GetSpecification();
 		std::ostringstream oss;
 		
 		oss << appSpec.Caption << ": " << FrameCount << " FPS @ (" << appSpec.Width << "x" << appSpec.Height << ")";
@@ -68,7 +68,7 @@ namespace rayTracer
 		glutSetWindow(app.GetNativeWindow());
 		glutSetWindowTitle(s.c_str());
 		FrameCount = 0;
-		glutTimerFunc(1000, timer, 0);
+		glutTimerFunc(1000, Timer, 0);
 	}
 
 	static void OnMouseKeyPress(int button, int state, int xx, int yy)
@@ -114,9 +114,7 @@ namespace rayTracer
 	}
 
 	void Application::SetCallBacks()
-	{
-		//if(m_Spec.Mode != RenderMode::GenerateImage)
-			
+	{			
 		glutDisplayFunc(OnUpdate);
 		glutKeyboardFunc(OnKeyPress);
 		glutSpecialFunc(OnSpecialKeyPress);
@@ -127,7 +125,7 @@ namespace rayTracer
 		glutMouseWheelFunc(OnMouseScroll);
 
 		glutIdleFunc(OnUpdate);
-		glutTimerFunc(0, timer, 0);
+		glutTimerFunc(0, Timer, 0);
 	}
 	void Application::InitGraphicContext()
 	{

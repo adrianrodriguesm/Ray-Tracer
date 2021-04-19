@@ -94,10 +94,10 @@ namespace rayTracer
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
 		// Antialiasing
-		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
+		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
-		AccelerationStructure currentAccelerationStruct = AccelerationStructure::BVH;
+		AccelerationStructure currentAccelerationStruct = AccelerationStructure::GRID;
 		Grid* Grid;
 		BVH* Bvh;
 		// Timer

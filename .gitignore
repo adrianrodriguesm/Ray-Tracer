@@ -3,3 +3,5 @@
 # Visual Studio cache directory
 *.vs/
 *intermediate/
+
+ ./*.png

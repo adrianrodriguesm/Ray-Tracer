@@ -44,22 +44,26 @@ namespace rayTracer
 		m_BoundingBox = { min, max };
 	}
 
-	//
 	// Ray/Triangle intersection test using Tomas Moller-Ben Trumbore algorithm.
 	RayCastHit Triangle::Intercepts(Ray& ray)
 	{
-		Vec3 Edge1 = m_Points[1] - m_Points[0];
-		Vec3 Edge2 = m_Points[2] - m_Points[0];
-		Vec3 N = CrossProduct(Edge1, Edge2);
-		float det = -DotProduct(ray.Direction, N);
-		float invdet = 1.0f / det;
+		Vec3 edge1 = m_Points[1] - m_Points[0];
+		Vec3 edge2 = m_Points[2] - m_Points[0];
+		Vec3 normal = CrossProduct(edge1, edge2);
+		// If the determinant is zero this means that 
+		// the ray is paralle to triangle plane and if
+		// it is bellow zero that means is behind
+		float det = -DotProduct(ray.Direction, normal);
+		float invDet = 1 / det; // We divide to avoid used floating point division
 		Vec3 AO = ray.Origin - m_Points[0];
+		// Using the scalar triple product and the Cramer's rule
+		// to calculate the bary-centric coords
 		Vec3 DAO = CrossProduct(AO, ray.Direction);
-		float u = DotProduct(Edge2, DAO) * invdet;
-		float v = -DotProduct(Edge1, DAO) * invdet;
+		float u = DotProduct(edge2, DAO) * invDet;
+		float v = -DotProduct(edge1, DAO) * invDet;
 
 		RayCastHit hit;
-		hit.Tdist = DotProduct(AO, N) * invdet;
+		hit.Tdist = DotProduct(AO, normal) * invDet;
 		hit.Hit = (det >= 1e-6 && hit.Tdist >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0f);
 		hit.Object = this;
 		hit.InterceptionPoint = ray.Origin + ray.Direction * hit.Tdist;

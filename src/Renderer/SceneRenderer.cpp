@@ -94,7 +94,7 @@ namespace rayTracer
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
 		// Antialiasing
-		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
 		AccelerationStructure currentAccelerationStruct = AccelerationStructure::GRID;
@@ -281,7 +281,7 @@ namespace rayTracer
 		// If we reach the max deth end the recursive call
 		if (depth >= s_Data.DataScene.MaxDepth)
 			return color;
-		
+
 		// Refracted
 		if (material->GetTransmittance() > 0)
 		{
@@ -331,7 +331,8 @@ namespace rayTracer
 	}
 	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity)
 	{
-		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);
+		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);			
+
 		if (diffuseIntensity > 0)
 		{
 			// Diffuse
@@ -339,7 +340,7 @@ namespace rayTracer
 			Vec3 diffuseColor = light->color * KdLamb * mat->GetDiffColor();
 
 			// Specular
-			Vec3 halfwayVector = viewDir + lightDir;
+			Vec3 halfwayVector = -viewDir + lightDir;
 			Vec3 reflected = halfwayVector.Normalized();
 			float specAngle = std::fmax(DotProduct(reflected, normal), 0.0f);
 			float specular = pow(specAngle, mat->GetShine());
@@ -391,12 +392,12 @@ namespace rayTracer
 					if(s_Data.antialiasingMode != AntialiasingMode::NONE)
 					{
 						Ray ray = s_Data.DataScene.Camera->PrimaryLensRay(pixel + sampleOffset);
-						color += TraceRays(ray, 1, 1.0);
+						color += TraceRays(ray, 1, 1.0f);
 					}
 					else
 					{
 						Ray ray = s_Data.DataScene.Camera->PrimaryCenterRay(pixel + sampleOffset);
-						color += TraceRays(ray, 1, 1.0);
+						color += TraceRays(ray, 1, 1.0f);
 					}
 				}
 				color = color / samplingOffsets.size();

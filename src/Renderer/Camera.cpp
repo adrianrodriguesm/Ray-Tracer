@@ -71,13 +71,13 @@ namespace rayTracer
 		Vec2 lensSample = CalculateSamplePoint();
 		Vec3 rayOrigin = m_Eye + lensSample.x * m_XAxis + lensSample.y * m_YAxis;
 		// Dir eye space
-		Vec3 dirFromCenter;
-		dirFromCenter.x = m_Width * (pixelSample.x / m_WidthRes - 0.5f) * m_FocalRatio;
-		dirFromCenter.y = m_Height * (pixelSample.y / m_HeightRes - 0.5f) * m_FocalRatio;
-		dirFromCenter.z = -m_PlaneDistance;
-		Vec3 rayDir = (dirFromCenter.x - lensSample.x) * m_XAxis + (dirFromCenter.y - lensSample.y) * m_YAxis + dirFromCenter.z * m_ZAxis;
+		Vec3 pointInFocalPlane;
+		pointInFocalPlane.x = m_Width * (pixelSample.x / m_WidthRes - 0.5f) * m_FocalRatio;
+		pointInFocalPlane.y = m_Height * (pixelSample.y / m_HeightRes - 0.5f) * m_FocalRatio;
+		pointInFocalPlane.z = -m_PlaneDistance;
+		Vec3 rayDir = (pointInFocalPlane.x - lensSample.x) * m_XAxis + (pointInFocalPlane.y - lensSample.y) * m_YAxis + pointInFocalPlane.z * m_ZAxis;
 		rayDir.Normalized();
-		return Ray(rayOrigin, rayDir);
+		return { rayOrigin, rayDir };
 	}
 	void Camera::DumpSelf()
 	{

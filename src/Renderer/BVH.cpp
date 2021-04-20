@@ -4,7 +4,6 @@
 namespace rayTracer
 {
 	BVH::BVHNode::BVHNode() 
-
 	{
 		this->leaf = false;
 		this->index = 0;
@@ -107,13 +106,11 @@ namespace rayTracer
 	BVH::~BVH()
 	{
 		m_Objects.clear();
-#if VER_2 == 0
 		for (auto bvhNode : m_BVHNodes)
 		{
 			delete bvhNode;
 		}
 		m_BVHNodes.clear();
-#endif
 	}
 
 	void BVH::Build(std::vector<Object*>& objects)
@@ -130,11 +127,11 @@ namespace rayTracer
 			world_bbox.Extend(bbox);
 			m_Objects.push_back(obj);
 		}
-		//world_bbox.Min.x -= EPSILON; world_bbox.Min.y -= EPSILON; world_bbox.Min.z -= EPSILON;
-		//world_bbox.Max.x += EPSILON; world_bbox.Max.y += EPSILON; world_bbox.Max.z += EPSILON;
+		world_bbox.Min.x -= EPSILON; world_bbox.Min.y -= EPSILON; world_bbox.Min.z -= EPSILON;
+		world_bbox.Max.x += EPSILON; world_bbox.Max.y += EPSILON; world_bbox.Max.z += EPSILON;
 		root->SetAABB(world_bbox);
 		m_BVHNodes.push_back(root);
-		BuildRecursive(0, m_Objects.size(), root, 0); // -> root node takes all the 
+		BuildRecursive(0, m_Objects.size(), root, 0);
 	}
 
 	void BVH::BuildRecursive(int leftIndex, int rightIndex, BVHNode* node, uint32_t depth)
@@ -158,7 +155,7 @@ namespace rayTracer
 			std::sort(m_Objects.begin() + leftIndex, m_Objects.begin() + rightIndex, cmp);
 			
 			// Find split
-			Vec3 midPoint = node->getAABB().Centroid();
+			Vec3 midPoint = node->GetAABB().Centroid();
 			int splitIndex = GetSplitIndex(m_Objects, leftIndex, rightIndex, midPoint, largestAxis);
 
 			// If one side is empty - use median split
@@ -209,11 +206,11 @@ namespace rayTracer
 				// Check hit child nodes
 				BVHNode* leftNode = m_BVHNodes[currentNode->GetIndex()];
 				float tLeft;
-				bool leftHit = (leftNode->getAABB().Intercepts(ray, tLeft) && tLeft < closestHit.Tdist);
+				bool leftHit = (leftNode->GetAABB().Intercepts(ray, tLeft) && tLeft < closestHit.Tdist);
 
 				BVHNode* rightNode = m_BVHNodes[currentNode->GetIndex() + 1.0];
 				float tRight;
-				bool rightHit = (rightNode->getAABB().Intercepts(ray, tRight) && tRight < closestHit.Tdist);
+				bool rightHit = (rightNode->GetAABB().Intercepts(ray, tRight) && tRight < closestHit.Tdist);
 
 				if (leftHit && rightHit)
 				{

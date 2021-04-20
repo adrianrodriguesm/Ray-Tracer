@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <Renderer/Grid.h>
+#include <Math/Maths.h>
 namespace rayTracer
 {
 	/////////////////////////////////////////////////////////////////////// OpenGL error callbacks
@@ -94,10 +95,10 @@ namespace rayTracer
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
 		// Antialiasing
-		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
-		AccelerationStructure currentAccelerationStruct = AccelerationStructure::GRID;
+		AccelerationStructure currentAccelerationStruct = AccelerationStructure::BVH;
 		Grid* Grid;
 		BVH* Bvh;
 		// Timer
@@ -110,6 +111,7 @@ namespace rayTracer
 	void SceneRenderer::Init()
 	{
 		Sample::SwichAntialiasingMode(s_Data.antialiasingMode);
+		s_Data.RenderMode = Application::Get().GetSpecification().Mode;
 		InitData();
 		CreateShaders();
 		CreateBuffers();
@@ -389,7 +391,7 @@ namespace rayTracer
 				// Calculate Color
 				for each (Vec2 sampleOffset in samplingOffsets)
 				{
-					if(s_Data.antialiasingMode != AntialiasingMode::NONE)
+					if(s_Data.antialiasingMode != AntialiasingMode::NONE && s_Data.DataScene.Camera->GetAperture() > 0)
 					{
 						Ray ray = s_Data.DataScene.Camera->PrimaryLensRay(pixel + sampleOffset);
 						color += TraceRays(ray, 1, 1.0);
@@ -412,9 +414,9 @@ namespace rayTracer
 					color = utils::ConvertColorFromLinearToGammaSpace(color);
 
 				// Update Image Data
-				s_Data.ImageData[counter++] = (uint8_t)color.r;
-				s_Data.ImageData[counter++] = (uint8_t)color.g;
-				s_Data.ImageData[counter++] = (uint8_t)color.b;
+				s_Data.ImageData[counter++] = u8fromfloat(color.r);
+				s_Data.ImageData[counter++] = u8fromfloat(color.g);
+				s_Data.ImageData[counter++] = u8fromfloat(color.b);
 
 				if (s_Data.RenderMode == RenderMode::DrawMode)
 				{
@@ -437,7 +439,10 @@ namespace rayTracer
 		}
 
 		// Render Data
-		//Flush();
+		if (s_Data.RenderMode == RenderMode::GenerateImage)
+		{
+			GenerateImage();
+		}
 	}
 	std::vector<Vec2> SceneRenderer::GetLightSamplingArray()
 	{
@@ -509,9 +514,16 @@ namespace rayTracer
 
 	void SceneRenderer::GenerateImage()
 	{
-		printf("Drawing finished!\n");
+		printf("Rendering finished! - Saving image...\n");
 		auto msg = SaveImage("RT_Output.png");
-		ASSERT(msg == IL_NO_ERROR, "Image file created\n");
+		if (msg == IL_NO_ERROR)
+		{
+			printf("Image file created\n");
+			exit(0);
+		}
+		else {
+			printf("Error: Image file could not be created\n");
+		}
 		
 	}
 

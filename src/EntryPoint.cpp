@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 	appSpec.argc = argc;
 	appSpec.argv = argv;
 	// TODO : currently only one mode is supported
-	appSpec.Mode = RenderMode::DrawMode;
+	appSpec.Mode = RenderMode::GenerateImage;
 	Application* app = new Application(appSpec);
 	app->Run();
 	delete app;

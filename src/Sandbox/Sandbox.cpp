@@ -15,6 +15,7 @@ Sandbox::~Sandbox()
 void Sandbox::OnAttach()
 {
 	InitScene();
+	OnWindowResize(RES_WIDTH, RES_HEIGHT);
 }
 
 void Sandbox::OnDetach()

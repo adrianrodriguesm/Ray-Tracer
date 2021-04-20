@@ -284,7 +284,7 @@ namespace rayTracer
 		// If we reach the max deth end the recursive call
 		if (depth >= s_Data.DataScene.MaxDepth)
 			return color;
-		
+
 		// Refracted
 		if (material->GetTransmittance() > 0)
 		{
@@ -334,7 +334,8 @@ namespace rayTracer
 	}
 	Vec3 SceneRenderer::BlinnPhong(Material* mat, Light* light, Vec3& lightDir, Vec3& viewDir, Vec3& normal, float intensity)
 	{
-		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);
+		float diffuseIntensity = std::fmax(DotProduct(lightDir, normal), 0.0f);			
+
 		if (diffuseIntensity > 0)
 		{
 			// Diffuse
@@ -394,12 +395,12 @@ namespace rayTracer
 					if(s_Data.antialiasingMode != AntialiasingMode::NONE && s_Data.DataScene.Camera->GetAperture() > 0)
 					{
 						Ray ray = s_Data.DataScene.Camera->PrimaryLensRay(pixel + sampleOffset);
-						color += TraceRays(ray, 1, 1.0);
+						color += TraceRays(ray, 1, 1.0f);
 					}
 					else
 					{
 						Ray ray = s_Data.DataScene.Camera->PrimaryCenterRay(pixel + sampleOffset);
-						color += TraceRays(ray, 1, 1.0);
+						color += TraceRays(ray, 1, 1.0f);
 					}
 				}
 				color = color / samplingOffsets.size();

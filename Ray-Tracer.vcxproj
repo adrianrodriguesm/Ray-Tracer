@@ -217,6 +217,7 @@
     <ClCompile Include="src\Renderer\Light.cpp" />
     <ClCompile Include="src\Renderer\Sample.cpp" />
     <ClCompile Include="src\Renderer\SceneRenderer.cpp" />
+    <ClCompile Include="src\Sandbox\CameraController.cpp" />
     <ClCompile Include="src\Sandbox\Sandbox.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -252,6 +253,7 @@
     <ClInclude Include="src\Renderer\Material.h" />
     <ClInclude Include="src\Renderer\Sample.h" />
     <ClInclude Include="src\Renderer\SceneRenderer.h" />
+    <ClInclude Include="src\Sandbox\CameraController.h" />
     <ClInclude Include="src\Sandbox\Sandbox.h" />
     <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\Math\Vector.h" />

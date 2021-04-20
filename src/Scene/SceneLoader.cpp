@@ -170,7 +170,7 @@ namespace rayTracer
 					next_token(file, token, "focal");
 					file >> focal_ratio;
 					// Create Camera
-					AplicationSpecification appSpec = Application::Get().GetSpecification();
+					ApplicationSpecification appSpec = Application::Get().GetSpecification();
 					camera = new Camera(from, at, up, fov, hither, 100.0f * hither, appSpec.Width, appSpec.Height, aperture_ratio, focal_ratio);
 					scene->SetCamera(camera);
 				}
@@ -208,7 +208,7 @@ namespace rayTracer
 		return scene;
 	}
 
-	Scene* SceneLoader::Create_random_scene() {
+	Scene* SceneLoader::CreateRandomScene() {
 		Camera* camera;
 		Material* material;
 		Sphere* sphere;

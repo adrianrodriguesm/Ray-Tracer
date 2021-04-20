@@ -9,15 +9,15 @@ namespace rayTracer
 	{
 	public:
 		virtual ~Object();
-		Material* GetMaterial() { return m_Material; }
-		void SetMaterial(Material* a_Mat) { m_Material = a_Mat; }
+		Material* GetMaterial() { return m_Material.get(); }
+		void SetMaterial(Material* material) { m_Material = std::shared_ptr<Material>(material); }
 		virtual RayCastHit Intercepts(Ray& r) = 0;
 		virtual Vec3 GetNormal(Vec3 point) = 0;
 		virtual AABB GetBoundingBox() = 0;
 		virtual bool IsInsideObject(const Vec3& point, const Ray& ray) = 0;
 
 	protected:
-		Material* m_Material = nullptr;
+		std::shared_ptr<Material> m_Material = nullptr;
 
 	};
 
@@ -87,7 +87,7 @@ namespace rayTracer
 		float m_Radius, SqRadius;
 	};
 
-	class Box : public Object   //Axis aligned box: another geometric object
+	class Box : public Object 
 	{
 	public:
 		Box(Vec3& minPoint, Vec3& maxPoint);

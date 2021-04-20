@@ -3,7 +3,7 @@
 
 namespace rayTracer
 {
-#define VER_2 1
+#define VER_2 0
 	BVH::BVHNode::BVHNode() 
 
 	{
@@ -21,14 +21,12 @@ namespace rayTracer
 		this->n_objs = n_objs_;
 	}
 
-	void BVH::BVHNode::makeNode(unsigned int left_index_) {
+	void BVH::BVHNode::MakeNode(unsigned int left_index_) 
+	{
 		this->leaf = false;
 		this->index = left_index_;
 		this->n_objs = 0; 
 	}
-
-
-
 #pragma region Build Functions
 
 	int GetLargestAxis(const std::vector<Object*>& objs, int ind1, int ind2)
@@ -107,6 +105,18 @@ namespace rayTracer
 		return result;
 	}
 
+	BVH::~BVH()
+	{
+		m_Objects.clear();
+#if VER_2 == 0
+		for (auto bvhNode : m_BVHNodes)
+		{
+			delete bvhNode;
+		}
+		m_BVHNodes.clear();
+#endif
+	}
+
 	void BVH::Build(std::vector<Object*>& objects)
 	{
 #if VER_2
@@ -138,7 +148,7 @@ namespace rayTracer
 		//world_bbox.Min.x -= EPSILON; world_bbox.Min.y -= EPSILON; world_bbox.Min.z -= EPSILON;
 		//world_bbox.Max.x += EPSILON; world_bbox.Max.y += EPSILON; world_bbox.Max.z += EPSILON;
 		root->SetAABB(world_bbox);
-		nodes.push_back(root);
+		m_BVHNodes.push_back(root);
 		BuildRecursive(0, m_Objects.size(), root, 0); // -> root node takes all the 
 #endif // VER_2
 	}
@@ -154,7 +164,7 @@ namespace rayTracer
 		else 
 		{
 			// Current node index is equal to the left child node index
-			node->makeNode(nodes.size());
+			node->MakeNode(m_BVHNodes.size());
 
 			// Sort objects by largest axis
 			Comparator cmp = Comparator();
@@ -178,8 +188,8 @@ namespace rayTracer
 			BVHNode* right = new BVHNode();
 			left->SetAABB(CalculateBoundingBox(m_Objects, leftIndex, splitIndex));
 			right->SetAABB(CalculateBoundingBox(m_Objects, splitIndex, rightIndex));
-			nodes.push_back(left);
-			nodes.push_back(right);
+			m_BVHNodes.push_back(left);
+			m_BVHNodes.push_back(right);
 
 			// Recurse
 			depth++;
@@ -310,38 +320,39 @@ namespace rayTracer
 		closestHit.Hit = false;
 
 
-		BVHNode* currentNode = nodes[0];
+		BVHNode* currentNode = m_BVHNodes[0];
 
 		// Check hit world box
-		if (!currentNode->getAABB().Intercepts(ray, tempHit.Tdist))
+		if (!currentNode->GetAABB().Intercepts(ray, tempHit.Tdist))
 			return RayCastHit(false);
+
 
 		// Traverse the BHV
 		while (true)
 		{
-			if (!currentNode->isLeaf())
+			if (!currentNode->IsLeaf())
 			{
 				// Check hit child nodes
-				BVHNode* leftNode = nodes[currentNode->getIndex()];
+				BVHNode* leftNode = m_BVHNodes[currentNode->GetIndex()];
 				float tLeft;
-				bool leftHit = (leftNode->getAABB().intercepts(ray, tLeft) && tLeft < closestHit.Tdist);
+				bool leftHit = (leftNode->GetAABB().Intercepts(ray, tLeft));//&& tLeft < closestHit.Tdist);
 
-				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
+				BVHNode* rightNode = m_BVHNodes[currentNode->GetIndex() + 1.0];
 				float tRight;
-				bool rightHit = (rightNode->getAABB().intercepts(ray, tRight) && tRight < closestHit.Tdist);
+				bool rightHit = (rightNode->GetAABB().Intercepts(ray, tRight));//&& tRight < closestHit.Tdist);
 
 				if (leftHit && rightHit)
 				{
 					// Both hit - stack furthest node for later processing
 					if (tLeft <= tRight)
 					{
-						hit_stack.push(StackItem(rightNode, tRight));
+						m_HitStack.push(StackItem(rightNode, tRight));
 						currentNode = leftNode;
 						continue;
 					}
 					else
 					{
-						hit_stack.push(StackItem(leftNode, tLeft));
+						m_HitStack.push(StackItem(leftNode, tLeft));
 						currentNode = rightNode;
 						continue;
 					}
@@ -363,7 +374,7 @@ namespace rayTracer
 			else
 			{
 				// Leaf Node - Process objects
-				for (int i = currentNode->getIndex(); i < (currentNode->getIndex() + currentNode->getNObjs()); i++)
+				for (int i = currentNode->GetIndex(); i < (currentNode->GetIndex() + currentNode->GetNumObjs()); i++)
 				{
 					RayCastHit tempHit = m_Objects[i]->Intercepts(ray);
 					if (tempHit && tempHit.Tdist < closestHit.Tdist)
@@ -374,10 +385,10 @@ namespace rayTracer
 
 			// Stack popping
 			currentNode = nullptr;
-			while (!hit_stack.empty())
+			while (!m_HitStack.empty())
 			{
-				StackItem stackNode = hit_stack.top();
-				hit_stack.pop();
+				StackItem stackNode = m_HitStack.top();
+				m_HitStack.pop();
 				if (stackNode.t < closestHit.Tdist)
 				{
 					currentNode = stackNode.ptr;
@@ -452,37 +463,38 @@ namespace rayTracer
 #else
 		RayCastHit tempHit;
 
-		BVHNode* currentNode = nodes[0];
+		BVHNode* currentNode = m_BVHNodes[0];
 
 		// Check hit world box
-		if (!currentNode->getAABB().Intercepts(ray, tempHit.Tdist))
+		if (!currentNode->GetAABB().Intercepts(ray, tempHit.Tdist))
 			return false;
 
 
 		while (true)
 		{
-			if (!currentNode->isLeaf())
+			if (!currentNode->IsLeaf())
 			{
 				// Check hit child nodes
-				BVHNode* leftNode = nodes[currentNode->getIndex()];
+				BVHNode* leftNode = m_BVHNodes[currentNode->GetIndex()];
 				float tLeft;
-				bool leftHit = (leftNode->getAABB().Intercepts(ray, tLeft) && tLeft < lightDist);
+				bool leftHit = (leftNode->GetAABB().Intercepts(ray, tLeft) && tLeft < lightDist);
 
-				BVHNode* rightNode = nodes[currentNode->getIndex() + 1.0];
+				BVHNode* rightNode = m_BVHNodes[currentNode->GetIndex() + 1.0];
 				float tRight;
-				bool rightHit = (rightNode->getAABB().Intercepts(ray, tRight) && tRight < lightDist);
+				bool rightHit = (rightNode->GetAABB().Intercepts(ray, tRight) && tRight < lightDist);
 
 				if (leftHit && rightHit)
 				{
 					// Both hit - stack furthest node for later processing
 					if (tLeft <= tRight)
 					{
-						hit_stack.push(StackItem(rightNode, tRight));
+						m_HitStack.push(StackItem(rightNode, tRight));
 						currentNode = leftNode;
 						continue;
 					}
-					else {
-						hit_stack.push(StackItem(leftNode, tLeft));
+					else 
+					{
+						m_HitStack.push(StackItem(leftNode, tLeft));
 						currentNode = rightNode;
 						continue;
 					}
@@ -505,7 +517,7 @@ namespace rayTracer
 			}
 			else {
 				// Leaf Node - Process objects
-				for (int i = currentNode->getIndex(); i < (currentNode->getIndex() + currentNode->getNObjs()); i++)
+				for (int i = currentNode->GetIndex(); i < (currentNode->GetIndex() + currentNode->GetNumObjs()); i++)
 				{
 					if (m_Objects[i]->GetMaterial()->GetTransmittance() > 0)
 						continue; // Transparent object
@@ -519,10 +531,10 @@ namespace rayTracer
 
 			// Stack popping
 			currentNode = nullptr;
-			while (!hit_stack.empty())
+			while (!m_HitStack.empty())
 			{
-				StackItem stackNode = hit_stack.top();
-				hit_stack.pop();
+				StackItem stackNode = m_HitStack.top();
+				m_HitStack.pop();
 				if (stackNode.t < lightDist)
 				{
 					currentNode = stackNode.ptr;

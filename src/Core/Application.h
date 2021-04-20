@@ -8,7 +8,7 @@ namespace rayTracer
 	{
 		DrawMode, GenerateImage, Default = DrawMode
 	};
-	struct AplicationSpecification
+	struct ApplicationSpecification
 	{
 		Layer* AppLayer = nullptr;
 		std::string Caption = "Distribution Ray-Tracer";
@@ -21,14 +21,14 @@ namespace rayTracer
 	{
 	private:
 		// This is private because is Singleton
-		Application(AplicationSpecification spec);
+		Application(ApplicationSpecification spec);
 		virtual ~Application();
 		friend int ::main(int argc, char** argv);
 	public:
 		void Run();
 		static Application& Get() { return *s_Instance; }
 		int GetNativeWindow() const { return m_GlutWindow; }
-		const AplicationSpecification& GetSpecification() const { return m_Spec; }
+		const ApplicationSpecification& GetSpecification() const { return m_Spec; }
 		Layer& GetLayer() { return *m_Spec.AppLayer; }
 		inline void SetResolution(int width, int height) { m_Spec.Width = width; m_Spec.Height = height; }
 
@@ -40,7 +40,7 @@ namespace rayTracer
 
 	private:
 		static Application* s_Instance;
-		AplicationSpecification m_Spec;
+		ApplicationSpecification m_Spec;
 		int m_GlutWindow;
 	};
 }

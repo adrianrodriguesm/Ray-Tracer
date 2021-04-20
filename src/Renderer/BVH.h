@@ -9,7 +9,7 @@ namespace rayTracer
 	{
 	public:
 		BVH() = default;
-		virtual ~BVH() {}
+		virtual ~BVH();
 		int GetNumObjects() { return m_Objects.size(); }
 		void Build(std::vector<Object*>& objects);
 		RayCastHit Intercepts(Ray& ray);
@@ -88,11 +88,11 @@ namespace rayTracer
 			BVHNode();
 			void SetAABB(AABB& bbox_);
 			void MakeLeaf(unsigned int index_, unsigned int n_objs_);
-			void makeNode(unsigned int left_index_);
-			bool isLeaf() { return leaf; }
-			unsigned int getIndex() { return index; }
-			unsigned int getNObjs() { return n_objs; }
-			AABB& getAABB() { return bbox; };
+			void MakeNode(unsigned int left_index_);
+			bool IsLeaf() { return leaf; }
+			unsigned int GetIndex() { return index; }
+			unsigned int GetNumObjs() { return n_objs; }
+			AABB& GetAABB() { return bbox; };
 		};
 		struct StackItem
 		{
@@ -104,12 +104,11 @@ namespace rayTracer
 		void BuildRecursive(int leftIndex, int rightIndex, BVHNode* node, uint32_t depth);
 		void ConstructRecursive(uint32_t numObject, const AABB& bbox);
 	private:
-		int Threshold = 2;
 		uint32_t m_Depth = 1;
 		std::vector<Object*> m_Objects;
-		std::vector<BVH::BVHNode*> nodes;
+		std::vector<BVH::BVHNode*> m_BVHNodes;
 		std::vector<BVH::Node> m_Nodes;
-		std::stack<StackItem> hit_stack;
+		std::stack<StackItem> m_HitStack;
 
 	};
 

@@ -18,7 +18,7 @@ namespace rayTracer
 	private:
 		Vec3 FindMinBounds();
 		Vec3 FindMaxBounds();
-		RayCastHit GetClossestHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray);
+		RayCastHit GetClosestHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray);
 		RayCastHit GetShadowHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray, float lightDist);
 	private:
 		std::vector<Object*> m_SceneObjects;

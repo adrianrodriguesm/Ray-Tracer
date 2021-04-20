@@ -7,6 +7,6 @@ namespace rayTracer
 	{
 	public:
 		static Scene* LoadP3D(const std::string filepath);
-		static Scene* Create_random_scene();
+		static Scene* CreateRandomScene();
 	};
 }

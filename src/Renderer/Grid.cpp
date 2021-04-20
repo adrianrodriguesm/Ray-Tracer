@@ -61,6 +61,7 @@ namespace rayTracer
 	}
 	RayCastHit Grid::Intercepts(Ray& ray)
 	{	
+		// Fisrt we need to check if the ray hit the Grid's AABB
 		Vec3 min, max;
 		Vec3 delta;
 		for (uint32_t index = 0; index < 3; index++)
@@ -109,10 +110,13 @@ namespace rayTracer
 
 		// Find the nearest intersection
 		Vec3 deltaT = (max - min) / m_CellNumberPerDim;
-		Vec3 next; 
+		// Delta to move along each axis
+		Vec3 next;
+		// Step -> to move along cellcoordinate | Stop -> stop traverse point
 		Vec3Int step, stop;
 		for (uint32_t index = 0; index < 3; index++)
 		{
+			// Check if the ray direction is positive in that direction
 			if (delta[index] > 0)
 			{
 				next[index] = min[index] + (cellCoordinates[index] + 1) * deltaT[index];
@@ -121,9 +125,10 @@ namespace rayTracer
 			}
 			else
 			{
+				// If delta is 0 that means that the ray does not move in that direction
 				if (delta[index] == 0)
 					next[index] = FLOAT_MAX;
-				else
+				else // If the ray move in a negative direction inside the grid
 					next[index] = min[index] + (m_CellNumberPerDim[index] - cellCoordinates[index]) * deltaT[index];
 				
 				step[index] --;
@@ -140,7 +145,9 @@ namespace rayTracer
 
 			if (next.x < next.y && next.x < next.z)
 			{			
-				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				RayCastHit hit = GetClosestHitInsideCell(sceneObject, ray);
+				// Check if the ray hit and if the 
+				// object is inside the current cell
 				if (hit && hit.Tdist < next.x)
 					return hit;
 
@@ -152,8 +159,9 @@ namespace rayTracer
 			}
 			else if (next.y < next.z)
 			{
-
-				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				RayCastHit hit = GetClosestHitInsideCell(sceneObject, ray);
+				// Check if the ray hit and if the 
+				// object is inside the current cell
 				if (hit && hit.Tdist < next.y)
 					return hit;
 
@@ -165,7 +173,9 @@ namespace rayTracer
 			}
 			else
 			{
-				RayCastHit hit = GetClossestHitInsideCell(sceneObject, ray);
+				RayCastHit hit = GetClosestHitInsideCell(sceneObject, ray);
+				// Check if the ray hit and if the 
+				// object is inside the current cell
 				if (hit && hit.Tdist < next.z)
 					return hit;
 
@@ -230,7 +240,9 @@ namespace rayTracer
 
 		// Find shadow intersection
 		Vec3 deltaT = (max - min) / m_CellNumberPerDim;
+		// Delta to move along each axis
 		Vec3 next;
+		// Step -> to move along cellcoordinate | Stop -> stop traverse point
 		Vec3Int step, stop;
 		for (uint32_t index = 0; index < 3; index++)
 		{
@@ -258,11 +270,11 @@ namespace rayTracer
 			// Get the objects of that cell
 			uint32_t index = cellCoordinates.x + m_CellNumberPerDim.x * cellCoordinates.y + m_CellNumberPerDim.x * m_CellNumberPerDim.y * cellCoordinates.z;
 			auto& sceneObject = m_Cells[index];
-
+			// Move in X
 			if (next.x < next.y && next.x < next.z)
 			{
 				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
-				if (hit)
+				if (hit && !hit.Object->GetMaterial()->GetTransmittance())
 					return true;
 
 				next.x += deltaT.x;
@@ -271,12 +283,11 @@ namespace rayTracer
 				if (cellCoordinates.x == stop.x)
 					return false;
 			}
-			else if (next.y < next.z)
+			else if (next.y < next.z) // Move in Y
 			{
-
 				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
-				if (hit)
-					return hit;
+				if (hit && !hit.Object->GetMaterial()->GetTransmittance())
+					return true;
 
 				next.y += deltaT.y;
 				cellCoordinates.y += step.y;
@@ -284,10 +295,10 @@ namespace rayTracer
 				if (cellCoordinates.y == stop.y)
 					return false;
 			}
-			else
+			else // Move in Z
 			{
 				RayCastHit hit = GetShadowHitInsideCell(sceneObject, ray, lightDist);
-				if (hit)
+				if (hit && !hit.Object->GetMaterial()->GetTransmittance())
 					return true;
 
 				next.z += deltaT.z;
@@ -296,8 +307,6 @@ namespace rayTracer
 				if (cellCoordinates.z == stop.z)
 					return false;
 			}
-
-
 		}
 		return false;
 	}
@@ -339,7 +348,7 @@ namespace rayTracer
 
 		return maxBounds;
 	}
-	RayCastHit Grid::GetClossestHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray)
+	RayCastHit Grid::GetClosestHitInsideCell(std::vector<Object*> sceneObjects, Ray& ray)
 	{
 		if (sceneObjects.empty())
 			return { false };

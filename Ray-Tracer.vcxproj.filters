@@ -22,6 +22,7 @@
     <ClCompile Include="src\Renderer\Sample.cpp" />
     <ClCompile Include="src\Sandbox\Sandbox.cpp" />
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Sandbox\CameraController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
@@ -51,6 +52,7 @@
     <ClInclude Include="src\Sandbox\Sandbox.h" />
     <ClInclude Include="src\Math\PerlinNoise.hpp" />
     <ClInclude Include="src\Math\Maths.h" />
+    <ClInclude Include="src\Sandbox\CameraController.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox\back.jpg" />

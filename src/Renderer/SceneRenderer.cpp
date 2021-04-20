@@ -73,7 +73,7 @@ namespace rayTracer
 			std::vector<Object*> Objects;
 			Camera* Camera = nullptr;
 			Scene* Scene = nullptr;
-			uint32_t Width = 512, Height = 512;
+			uint32_t Width = 0, Height = 0;
 			uint32_t MaxDepth = 3;
 		} DataScene;
 		// Rendering Mode
@@ -163,7 +163,8 @@ namespace rayTracer
 	void SceneRenderer::OnResize(int width, int height)
 	{
 		s_Data.DataScene.Width = width;
-		s_Data.DataScene.Height = width;
+		s_Data.DataScene.Height = height;
+		
 		DestroyData();
 		InitData();
 
@@ -341,8 +342,8 @@ namespace rayTracer
 
 			// Specular
 			Vec3 halfwayVector = -viewDir + lightDir;
-			Vec3 reflected = halfwayVector.Normalized();
-			float specAngle = std::fmax(DotProduct(reflected, normal), 0.0f);
+			halfwayVector = halfwayVector.Normalized();
+			float specAngle = std::fmax(DotProduct(halfwayVector, normal), 0.0f);
 			float specular = pow(specAngle, mat->GetShine());
 			float ksSpec = mat->GetSpecular() * specular;
 			Vec3 specularColor = light->color * ksSpec * mat->GetSpecColor();
@@ -502,7 +503,7 @@ namespace rayTracer
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		/**/
-		//CheckOpenGLError("ERROR: Could not draw scene.");
+		CheckOpenGLError("ERROR: Could not draw scene.");
 
 		glutSwapBuffers();
 	}

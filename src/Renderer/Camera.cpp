@@ -70,6 +70,7 @@ namespace rayTracer
 	{
 		Vec2 lensSample = CalculateSamplePoint();
 		Vec3 rayOrigin = m_Eye + lensSample.x * m_XAxis + lensSample.y * m_YAxis;
+		
 		// Dir eye space
 		Vec3 pointInFocalPlane;
 		pointInFocalPlane.x = m_Width * (pixelSample.x / m_WidthRes - 0.5f) * m_FocalRatio;

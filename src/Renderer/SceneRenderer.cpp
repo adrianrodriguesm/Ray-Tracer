@@ -94,7 +94,7 @@ namespace rayTracer
 		bool toneMappingActivated = true;
 		bool gammaCorrectionActivated = true;
 		// Antialiasing
-		AntialiasingMode antialiasingMode = AntialiasingMode::JITTERING;
+		AntialiasingMode antialiasingMode = AntialiasingMode::NONE;
 		std::vector<Vec2> lightSamplingOffsetGrid; // The grid of offsets for the shadow sampling. Used in the Light class
 		// Acceleration Structures
 		AccelerationStructure currentAccelerationStruct = AccelerationStructure::BVH;
@@ -110,8 +110,6 @@ namespace rayTracer
 	void SceneRenderer::Init()
 	{
 		Sample::SwichAntialiasingMode(s_Data.antialiasingMode);
-		//s_Data.DataScene.Width = Application::Get().GetSpecification().Width;
-		//s_Data.DataScene.Height = Application::Get().GetSpecification().Height;
 		InitData();
 		CreateShaders();
 		CreateBuffers();
@@ -359,9 +357,9 @@ namespace rayTracer
 			Vec3 diffuseColor = light->color * KdLamb * mat->GetDiffColor();
 
 			// Specular
-			Vec3 halfwayVector = viewDir + lightDir;
-			Vec3 reflected = halfwayVector.Normalized();
-			float specAngle = std::fmax(DotProduct(reflected, normal), 0.0f);
+			Vec3 halfwayVector = -viewDir + lightDir;
+			halfwayVector = halfwayVector.Normalized();
+			float specAngle = std::fmax(DotProduct(halfwayVector, normal), 0.0f);
 			float specular = pow(specAngle, mat->GetShine());
 			float ksSpec = mat->GetSpecular() * specular;
 			Vec3 specularColor = light->color * ksSpec * mat->GetSpecColor();

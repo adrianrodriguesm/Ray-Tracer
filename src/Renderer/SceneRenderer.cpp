@@ -104,6 +104,7 @@ namespace rayTracer
 		// Timer
 		bool ShowTime = true;
 		std::vector<Vec3> HemishepreSamples;
+		bool GenerateImage = false;
 	};
 	static RendererData s_Data;
 
@@ -177,6 +178,12 @@ namespace rayTracer
 		s_Data.gammaCorrectionActivated = !s_Data.gammaCorrectionActivated;
 		std::cout << "Gamma correction: " << (s_Data.gammaCorrectionActivated ? "On" : "Off") << std::endl;
 		s_Data.ShowTime = true;
+	}
+
+	void SceneRenderer::ToggleGenerateImage()
+	{
+		s_Data.GenerateImage = true;
+		std::cout << "Generate image frame enabled" << std::endl;
 	}
 
 	void SceneRenderer::ToggleToneMapping() 
@@ -440,10 +447,8 @@ namespace rayTracer
 		}
 
 		// Render Data
-		if (s_Data.RenderMode == RenderMode::GenerateImage)
-		{
+		if (s_Data.RenderMode == RenderMode::GenerateImage || s_Data.GenerateImage)
 			GenerateImage();
-		}
 	}
 	std::vector<Vec2> SceneRenderer::GetLightSamplingArray()
 	{
@@ -518,14 +523,15 @@ namespace rayTracer
 		printf("Rendering finished! - Saving image...\n");
 		auto msg = SaveImage("RT_Output.png");
 		if (msg == IL_NO_ERROR)
-		{
 			printf("Image file created\n");
-			exit(0);
-		}
-		else {
+		else 
 			printf("Error: Image file could not be created\n");
+
+		if (s_Data.GenerateImage)
+		{
+			s_Data.GenerateImage = false;
+			std::cout << "Generated image frame disabled!" << std::endl;
 		}
-		
 	}
 
 	uint32_t SceneRenderer::SaveImage(const std::string& filename)

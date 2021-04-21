@@ -103,6 +103,10 @@ void Sandbox::OnKeyPress(unsigned char key, int xx, int yy)
 		SceneRenderer::ToggleShadows();
 		break;
 
+	case 'i':
+		SceneRenderer::ToggleGenerateImage();
+		break;
+
 	case'+':
 		SceneRenderer::ChangeTracingDepth(1);
 		break;
@@ -222,6 +226,7 @@ void Sandbox::InitScene()
 	std::cout << "'G' - Toggle Off/On Gamma Correction" << std::endl << std::endl;
 	std::cout << "'T' - Toggle Off/On Tonemapping" << std::endl << std::endl;
 	std::cout << "'S' - Toggle Off/On Shadows (Global)" << std::endl << std::endl;
+	std::cout << "'I' - Toggle to take an screenshot" << std::endl << std::endl;
 	std::cout << "'+'/'-' - Increment/Decrement Max Depth" << std::endl << std::endl;
 	std::cout << "'UP'/'DOWN' - Increment/Decrement Aperture" << std::endl << std::endl;
 	std::cout << "'1' - No antialiasing | '2' - Regular Sampling | '3' - Jittering" << std::endl << std::endl;

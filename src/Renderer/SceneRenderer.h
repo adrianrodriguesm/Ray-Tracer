@@ -35,6 +35,7 @@ namespace rayTracer
 
 		// Rendering Options
 		static void ToggleGammaCorrection();
+		static void ToggleGenerateImage();
 		static void ToggleToneMapping();
 		static void ToggleShadows();
 		static void ChangeTracingDepth(int change);

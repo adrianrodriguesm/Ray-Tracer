@@ -10,7 +10,6 @@ int main(int argc, char** argv)
 	appSpec.AppLayer = layer;
 	appSpec.argc = argc;
 	appSpec.argv = argv;
-	// TODO : currently only one mode is supported
 	appSpec.Mode = RenderMode::GenerateImage;
 	Application* app = new Application(appSpec);
 	app->Run();
